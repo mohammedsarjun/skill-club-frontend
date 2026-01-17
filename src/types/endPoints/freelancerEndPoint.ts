@@ -36,6 +36,7 @@ const freelancerRouterEndPoints = {
   createDispute: "/freelancer/disputes",
   getDisputeById: (disputeId: string) => `/freelancer/disputes/${disputeId}`,
   getDisputesByContract: (contractId: string) => `/freelancer/contracts/${contractId}/disputes`,
+  raiseDisputeForCancelledContract: (contractId: string) => `/freelancer/contracts/${contractId}/raise-dispute`,
   submitContractDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/deliverables`,
   submitMilestoneDeliverable: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/deliverables`,
   requestMilestoneExtension: (contractId: string) => `/freelancer/contracts/${contractId}/milestones/extension`,
@@ -70,6 +71,7 @@ const freelancerRouterEndPoints = {
   getDashboardEarnings: '/freelancer/dashboard/earnings',
   getDashboardMeetings: '/freelancer/dashboard/meetings',
   getDashboardReviewStats: '/freelancer/dashboard/review-stats',
+  approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`
 };
 
 export default freelancerRouterEndPoints;

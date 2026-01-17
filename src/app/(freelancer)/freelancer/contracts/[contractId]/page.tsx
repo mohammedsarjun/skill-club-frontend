@@ -31,6 +31,8 @@ import { CancelContractModal } from './components/CancelContractModal';
 import toast from 'react-hot-toast';
 import { MeetingProposal } from '@/types/interfaces/IMeetingProposal';
 import MeetingPanel from './components/workspace/MeetingPanel';
+import { FreelancerCancelledContractAlert } from './components/FreelancerCancelledContractAlert';
+import { RaiseDisputeModal } from './components/RaiseDisputeModal';
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] = useState<IFreelancerContractDetail | null>(null);
@@ -44,6 +46,8 @@ function ContractDetails() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [isMeetingProposalModalOpen, setIsMeetingProposalModalOpen] = useState(false);
+  const [isRaiseDisputeModalOpen, setIsRaiseDisputeModalOpen] = useState(false);
+  const [isRaisingDispute, setIsRaisingDispute] = useState(false);
 
   const params = useParams();
   const router = useRouter();
@@ -64,8 +68,53 @@ function ContractDetails() {
     setIsReviewModalOpen(true);
   }, []);
 
+  const loadReviewStatus = useCallback(async () => {
+    if (!contractId) return;
+    try {
+      const resp = await freelancerActionApi.getReviewStatus(String(contractId));
+      if (resp?.hasReviewed !== undefined) {
+        setHasReviewed(resp.hasReviewed);
+      }
+    } catch (error) {
+      console.error('Error loading review status:', error);
+    }
+  }, [contractId]);
+
   const handleReviewSubmitSuccess = useCallback(async () => {
     await loadReviewStatus();
+  }, [loadReviewStatus]);
+
+  const handleOpenRaiseDispute = useCallback(() => {
+    setIsRaiseDisputeModalOpen(true);
+  }, []);
+
+  const handleRaiseDispute = useCallback(async (notes: string) => {
+    if (!contractId) return;
+    setIsRaisingDispute(true);
+    
+    try {
+      const result = await freelancerActionApi.raiseDisputeForCancelledContract(String(contractId), notes);
+      
+      if (result?.success) {
+        await Swal.fire({
+          title: 'Dispute Raised',
+          text: 'You have raised a dispute. The admin will resolve it within 3–5 business days and notify you.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+        setIsRaiseDisputeModalOpen(false);
+        window.location.reload();
+      } else {
+        Swal.fire('Error', result?.message || 'Failed to raise dispute', 'error');
+      }
+    } catch (err) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                           (err as Error)?.message || 
+                           'Unexpected error while raising dispute';
+      Swal.fire('Error', errorMessage, 'error');
+    } finally {
+      setIsRaisingDispute(false);
+    }
   }, [contractId]);
 
   const handleCancelContract = useCallback(async () => {
@@ -130,18 +179,6 @@ function ContractDetails() {
       Swal.fire('Error', errorMessage, 'error');
     } finally {
       setIsCancelling(false);
-    }
-  }, [contractId]);
-
-  const loadReviewStatus = useCallback(async () => {
-    if (!contractId) return;
-    try {
-      const resp = await freelancerActionApi.getReviewStatus(String(contractId));
-      if (resp?.hasReviewed !== undefined) {
-        setHasReviewed(resp.hasReviewed);
-      }
-    } catch (error) {
-      console.error('Error loading review status:', error);
     }
   }, [contractId]);
 
@@ -290,6 +327,8 @@ function ContractDetails() {
           totalPaid: d.totalPaid || 0,
           balance: d.balance || 0,
           extensionRequest: d.extensionRequest,
+          cancelledBy:d.cancelledBy,
+          hasActiveCancellationDisputeWindow:d.hasActiveCancellationDisputeWindow,
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
@@ -551,6 +590,14 @@ function ContractDetails() {
           {activeTab === 'details' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
+                {contractDetail.cancelledBy && (contractDetail.status === 'cancelled' || contractDetail.status === 'disputed') && (
+                  <FreelancerCancelledContractAlert 
+                    cancelledBy={contractDetail.cancelledBy} 
+                    status={contractDetail.status}
+                    onRaiseDispute={contractDetail.cancelledBy === 'client' && contractDetail.status === 'cancelled' ? handleOpenRaiseDispute : undefined}
+                    hasActiveCancellationDisputeWindow={contractDetail.hasActiveCancellationDisputeWindow}
+                  />
+                )}
                 <ContractTitleCard
                   contractId={contractDetail.contractId}
                   title={contractDetail.title}
@@ -858,6 +905,13 @@ function ContractDetails() {
         onClose={() => setIsMeetingProposalModalOpen(false)}
         onSubmit={handleMeetingProposal}
         contractId={contractId as string}
+      />
+
+      <RaiseDisputeModal
+        isOpen={isRaiseDisputeModalOpen}
+        onClose={() => setIsRaiseDisputeModalOpen(false)}
+        onSubmit={handleRaiseDispute}
+        isSubmitting={isRaisingDispute}
       />
     </>
   );

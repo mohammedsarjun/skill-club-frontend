@@ -1,7 +1,7 @@
 import { Star, Video } from "lucide-react";
 
 interface ActionButtonsProps {
-  status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded';
+  status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
   onRateClient?: () => void;
   onCancelContract?: () => void;
   onScheduleMeeting?: () => void;

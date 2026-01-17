@@ -1,17 +1,35 @@
 "use client";
-import { useState, useCallback } from 'react';
-import { FaUpload, FaCheckCircle, FaExclamationCircle, FaClock, FaFile, FaTrash } from 'react-icons/fa';
-import { IDeliverable } from '@/types/interfaces/IContractWorkspace';
-import { uploadApi } from '@/api/uploadApi';
-import VideoPlayer from '@/components/common/VideoPlayer';
-import ImageViewerModal from '@/components/common/ImageViewer';
-import getMediaType from '@/utils/getMediaType';
+import { useState, useCallback } from "react";
+import {
+  FaUpload,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaClock,
+  FaFile,
+  FaTrash,
+  FaCheck,
+  FaExclamationTriangle,
+} from "react-icons/fa";
+import { IDeliverable } from "@/types/interfaces/IContractWorkspace";
+import { uploadApi } from "@/api/uploadApi";
+import VideoPlayer from "@/components/common/VideoPlayer";
+import ImageViewerModal from "@/components/common/ImageViewer";
+import getMediaType from "@/utils/getMediaType";
+import toast from "react-hot-toast";
+import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 
 interface DeliverablesWorkspaceProps {
   contractId: string;
   currentDeliverables: IDeliverable[];
-  onSubmitDeliverable: (files: { fileName: string; fileUrl: string }[], message: string) => Promise<void>;
-  onResubmitDeliverable: (deliverableId: string, files: { fileName: string; fileUrl: string }[], message: string) => Promise<void>;
+  onSubmitDeliverable: (
+    files: { fileName: string; fileUrl: string }[],
+    message: string
+  ) => Promise<void>;
+  onResubmitDeliverable: (
+    deliverableId: string,
+    files: { fileName: string; fileUrl: string }[],
+    message: string
+  ) => Promise<void>;
   contractStatus?: string;
 }
 
@@ -22,24 +40,26 @@ export const DeliverablesWorkspace = ({
   onResubmitDeliverable,
   contractStatus,
 }: DeliverablesWorkspaceProps) => {
-
-  console.log(currentDeliverables)
+  console.log(currentDeliverables);
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [dragActive, setDragActive] = useState(false);
-  const [isDeliverablesVideoModalOpen, setIsDeliverablesVideoModalOpen] = useState(false);
-  const [isDeliverablesImageModalOpen, setIsDeliverablesImageModalOpen] = useState(false);
+  const [isDeliverablesVideoModalOpen, setIsDeliverablesVideoModalOpen] =
+    useState(false);
+  const [isDeliverablesImageModalOpen, setIsDeliverablesImageModalOpen] =
+    useState(false);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>("");
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("");
 
-  const isUploadDisabled = contractStatus === 'cancelled' || contractStatus === 'disputed';
+  const isUploadDisabled =
+    contractStatus === "cancelled" || contractStatus === "disputed";
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   }, []);
@@ -65,12 +85,15 @@ export const DeliverablesWorkspace = ({
     }
   };
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...newFiles]);
-    }
-  }, []);
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const newFiles = Array.from(e.target.files);
+        setFiles((prev) => [...prev, ...newFiles]);
+      }
+    },
+    []
+  );
 
   const removeFile = useCallback((index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -84,7 +107,7 @@ export const DeliverablesWorkspace = ({
         files.map((file) =>
           uploadApi.uploadFile(file, {
             folder: `contracts/${contractId}/deliverables`,
-            resourceType: 'auto',
+            resourceType: "auto",
           })
         )
       );
@@ -92,12 +115,12 @@ export const DeliverablesWorkspace = ({
         fileName: files[idx].name,
         fileUrl: uploaded.url,
       }));
-   
+
       await onSubmitDeliverable(fileData, message);
       setFiles([]);
-      setMessage('');
+      setMessage("");
     } catch (error) {
-      console.error('Failed to submit deliverable', error);
+      console.error("Failed to submit deliverable", error);
     } finally {
       setUploading(false);
     }
@@ -105,25 +128,33 @@ export const DeliverablesWorkspace = ({
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'submitted':
+      case "submitted":
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
             <FaClock className="text-xs" />
             Submitted
           </span>
         );
-      case 'approved':
+      case "approved":
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
             <FaCheckCircle className="text-xs" />
             Approved
           </span>
         );
-      case 'changes_requested':
+      case "changes_requested":
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
             <FaExclamationCircle className="text-xs" />
             Needs Revision
+          </span>
+        );
+
+      case "change_request_approved":
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-black-800">
+            <FaExclamationCircle className="text-xs" />
+            Request Approved
           </span>
         );
       default:
@@ -131,54 +162,94 @@ export const DeliverablesWorkspace = ({
     }
   };
 
-  const latestDeliverable = currentDeliverables.length > 0 ? currentDeliverables[currentDeliverables.length - 1] : null;
-  const showUploadSection = !isUploadDisabled && (!latestDeliverable || latestDeliverable.status === 'changes_requested');
+  async function approveDeliverableChanges(
+    contractId: string,
+    deliverableId: string
+  ) {
+    try {
+      console.log(deliverableId);
+
+      const response = await freelancerActionApi.approveDeliverableChanges(
+        contractId,
+        deliverableId
+      );
+
+      if (response.success) {
+        toast.success("Revision approved");
+      } else {
+        toast.error("not approved");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const latestDeliverable =
+    currentDeliverables.length > 0
+      ? currentDeliverables[currentDeliverables.length - 1]
+      : null;
+  const showUploadSection =
+    !isUploadDisabled &&
+    (!latestDeliverable ||
+      latestDeliverable.status === "change_request_approved");
 
   return (
     <div className="space-y-6">
       {isUploadDisabled && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <p className="text-amber-800 text-center">
-            {contractStatus === 'cancelled' 
-              ? 'This contract has been cancelled. No new deliverables can be submitted.' 
-              : 'This contract is under dispute. No new deliverables can be submitted.'}
+            {contractStatus === "cancelled"
+              ? "This contract has been cancelled. No new deliverables can be submitted."
+              : "This contract is under dispute. No new deliverables can be submitted."}
           </p>
         </div>
       )}
 
       {currentDeliverables.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Submitted Deliverables</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Submitted Deliverables
+          </h3>
           <div className="space-y-4">
             {currentDeliverables.map((deliverable, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       {getStatusBadge(deliverable.status)}
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                        v{deliverable.version}
+                        v{index + 1}
                       </span>
                       <span className="text-sm text-gray-500">
-                        {new Date(deliverable.submittedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {new Date(deliverable.submittedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                       </span>
                     </div>
                     {deliverable.message && (
-                      <p className="text-gray-700 text-sm mt-2">{deliverable.message}</p>
+                      <p className="text-gray-700 text-sm mt-2">
+                        {deliverable.message}
+                      </p>
                     )}
-                    {deliverable.revisionNote && deliverable.status === 'changes_requested' && (
-                      <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                        <p className="text-sm text-orange-800">
-                          <strong>Revision Note:</strong> {deliverable.revisionNote}
-                        </p>
-                      </div>
-                    )}
+                    {deliverable.revisionNote &&
+                      deliverable.status === "changes_requested" && (
+                        <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <p className="text-sm text-orange-800">
+                            <strong>Revision Note:</strong>{" "}
+                            {deliverable.revisionNote}
+                          </p>
+                        </div>
+                      )}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
@@ -193,6 +264,33 @@ export const DeliverablesWorkspace = ({
                     </a>
                   ))}
                 </div>
+                {deliverable.status == "changes_requested" && (
+                  <div className="flex gap-4 mt-3">
+                    {/* Accept Button */}
+                    <button
+                      className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white
+                   shadow-md transition-all duration-300 hover:bg-emerald-700 hover:shadow-lg active:scale-95"
+                      onClick={() =>
+                        approveDeliverableChanges(
+                          contractId,
+                          deliverable.deliverableId!
+                        )
+                      }
+                    >
+                      <FaCheck className="h-5 w-5" />
+                      Accept
+                    </button>
+
+                    {/* Raise Dispute Button */}
+                    <button
+                      className="flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white
+                   shadow-md transition-all duration-300 hover:bg-red-700 hover:shadow-lg active:scale-95"
+                    >
+                      <FaExclamationTriangle className="h-5 w-5" />
+                      Raise Dispute
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -202,12 +300,16 @@ export const DeliverablesWorkspace = ({
       {showUploadSection && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {latestDeliverable?.status === 'changes_requested' ? 'Submit Revision' : 'Submit Deliverable'}
+            {latestDeliverable?.status === "changes_requested"
+              ? "Submit Revision"
+              : "Submit Deliverable"}
           </h3>
 
           <div
             className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-              dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              dragActive
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-300 hover:border-gray-400"
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -215,7 +317,9 @@ export const DeliverablesWorkspace = ({
             onDrop={handleDrop}
           >
             <FaUpload className="mx-auto text-4xl text-gray-400 mb-3" />
-            <p className="text-gray-600 mb-2">Drag and drop files here, or click to select</p>
+            <p className="text-gray-600 mb-2">
+              Drag and drop files here, or click to select
+            </p>
             <input
               type="file"
               multiple
@@ -234,7 +338,10 @@ export const DeliverablesWorkspace = ({
           {files.length > 0 && (
             <div className="mt-4 space-y-2">
               {files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
                   <div className="flex items-center gap-2">
                     <FaFile className="text-gray-500" />
                     <span className="text-sm text-gray-700">{file.name}</span>
@@ -271,16 +378,20 @@ export const DeliverablesWorkspace = ({
             disabled={files.length === 0 || uploading}
             className="mt-4 w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
-            {uploading ? 'Uploading...' : 'Submit Deliverable'}
+            {uploading ? "Uploading..." : "Submit Deliverable"}
           </button>
         </div>
       )}
 
-      {latestDeliverable?.status === 'approved' && (
+      {latestDeliverable?.status === "approved" && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
           <FaCheckCircle className="mx-auto text-5xl text-green-600 mb-3" />
-          <h3 className="text-xl font-semibold text-green-900 mb-2">Contract Completed!</h3>
-          <p className="text-green-700">Your deliverable has been approved by the client.</p>
+          <h3 className="text-xl font-semibold text-green-900 mb-2">
+            Contract Completed!
+          </h3>
+          <p className="text-green-700">
+            Your deliverable has been approved by the client.
+          </p>
         </div>
       )}
 

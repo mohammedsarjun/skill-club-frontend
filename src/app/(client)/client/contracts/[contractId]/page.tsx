@@ -38,6 +38,7 @@ import MeetingProposalModal from "./components/workspace/MeetingProposalModal";
 import { MeetingProposal } from "@/types/interfaces/IMeetingProposal";
 import toast from "react-hot-toast";
 import { CancelContractModal } from "./components/CancelContractModal";
+import { CancelledContractAlert } from "./components/CancelledContractAlert";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -169,6 +170,7 @@ function ContractDetails() {
         fundedAmount: d.fundedAmount || 0,
         totalPaid: d.totalPaid || 0,
         balance: d.balance || 0,
+        isFunded:d.isFunded,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,
       });
@@ -206,19 +208,14 @@ function ContractDetails() {
     }
   }, [searchParams, contractId, router, handleFundSuccess]);
 
-  const handleCancelContract = useCallback(async () => {
+  const handleCancelContract = useCallback(async (cancelContractReason:string) => {
     if (!contractId) return;
     setIsCancelling(true);
     try {
-      const checkResult = await clientActionApi.cancelContract(String(contractId));
+      const checkResult = await clientActionApi.cancelContract(String(contractId),cancelContractReason);
       
       if (checkResult?.success) {
-        const requiresDispute = checkResult.data?.requiresDispute || false;
-        
-        if (requiresDispute) {
-          setIsCancelling(false);
-          setIsCancelModalOpen(true);
-        } else {
+
           await Swal.fire({
             title: 'Contract Cancelled',
             text: 'Your contract has been cancelled successfully.',
@@ -226,7 +223,7 @@ function ContractDetails() {
             confirmButtonText: 'OK',
           });
           window.location.reload();
-        }
+
       } else {
         setIsCancelling(false);
         Swal.fire('Error', checkResult?.message || 'Failed to cancel contract', 'error');
@@ -395,6 +392,9 @@ function ContractDetails() {
           fundedAmount: d.fundedAmount || 0,
           totalPaid: d.totalPaid || 0,
           balance: d.balance || 0,
+          cancelledBy: d.cancelledBy,
+          hasActiveCancellationDisputeWindow: d.hasActiveCancellationDisputeWindow,
+
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
           extensionRequest: d.extensionRequest,
@@ -649,6 +649,9 @@ function ContractDetails() {
           {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
+                {contractDetail.cancelledBy && (contractDetail.status === 'cancelled' || contractDetail.status === 'disputed') && (
+                  <CancelledContractAlert cancelledBy={contractDetail.cancelledBy} status={contractDetail.status} hasActiveCancellationDisputeWindow={contractDetail.hasActiveCancellationDisputeWindow} />
+                )}
                 {contractDetail.status === 'held' && contractDetail.paymentType === 'hourly' && (
                   <HourlyContractHeldWarning
                     requiredAmount={calculateRequiredAmount()}
@@ -738,7 +741,7 @@ function ContractDetails() {
                       contractDetail.status !== 'cancelled' && 
                       contractDetail.status !== 'completed' && 
                       contractDetail.status !== 'refunded' &&
-                      (contractDetail.paymentType === 'fixed' || contractDetail.paymentType === 'hourly')
+                      (contractDetail.paymentType === 'fixed' || contractDetail.paymentType === 'hourly' || contractDetail.paymentType=="fixed_with_milestones")
                     }
                     hasReviewed={hasReviewed}
                   />

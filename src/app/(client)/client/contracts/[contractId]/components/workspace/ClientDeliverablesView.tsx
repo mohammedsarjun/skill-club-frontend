@@ -314,23 +314,7 @@ export const ClientDeliverablesView = ({
                           Request Changes
                         </button>
 
-                        {deliverable.isMeetingAlreadyProposed ? (
-                          <button
-                            disabled
-                            className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-medium flex items-center gap-2 cursor-not-allowed"
-                          >
-                            <FaVideo />
-                            Meeting proposal already sent
-                          </button>
-                        ) : (
-                          <button
-                            onClick={onProposeMeeting}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
-                          >
-                            <FaVideo />
-                            Propose Meeting
-                          </button>
-                        )}
+                   
                       </div>
                     )}
                   </div>

@@ -489,6 +489,31 @@ const AdminActionApi = {
       }
     }
   },
+
+  getDisputes: async (params: {
+    search?: string;
+    page?: number;
+    limit?: number;
+    reasonCode?: string;
+  }) => {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetDisputes, {
+        params: {
+          search: params.search,
+          page: params.page,
+          limit: params.limit,
+          reasonCode: params.reasonCode,
+        },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 }
 
 export default AdminActionApi;

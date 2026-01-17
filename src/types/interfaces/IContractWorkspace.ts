@@ -3,7 +3,7 @@ export interface IDeliverable {
   submittedBy: string;
   files: { fileName: string; fileUrl: string }[];
   message?: string;
-  status: 'submitted' | 'approved' | 'changes_requested';
+  status: 'submitted' | 'approved' | 'changes_requested' | 'change_request_approved';
   version: number;
   submittedAt: string;
   approvedAt?: string;

@@ -408,9 +408,9 @@ export const clientActionApi = {
     }
   },
 
-  async cancelContract(contractId: string) {
+  async cancelContract(contractId: string,cancelContractReason:string) {
     try {
-      const response = await axiosClient.post(clientRouterEndPoints.cancelContract(contractId));
+      const response = await axiosClient.post(clientRouterEndPoints.cancelContract(contractId),{cancelContractReason});
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

@@ -40,6 +40,8 @@ const adminRouterEndPoints ={
     adminGetReviews:"/admin/reviews",
     adminToggleHideReview:(reviewId:string) => `/admin/reviews/${reviewId}/hide`,
 
+    adminGetDisputes:"/admin/disputes",
+
     adminGetDashboardStats:"/admin/dashboard/stats",
     adminGetRevenueData:"/admin/dashboard/revenue",
     adminGetUserGrowthData:"/admin/dashboard/user-growth",

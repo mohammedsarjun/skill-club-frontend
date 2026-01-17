@@ -116,11 +116,13 @@ export interface IClientContractDetail {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded';
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-  
+  cancelledBy?: 'client' | 'freelancer';
+  isFunded?: boolean;
+  hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

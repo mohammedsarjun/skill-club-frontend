@@ -125,6 +125,14 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">Reviews</span>
               </Link>
 
+                <Link
+                href="/admin/disputes"
+                className={linkClasses("/admin/disputes")}
+              >
+                <FaCog className="w-5 h-5" />
+                <span className="font-medium">Disputes</span>
+              </Link>
+
               <Link
                 href="/admin/settings"
                 className={linkClasses("/admin/settings")}

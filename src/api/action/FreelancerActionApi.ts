@@ -1014,6 +1014,19 @@ export const freelancerActionApi = {
     }
   },
 
+  async raiseDisputeForCancelledContract(contractId: string, notes: string): Promise<{ success: boolean; message: string; data?: IDispute }> {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.raiseDisputeForCancelledContract(contractId), { notes });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
   async joinMeet(meetingId: string) {
     try {
       const response = await axiosClient.post(
@@ -1120,4 +1133,21 @@ export const freelancerActionApi = {
       }
     }
   },
-};
+
+  async approveDeliverableChanges(contractId: string, deliverableId: string) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.approveDeliverableChanges(contractId,deliverableId),
+        { deliverableId }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+}

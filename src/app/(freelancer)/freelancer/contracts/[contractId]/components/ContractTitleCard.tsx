@@ -1,7 +1,7 @@
 interface ContractTitleCardProps {
   contractId: string;
   title: string;
-  status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded';
+  status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
   offerType?: 'direct' | 'proposal';
   jobTitle?: string;
 }
@@ -25,6 +25,8 @@ export const ContractTitleCard = ({
         return 'bg-red-100 text-red-800 border-red-300';
       case 'refunded':
         return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'disputed':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
