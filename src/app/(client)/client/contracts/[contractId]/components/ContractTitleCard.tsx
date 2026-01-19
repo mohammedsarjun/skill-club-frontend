@@ -1,7 +1,7 @@
 interface ContractTitleCardProps {
   contractId: string;
   title: string;
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded';
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded'|'disputed';
   offerType?: 'direct' | 'proposal';
   jobTitle?: string;
 }

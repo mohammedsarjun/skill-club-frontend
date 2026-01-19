@@ -1,11 +1,16 @@
+import { ContractMilestone } from "@/types/interfaces/IContract";
+import { IFreelancerContractDetail } from '@/types/interfaces/IFreelancerContractDetail';
 import { AlertCircle, Info } from "lucide-react";
 import { useEffect } from "react";
+
+type FreelancerMilestone = NonNullable<IFreelancerContractDetail['milestones']>[number];
 
 interface FreelancerCancelledContractAlertProps {
   cancelledBy: "client" | "freelancer";
   status: "cancelled" | "disputed";
   onRaiseDispute?: () => void;
   hasActiveCancellationDisputeWindow?: boolean;
+  milestoneData?: ContractMilestone | FreelancerMilestone | null;
 }
 
 export const FreelancerCancelledContractAlert = ({
@@ -13,7 +18,11 @@ export const FreelancerCancelledContractAlert = ({
   status,
   onRaiseDispute,
   hasActiveCancellationDisputeWindow,
+  milestoneData
 }: FreelancerCancelledContractAlertProps) => {
+
+  console.log(milestoneData)
+  
   if (cancelledBy === "client" && status === "cancelled") {
     return (
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
@@ -32,7 +41,7 @@ export const FreelancerCancelledContractAlert = ({
 
                 {onRaiseDispute && (
                   <button
-                    onClick={onRaiseDispute}
+                    onClick={() => onRaiseDispute()}
                     className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                   >
                     Raise Dispute

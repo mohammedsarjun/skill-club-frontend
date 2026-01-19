@@ -26,6 +26,7 @@ import {
 import { ISubmitReviewRequest, ISubmitReviewResponse, IReviewStatusResponse } from "@/types/interfaces/IFreelancerReview";
 import { IFreelancerMyReviewsResponse } from "@/types/interfaces/IFreelancerMyReviews";
 import { IDispute, ICreateDisputeRequest, ICancelContractWithDisputeRequest } from "@/types/interfaces/IDispute";
+import { IRaiseDisputeForCancelledContractRequest, IFreelancerDispute } from "@/types/interfaces/IFreelancerDispute";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -1014,9 +1015,9 @@ export const freelancerActionApi = {
     }
   },
 
-  async raiseDisputeForCancelledContract(contractId: string, notes: string): Promise<{ success: boolean; message: string; data?: IDispute }> {
+  async raiseDisputeForCancelledContract(contractId: string, data: IRaiseDisputeForCancelledContractRequest): Promise<{ success: boolean; message: string; data?: IFreelancerDispute }> {
     try {
-      const response = await axiosClient.post(freelancerRouterEndPoints.raiseDisputeForCancelledContract(contractId), { notes });
+      const response = await axiosClient.post(freelancerRouterEndPoints.raiseDisputeForCancelledContract(contractId), data);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

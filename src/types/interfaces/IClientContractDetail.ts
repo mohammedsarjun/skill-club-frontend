@@ -35,6 +35,8 @@ export interface IClientContractDetail {
     submittedAt?: string;
     approvedAt?: string;
     revisionsAllowed?: number;
+    disputeEligible?: boolean;
+    disputeWindowEndsAt?: string;
     deliverables?: {
       id: string;
       submittedBy: string;

@@ -33,6 +33,7 @@ import { MeetingProposal } from '@/types/interfaces/IMeetingProposal';
 import MeetingPanel from './components/workspace/MeetingPanel';
 import { FreelancerCancelledContractAlert } from './components/FreelancerCancelledContractAlert';
 import { RaiseDisputeModal } from './components/RaiseDisputeModal';
+import { ContractMilestone } from '@/types/interfaces/IContract';
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] = useState<IFreelancerContractDetail | null>(null);
@@ -48,7 +49,9 @@ function ContractDetails() {
   const [isMeetingProposalModalOpen, setIsMeetingProposalModalOpen] = useState(false);
   const [isRaiseDisputeModalOpen, setIsRaiseDisputeModalOpen] = useState(false);
   const [isRaisingDispute, setIsRaisingDispute] = useState(false);
-
+  const [hasActiveCancellationDisputeWindow, setHasActiveCancellationDisputeWindow] = useState(false);
+  type FreelancerMilestone = NonNullable<IFreelancerContractDetail['milestones']>[number];
+  const [disputeEligibleMilestone, setDisputeEligibleMilestone] = useState<FreelancerMilestone | null>(null);
   const params = useParams();
   const router = useRouter();
   const contractId = params.contractId;
@@ -86,6 +89,7 @@ function ContractDetails() {
 
   const handleOpenRaiseDispute = useCallback(() => {
     setIsRaiseDisputeModalOpen(true);
+
   }, []);
 
   const handleRaiseDispute = useCallback(async (notes: string) => {
@@ -93,7 +97,13 @@ function ContractDetails() {
     setIsRaisingDispute(true);
     
     try {
-      const result = await freelancerActionApi.raiseDisputeForCancelledContract(String(contractId), notes);
+      const payload: { notes: string; milestoneId?: string } = { notes };
+      
+      if (contractDetail?.paymentType === 'fixed_with_milestones' && disputeEligibleMilestone?.id) {
+        payload.milestoneId = disputeEligibleMilestone.id;
+      }
+      
+      const result = await freelancerActionApi.raiseDisputeForCancelledContract(String(contractId), payload);
       
       if (result?.success) {
         await Swal.fire({
@@ -115,7 +125,7 @@ function ContractDetails() {
     } finally {
       setIsRaisingDispute(false);
     }
-  }, [contractId]);
+  }, [contractId, contractDetail?.paymentType, disputeEligibleMilestone?.id]);
 
   const handleCancelContract = useCallback(async () => {
     if (!contractId) return;
@@ -254,6 +264,8 @@ function ContractDetails() {
                 status: m.status,
                 submittedAt: m.submittedAt,
                 approvedAt: m.approvedAt,
+                disputeEligible: m.disputeEligible,
+                disputeWindowEndsAt: m.disputeWindowEndsAt,
                 revisionsAllowed: m.revisionsAllowed,
                 deliverables: Array.isArray(m.deliverables)
                   ? m.deliverables.map((dlv: any) => ({
@@ -332,6 +344,22 @@ function ContractDetails() {
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
+
+        if( mapped.paymentType === "fixed" ){
+          setHasActiveCancellationDisputeWindow(
+            d.hasActiveCancellationDisputeWindow,
+          )
+        }else if( mapped.paymentType === "fixed_with_milestones" ){
+          const anyMilestoneInDisputeWindow = mapped?.milestones?.some((milestone) => { 
+            return milestone.disputeEligible && milestone.disputeWindowEndsAt && new Date(milestone.disputeWindowEndsAt) > new Date();
+          })
+
+          setHasActiveCancellationDisputeWindow(anyMilestoneInDisputeWindow?true:false);
+          if (anyMilestoneInDisputeWindow) {
+            const disputeEligibleMilestone = mapped?.milestones?.find((milestone) => milestone.disputeEligible) ?? null;
+            setDisputeEligibleMilestone(disputeEligibleMilestone);
+          }
+        }
 
         setContractDetail(mapped);
       } else {
@@ -595,7 +623,8 @@ function ContractDetails() {
                     cancelledBy={contractDetail.cancelledBy} 
                     status={contractDetail.status}
                     onRaiseDispute={contractDetail.cancelledBy === 'client' && contractDetail.status === 'cancelled' ? handleOpenRaiseDispute : undefined}
-                    hasActiveCancellationDisputeWindow={contractDetail.hasActiveCancellationDisputeWindow}
+                    hasActiveCancellationDisputeWindow={hasActiveCancellationDisputeWindow}
+                    milestoneData={disputeEligibleMilestone}
                   />
                 )}
                 <ContractTitleCard
@@ -912,6 +941,8 @@ function ContractDetails() {
         onClose={() => setIsRaiseDisputeModalOpen(false)}
         onSubmit={handleRaiseDispute}
         isSubmitting={isRaisingDispute}
+        contractType={contractDetail?.paymentType}
+        targetMilestoneTitle={disputeEligibleMilestone?.title }
       />
     </>
   );

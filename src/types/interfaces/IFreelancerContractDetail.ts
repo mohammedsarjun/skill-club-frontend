@@ -34,6 +34,8 @@ export interface IFreelancerContractDetail {
     status: 'pending_funding' | 'funded' | 'changes_requested' | 'submitted' | 'approved' | 'paid';
     submittedAt?: string;
     approvedAt?: string;
+    disputeEligible?: boolean;
+    disputeWindowEndsAt?: string;
     revisionsAllowed?: number;
     deliverables?: {
       id: string;

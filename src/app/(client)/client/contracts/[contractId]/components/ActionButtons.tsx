@@ -11,7 +11,8 @@ interface ActionButtonsProps {
     | "active"
     | "completed"
     | "cancelled"
-    | "refunded";
+    | "refunded"
+    | "disputed";
   onFundContract: () => void;
   onCancelContract: (cancelContractReason: string) => void;
   onScheduleMeeting?: () => void;
