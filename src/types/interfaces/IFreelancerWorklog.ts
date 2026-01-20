@@ -11,6 +11,7 @@ export interface IFreelancerWorklogListItem {
   filesCount: number;
   status: 'submitted' | 'approved' | 'rejected';
   submittedAt: string;
+  disputeWindowEndsAt?: string;
 }
 
 export interface IFreelancerWorklogDetail {
@@ -27,6 +28,8 @@ export interface IFreelancerWorklogDetail {
   submittedAt: string;
   reviewedAt?: string;
   reviewMessage?: string;
+  disputeWindowEndsAt?: string;
+  disputeRaisedBy?: string;
 }
 
 export interface IFreelancerWorklogListResponse {

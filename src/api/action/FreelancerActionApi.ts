@@ -27,6 +27,7 @@ import { ISubmitReviewRequest, ISubmitReviewResponse, IReviewStatusResponse } fr
 import { IFreelancerMyReviewsResponse } from "@/types/interfaces/IFreelancerMyReviews";
 import { IDispute, ICreateDisputeRequest, ICancelContractWithDisputeRequest } from "@/types/interfaces/IDispute";
 import { IRaiseDisputeForCancelledContractRequest, IFreelancerDispute } from "@/types/interfaces/IFreelancerDispute";
+import { IRaiseWorklogDisputeRequest, IDisputeResponse } from "@/types/interfaces/IWorklogDispute";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -709,6 +710,22 @@ export const freelancerActionApi = {
     try {
       const response = await axiosClient.get(
         freelancerRouterEndPoints.checkWorklogValidation(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async raiseWorklogDispute(contractId: string, data: IRaiseWorklogDisputeRequest): Promise<{ success: boolean; data?: IDisputeResponse; message?: string }> {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.raiseWorklogDispute(contractId),
+        data
       );
       return response.data;
     } catch (error: unknown) {

@@ -46,6 +46,7 @@ const freelancerRouterEndPoints = {
   getContractWorklogsList: (contractId: string) => `/freelancer/contracts/${contractId}/worklogs/list`,
   getWorklogDetail: (contractId: string, worklogId: string) => `/freelancer/contracts/${contractId}/worklogs/${worklogId}`,
   checkWorklogValidation: (contractId: string) => `/freelancer/contracts/${contractId}/worklog-validation`,
+  raiseWorklogDispute: (contractId: string) => `/freelancer/contracts/${contractId}/worklogs/raise-dispute`,
   updateExpertise: '/freelancer/profile/expertise',
   sendChatMessage: "/freelancer/chat/send",
   getChatMessages: (contractId: string) => `/freelancer/chat/${contractId}/messages`,
