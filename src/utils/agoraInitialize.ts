@@ -7,8 +7,9 @@ let localVideoTrack: ICameraVideoTrack | null = null;
 export async function startAgora({ appId, token, channelName, uid }: { appId: string; token: string; channelName: string; uid: string }) {
   client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
  
-
-  await client.join(appId, channelName, token, uid);
+if (!client) throw new Error("Agora client not initialized");
+console.log("Joining uid:", uid);
+await client.join(appId, channelName, token, null);
 
   localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
   localVideoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -30,7 +31,13 @@ export async function startAgora({ appId, token, channelName, uid }: { appId: st
     }
   });
 
-  return { client, localAudioTrack, localVideoTrack };
+  return { 
+    client, 
+    localAudioTrack, 
+    localVideoTrack,
+    isAudioEnabled: localAudioTrack.enabled,
+    isVideoEnabled: localVideoTrack.enabled
+  };
 }
 
 export async function leaveMeeting() {
@@ -51,18 +58,20 @@ export async function leaveMeeting() {
 
 export function toggleMute() {
   if (localAudioTrack) {
-    localAudioTrack.setEnabled(!localAudioTrack.enabled);
-    return localAudioTrack.enabled;
+    const newState = !localAudioTrack.enabled;
+    localAudioTrack.setEnabled(newState);
+    return newState;
   }
   return false;
+
+  
 }
 
 export function toggleVideo() {
   if (localVideoTrack) {
-    
-    localVideoTrack.setEnabled(!localVideoTrack.enabled);
-    
-    return localVideoTrack.enabled;
+    const newState = !localVideoTrack.enabled;
+    localVideoTrack.setEnabled(newState);
+    return newState;
   }
   return false;
 }
