@@ -335,9 +335,12 @@ function ContractDetails() {
           communication: d.communication,
           reporting: d.reporting,
           status: d.status,
-          fundedAmount: d.fundedAmount || 0,
-          totalPaid: d.totalPaid || 0,
-          balance: d.balance || 0,
+          totalFunded: d.totalFunded || 0,
+          totalPaidToFreelancer: d.totalPaidToFreelancer || 0,
+          totalCommissionPaid: d.totalCommissionPaid || 0,
+          totalAmountHeld: d.totalAmountHeld || 0,
+          totalRefund: d.totalRefund || 0,
+          availableContractBalance: d.availableContractBalance || 0,
           extensionRequest: d.extensionRequest,
           cancelledBy:d.cancelledBy,
           hasActiveCancellationDisputeWindow:d.hasActiveCancellationDisputeWindow,
@@ -640,9 +643,12 @@ function ContractDetails() {
                     startDate={contractDetail.expectedStartDate}
                     endDate={contractDetail.expectedEndDate}
                     paymentType={contractDetail.paymentType}
-                    fundedAmount={contractDetail.fundedAmount}
-                    totalPaid={contractDetail.totalPaid}
-                    balance={contractDetail.balance}
+                    totalFunded={contractDetail.totalFunded}
+                    totalPaidToFreelancer={contractDetail.totalPaidToFreelancer}
+                    totalCommissionPaid={contractDetail.totalCommissionPaid}
+                    totalAmountHeld={contractDetail.totalAmountHeld}
+                    totalRefund={contractDetail.totalRefund}
+                    availableContractBalance={contractDetail.availableContractBalance}
                     formatDate={formatDate}
                     formatCurrency={formatCurrency}
                   />

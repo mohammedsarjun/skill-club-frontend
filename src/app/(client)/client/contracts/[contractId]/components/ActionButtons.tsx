@@ -15,6 +15,7 @@ interface ActionButtonsProps {
     | "disputed";
   onFundContract: () => void;
   onCancelContract: (cancelContractReason: string) => void;
+  onEndContract?: () => void;
   onScheduleMeeting?: () => void;
   onReviewFreelancer?: () => void;
   isProcessing?: boolean;
@@ -27,6 +28,7 @@ export const ActionButtons = ({
   status,
   onFundContract,
   onCancelContract,
+  onEndContract,
   onScheduleMeeting,
   onReviewFreelancer,
   isProcessing,
@@ -76,7 +78,20 @@ export const ActionButtons = ({
             Schedule Meeting
           </button>
         )}
-        {canCancel && (
+        {contractType === "hourly" && status === "active" && onEndContract && (
+          <button
+            onClick={onEndContract}
+            disabled={isProcessing}
+            className={`w-full px-4 py-3 text-white rounded-lg transition-colors font-medium ${
+              isProcessing
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {isProcessing ? "Ending..." : "End Contract"}
+          </button>
+        )}
+        {canCancel && contractType !== "hourly" && (
           <>
             <button
               onClick={openConfirm}

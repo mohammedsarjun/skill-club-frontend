@@ -1,12 +1,15 @@
-import { FaCalendarAlt, FaDollarSign } from 'react-icons/fa';
+import { FaCalendarAlt, FaDollarSign, FaMoneyBillWave, FaPercent, FaLock, FaUndo } from 'react-icons/fa';
 
 interface ContractMetricsProps {
   startDate: string;
   endDate: string;
   paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
-  fundedAmount: number;
-  totalPaid: number;
-  balance: number;
+  totalFunded: number;
+  totalPaidToFreelancer: number;
+  totalCommissionPaid: number;
+  totalAmountHeld: number;
+  totalRefund: number;
+  availableContractBalance: number;
   formatDate: (dateString: string) => string;
   formatCurrency: (amount: number) => string;
 }
@@ -15,9 +18,12 @@ export const ContractMetrics = ({
   startDate,
   endDate,
   paymentType,
-  fundedAmount,
-  totalPaid,
-  balance,
+  totalFunded,
+  totalPaidToFreelancer,
+  totalCommissionPaid,
+  totalAmountHeld,
+  totalRefund,
+  availableContractBalance,
   formatDate,
   formatCurrency,
 }: ContractMetricsProps) => {
@@ -47,22 +53,43 @@ export const ContractMetrics = ({
       <div className="flex items-start">
         <FaDollarSign className="text-purple-600 mt-1 mr-3" />
         <div>
-          <p className="text-sm text-gray-500 mb-1">Funded</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(fundedAmount)}</p>
+          <p className="text-sm text-gray-500 mb-1">Total Funded</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalFunded)}</p>
         </div>
       </div>
       <div className="flex items-start">
-        <FaDollarSign className="text-blue-600 mt-1 mr-3" />
+        <FaMoneyBillWave className="text-blue-600 mt-1 mr-3" />
         <div>
-          <p className="text-sm text-gray-500 mb-1">Total Paid</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(totalPaid)}</p>
+          <p className="text-sm text-gray-500 mb-1">Amount Earned</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalPaidToFreelancer)}</p>
         </div>
       </div>
       <div className="flex items-start">
-        <FaDollarSign className="text-orange-600 mt-1 mr-3" />
+        <FaPercent className="text-orange-600 mt-1 mr-3" />
         <div>
-          <p className="text-sm text-gray-500 mb-1">Balance</p>
-          <p className="font-semibold text-gray-900">{formatCurrency(balance)}</p>
+          <p className="text-sm text-gray-500 mb-1">Commission Paid</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalCommissionPaid)}</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <FaLock className="text-yellow-600 mt-1 mr-3" />
+        <div>
+          <p className="text-sm text-gray-500 mb-1">Amount Held</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalAmountHeld)}</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <FaUndo className="text-red-600 mt-1 mr-3" />
+        <div>
+          <p className="text-sm text-gray-500 mb-1">Total Refund</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(totalRefund)}</p>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <FaDollarSign className="text-teal-600 mt-1 mr-3" />
+        <div>
+          <p className="text-sm text-gray-500 mb-1">Available Balance</p>
+          <p className="font-semibold text-gray-900">{formatCurrency(availableContractBalance)}</p>
         </div>
       </div>
     </div>

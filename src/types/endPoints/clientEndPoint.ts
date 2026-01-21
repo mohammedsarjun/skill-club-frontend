@@ -60,6 +60,7 @@ const clientRouterEndPoints = {
   getReviewStatus: (contractId: string) => `/client/contracts/${contractId}/review/status`,
   getFreelancerReviews: (freelancerId: string) => `/client/freelancers/${freelancerId}/reviews`,
   activateHourlyContract: (contractId: string) => `/client/contracts/${contractId}/activate`,
+  endHourlyContract: (contractId: string) => `/client/contracts/${contractId}/end`,
   joinMeet: (meetingId: string) => `/client/meetings/${meetingId}/join`,
 };
 
