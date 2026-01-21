@@ -46,6 +46,7 @@ import { MeetingProposal } from "@/types/interfaces/IMeetingProposal";
 import toast from "react-hot-toast";
 import { CancelContractModal } from "./components/CancelContractModal";
 import { CancelledContractAlert } from "./components/CancelledContractAlert";
+import { EndContractModal } from "./components/EndContractModal";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -60,6 +61,7 @@ function ContractDetails() {
     useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isEndContractModalOpen, setIsEndContractModalOpen] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "workspace">(
     "details",
@@ -179,9 +181,12 @@ function ContractDetails() {
             }
           : undefined,
         status: d.status,
-        fundedAmount: d.fundedAmount || 0,
-        totalPaid: d.totalPaid || 0,
-        balance: d.balance || 0,
+        totalFunded: d.totalFunded || 0,
+        totalPaidToFreelancer: d.totalPaidToFreelancer || 0,
+        totalCommissionPaid: d.totalCommissionPaid || 0,
+        totalAmountHeld: d.totalAmountHeld || 0,
+        totalRefund: d.totalRefund || 0,
+        availableContractBalance: d.availableContractBalance || 0,
         isFunded: d.isFunded,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,
@@ -190,6 +195,45 @@ function ContractDetails() {
   }, [contractId]);
 
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isEndingContract, setIsEndingContract] = useState(false);
+
+  const handleEndContract = useCallback(() => {
+    setIsEndContractModalOpen(true);
+  }, []);
+
+  const handleConfirmEndContract = useCallback(async () => {
+    if (!contractId) return;
+    setIsEndingContract(true);
+    try {
+      const result = await clientActionApi.endHourlyContract(String(contractId));
+      
+      if (result?.success) {
+        setIsEndContractModalOpen(false);
+        await Swal.fire({
+          title: "Contract Ended",
+          text: "The contract has been ended successfully.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        window.location.reload();
+      } else {
+        Swal.fire(
+          "Error",
+          result?.message || "Failed to end contract",
+          "error"
+        );
+      }
+    } catch (e) {
+      const errorMessage =
+        (e as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (e as Error)?.message ||
+        "Unexpected error while ending contract";
+      Swal.fire("Error", errorMessage, "error");
+    } finally {
+      setIsEndingContract(false);
+    }
+  }, [contractId]);
 
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
@@ -437,9 +481,12 @@ function ContractDetails() {
           communication: d.communication,
           reporting: d.reporting,
           status: d.status,
-          fundedAmount: d.fundedAmount || 0,
-          totalPaid: d.totalPaid || 0,
-          balance: d.balance || 0,
+          totalFunded: d.totalFunded || 0,
+          totalPaidToFreelancer: d.totalPaidToFreelancer || 0,
+          totalCommissionPaid: d.totalCommissionPaid || 0,
+          totalAmountHeld: d.totalAmountHeld || 0,
+          totalRefund: d.totalRefund || 0,
+          availableContractBalance: d.availableContractBalance || 0,
           cancelledBy: d.cancelledBy,
           hasActiveCancellationDisputeWindow:
             d.hasActiveCancellationDisputeWindow,
@@ -684,7 +731,7 @@ function ContractDetails() {
     const weeklyAmount =
       (contractDetail.hourlyRate || 0) *
       (contractDetail.estimatedHoursPerWeek || 0);
-    const currentBalance = contractDetail.balance || 0;
+    const currentBalance = contractDetail.totalFunded - contractDetail.totalPaidToFreelancer - contractDetail.totalCommissionPaid - contractDetail.totalRefund - contractDetail.totalAmountHeld;
     return Math.max(0, weeklyAmount - currentBalance);
   }, [contractDetail]);
 
@@ -801,7 +848,7 @@ function ContractDetails() {
                       estimatedHoursPerWeek={
                         contractDetail.estimatedHoursPerWeek || 0
                       }
-                      currentBalance={contractDetail.balance || 0}
+                      currentBalance={contractDetail.totalFunded - contractDetail.totalPaidToFreelancer - contractDetail.totalCommissionPaid - contractDetail.totalRefund - contractDetail.totalAmountHeld}
                       currency={contractDetail.currency || "USD"}
                       onFundContract={handleFundContract}
                     />
@@ -830,9 +877,12 @@ function ContractDetails() {
                     startDate={contractDetail.expectedStartDate}
                     endDate={contractDetail.expectedEndDate}
                     paymentType={contractDetail.paymentType}
-                    fundedAmount={contractDetail.fundedAmount}
-                    totalPaid={contractDetail.totalPaid}
-                    balance={contractDetail.balance}
+                    totalFunded={contractDetail.totalFunded}
+                    totalPaidToFreelancer={contractDetail.totalPaidToFreelancer}
+                    totalCommissionPaid={contractDetail.totalCommissionPaid}
+                    totalAmountHeld={contractDetail.totalAmountHeld}
+                    totalRefund={contractDetail.totalRefund}
+                    availableContractBalance={contractDetail.availableContractBalance}
                     formatDate={formatDate}
                     formatCurrency={formatCurrency}
                   />
@@ -885,11 +935,12 @@ function ContractDetails() {
                     status={contractDetail.status}
                     onFundContract={handleFundContract}
                     onCancelContract={handleCancelContract}
+                    onEndContract={handleEndContract}
                     onScheduleMeeting={() =>
                       setIsMeetingProposalModalOpen(true)
                     }
                     onReviewFreelancer={handleReviewFreelancer}
-                    isProcessing={isCancelling}
+                    isProcessing={isCancelling || isEndingContract}
                     canCancel={
                       contractDetail.status !== "cancelled" &&
                       contractDetail.status !== "completed" &&
@@ -1219,6 +1270,13 @@ function ContractDetails() {
             requiresDispute={true}
             isProcessing={isCancelling}
             contractId={contractId as string}
+          />
+
+          <EndContractModal
+            isOpen={isEndContractModalOpen}
+            onClose={() => setIsEndContractModalOpen(false)}
+            onConfirm={handleConfirmEndContract}
+            isProcessing={isEndingContract}
           />
         </>
       )}

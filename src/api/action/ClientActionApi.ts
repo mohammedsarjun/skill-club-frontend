@@ -916,6 +916,21 @@ export const clientActionApi = {
         return "Unexpected error";
       }
     }
+  },
+
+  async endHourlyContract(contractId: string) {
+    try {
+      const response = await axiosClient.post(
+        clientRouterEndPoints.endHourlyContract(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
   }
 
 }
