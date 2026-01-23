@@ -53,7 +53,7 @@ export const DeliverablesWorkspace = ({
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("");
 
   const isUploadDisabled =
-    contractStatus === "cancelled" || contractStatus === "disputed";
+    contractStatus === "cancelled" || contractStatus === "disputed" || contractStatus === "cancellation_requested";
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();

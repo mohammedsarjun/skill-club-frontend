@@ -28,6 +28,7 @@ import { IFreelancerMyReviewsResponse } from "@/types/interfaces/IFreelancerMyRe
 import { IDispute, ICreateDisputeRequest, ICancelContractWithDisputeRequest } from "@/types/interfaces/IDispute";
 import { IRaiseDisputeForCancelledContractRequest, IFreelancerDispute } from "@/types/interfaces/IFreelancerDispute";
 import { IRaiseWorklogDisputeRequest, IDisputeResponse } from "@/types/interfaces/IWorklogDispute";
+import { ICreateFreelancerCancellationRequest, IFreelancerCancellationRequestResponse } from "@/types/interfaces/ICreateFreelancerCancellationRequest";
 
 export const freelancerActionApi = {
   async getFreelancerData() {
@@ -964,15 +965,31 @@ export const freelancerActionApi = {
     }
   },
 
-  async cancelContract(contractId: string) {
+  async cancelContract(contractId: string, cancelContractReason: string) {
     try {
-      const response = await axiosClient.post(freelancerRouterEndPoints.cancelContract(contractId));
+      const response = await axiosClient.post(freelancerRouterEndPoints.cancelContract(contractId), { cancelContractReason });
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         return error.response?.data || { success: false, message: "Something went wrong" };
       } else {
         return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async createCancellationRequest(contractId: string, data: ICreateFreelancerCancellationRequest): Promise<{ success: boolean; message: string; data?: IFreelancerCancellationRequestResponse }> {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.createCancellationRequest(contractId),
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        throw error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        throw { success: false, message: "Unexpected error" };
       }
     }
   },
@@ -1157,6 +1174,53 @@ export const freelancerActionApi = {
       const response = await axiosClient.post(
         freelancerRouterEndPoints.approveDeliverableChanges(contractId,deliverableId),
         { deliverableId }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getCancellationRequest(contractId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.getCancellationRequest(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async acceptCancellationRequest(contractId: string, responseMessage?: string) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.acceptCancellationRequest(contractId),
+        { responseMessage }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async raiseCancellationDispute(contractId: string, notes: string) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.raiseCancellationDispute(contractId),
+        { notes }
       );
       return response.data;
     } catch (error: unknown) {

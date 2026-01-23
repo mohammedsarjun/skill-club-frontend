@@ -47,6 +47,9 @@ import toast from "react-hot-toast";
 import { CancelContractModal } from "./components/CancelContractModal";
 import { CancelledContractAlert } from "./components/CancelledContractAlert";
 import { EndContractModal } from "./components/EndContractModal";
+import SplitHeldFundsModal from "./components/SplitHeldFunds";
+import { CancellationRequestModal } from "./components/CancellationRequestModal";
+import { ICancellationRequest } from "@/types/interfaces/ICancellationRequest";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -62,7 +65,12 @@ function ContractDetails() {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isEndContractModalOpen, setIsEndContractModalOpen] = useState(false);
+  const [isSplitFundsModalOpen, setIsSplitFundsModalOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [cancellationRequest, setCancellationRequest] = useState<ICancellationRequest | null>(null);
+  const [isCancellationRequestModalOpen, setIsCancellationRequestModalOpen] = useState(false);
+  const [isProcessingCancellationRequest, setIsProcessingCancellationRequest] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "workspace">(
     "details",
   );
@@ -145,6 +153,22 @@ function ContractDetails() {
                 status: m.status,
               }),
             )
+          : [],
+        deliverables: Array.isArray(d.deliverables)
+          ? d.deliverables.map((dlv: any) => ({
+              id: dlv.deliverableId,
+              submittedBy: dlv.submittedBy,
+              files: dlv.files,
+              message: dlv.message,
+              status: dlv.status,
+              version: dlv.version,
+              submittedAt: dlv.submittedAt,
+              approvedAt: dlv.approvedAt,
+              revisionsRequested: dlv.revisionsRequested,
+              revisionsAllowed: dlv.revisionsAllowed,
+              revisionsLeft: dlv.revisionsLeft,
+              isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
+            }))
           : [],
         referenceFiles: Array.isArray(d.referenceFiles)
           ? d.referenceFiles.map(
@@ -266,42 +290,191 @@ function ContractDetails() {
 
   const handleCancelContract = useCallback(
     async (cancelContractReason: string) => {
-      if (!contractId) return;
-      setIsCancelling(true);
-      try {
-        const checkResult = await clientActionApi.cancelContract(
-          String(contractId),
-          cancelContractReason,
-        );
-
-        if (checkResult?.success) {
-          await Swal.fire({
-            title: "Contract Cancelled",
-            text: "Your contract has been cancelled successfully.",
-            icon: "success",
-            confirmButtonText: "OK",
-          });
-          window.location.reload();
-        } else {
-          setIsCancelling(false);
-          Swal.fire(
-            "Error",
-            checkResult?.message || "Failed to cancel contract",
-            "error",
+      if (!contractId || !contractDetail) return;
+      
+      if (contractDetail.paymentType !== 'fixed') {
+        setIsCancelling(true);
+        try {
+          const checkResult = await clientActionApi.cancelContract(
+            String(contractId),
+            cancelContractReason,
           );
+
+          if (checkResult?.success) {
+            await Swal.fire({
+              title: "Contract Cancelled",
+              text: "Your contract has been cancelled successfully.",
+              icon: "success",
+              confirmButtonText: "OK",
+            });
+            window.location.reload();
+          } else {
+            setIsCancelling(false);
+            Swal.fire(
+              "Error",
+              checkResult?.message || "Failed to cancel contract",
+              "error",
+            );
+          }
+        } catch (e) {
+          const errorMessage =
+            (e as { response?: { data?: { message?: string } } })?.response?.data
+              ?.message ||
+            (e as Error)?.message ||
+            "Unexpected error while cancelling";
+          await Swal.fire("Error", errorMessage, "error");
+          setIsCancelling(false);
         }
-      } catch (e) {
-        const errorMessage =
-          (e as { response?: { data?: { message?: string } } })?.response?.data
-            ?.message ||
-          (e as Error)?.message ||
-          "Unexpected error while cancelling";
-        await Swal.fire("Error", errorMessage, "error");
-        setIsCancelling(false);
+        return;
+      }
+
+      if (contractDetail.isFunded) {
+        const hasDeliverables = contractDetail.deliverables && contractDetail.deliverables.length > 0;
+        
+        if (hasDeliverables) {
+          setCancellationReason(cancelContractReason);
+          setIsSplitFundsModalOpen(true);
+        } else {
+          setIsCancelling(true);
+          try {
+            const checkResult = await clientActionApi.cancelContract(
+              String(contractId),
+              cancelContractReason,
+            );
+
+            if (checkResult?.success) {
+              await Swal.fire({
+                title: "Contract Cancelled",
+                text: "Your contract has been cancelled successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+              });
+              window.location.reload();
+            } else {
+              setIsCancelling(false);
+              Swal.fire(
+                "Error",
+                checkResult?.message || "Failed to cancel contract",
+                "error",
+              );
+            }
+          } catch (e) {
+            const errorMessage =
+              (e as { response?: { data?: { message?: string } } })?.response?.data
+                ?.message ||
+              (e as Error)?.message ||
+              "Unexpected error while cancelling";
+            await Swal.fire("Error", errorMessage, "error");
+            setIsCancelling(false);
+          }
+        }
+      } else {
+        setIsCancelling(true);
+        try {
+          const checkResult = await clientActionApi.cancelContract(
+            String(contractId),
+            cancelContractReason,
+          );
+
+          if (checkResult?.success) {
+            await Swal.fire({
+              title: "Contract Cancelled",
+              text: "Your contract has been cancelled successfully.",
+              icon: "success",
+              confirmButtonText: "OK",
+            });
+            window.location.reload();
+          } else {
+            setIsCancelling(false);
+            Swal.fire(
+              "Error",
+              checkResult?.message || "Failed to cancel contract",
+              "error",
+            );
+          }
+        } catch (e) {
+          const errorMessage =
+            (e as { response?: { data?: { message?: string } } })?.response?.data
+              ?.message ||
+            (e as Error)?.message ||
+            "Unexpected error while cancelling";
+          await Swal.fire("Error", errorMessage, "error");
+          setIsCancelling(false);
+        }
       }
     },
-    [contractId],
+    [contractId, contractDetail],
   );
+
+  const loadCancellationRequest = useCallback(async () => {
+    if (!contractId) return;
+    try {
+      const resp = await clientActionApi.getCancellationRequest(String(contractId));
+      if (resp?.success && resp.data) {
+        setCancellationRequest(resp.data);
+      }
+    } catch (error) {
+      console.error('Error loading cancellation request:', error);
+    }
+  }, [contractId]);
+
+  const handleAcceptCancellationRequest = useCallback(async (responseMessage?: string) => {
+    if (!contractId) return;
+    setIsProcessingCancellationRequest(true);
+    
+    try {
+      const result = await clientActionApi.acceptCancellationRequest(String(contractId), responseMessage);
+      
+      if (result?.success) {
+        await Swal.fire({
+          title: 'Cancellation Accepted',
+          text: 'You have accepted the cancellation request. The funds will be split as agreed.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+        setIsCancellationRequestModalOpen(false);
+        window.location.reload();
+      } else {
+        Swal.fire('Error', result?.message || 'Failed to accept cancellation request', 'error');
+      }
+    } catch (err) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                           (err as Error)?.message || 
+                           'Unexpected error while accepting cancellation request';
+      Swal.fire('Error', errorMessage, 'error');
+    } finally {
+      setIsProcessingCancellationRequest(false);
+    }
+  }, [contractId]);
+
+  const handleRaiseCancellationDispute = useCallback(async (notes: string) => {
+    if (!contractId) return;
+    setIsProcessingCancellationRequest(true);
+    
+    try {
+      const result = await clientActionApi.raiseCancellationDispute(String(contractId), notes);
+      
+      if (result?.success) {
+        await Swal.fire({
+          title: 'Dispute Raised',
+          text: 'You have raised a dispute against the cancellation request. The admin will review it within 3–5 business days.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+        setIsCancellationRequestModalOpen(false);
+        window.location.reload();
+      } else {
+        Swal.fire('Error', result?.message || 'Failed to raise dispute', 'error');
+      }
+    } catch (err) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                           (err as Error)?.message || 
+                           'Unexpected error while raising dispute';
+      Swal.fire('Error', errorMessage, 'error');
+    } finally {
+      setIsProcessingCancellationRequest(false);
+    }
+  }, [contractId]);
 
   const handleConfirmCancelWithDispute = useCallback(
     async (data: { reasonCode: string; description: string }) => {
@@ -336,6 +509,48 @@ function ContractDetails() {
             ?.message ||
           (e as Error)?.message ||
           "Unexpected error while creating dispute";
+        Swal.fire("Error", errorMessage, "error");
+      } finally {
+        setIsCancelling(false);
+      }
+    },
+    [contractId],
+  );
+
+  const handleSplitFundsSubmit = useCallback(
+    async (clientPercentage: number, freelancerPercentage: number, reason: string) => {
+      if (!contractId) return;
+      setIsCancelling(true);
+
+      try {
+        const result = await clientActionApi.createCancellationRequest(String(contractId), {
+          reason,
+          clientSplitPercentage: clientPercentage,
+          freelancerSplitPercentage: freelancerPercentage,
+        });
+
+        if (result?.success) {
+          setIsSplitFundsModalOpen(false);
+          await Swal.fire({
+            title: "Cancellation Request Sent",
+            text: "Your cancellation proposal has been sent to the freelancer for review.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+          window.location.reload();
+        } else {
+          Swal.fire(
+            "Error",
+            result?.message || "Failed to create cancellation request",
+            "error",
+          );
+        }
+      } catch (e) {
+        const errorMessage =
+          (e as { response?: { data?: { message?: string } } })?.response?.data
+            ?.message ||
+          (e as Error)?.message ||
+          "Unexpected error while creating cancellation request";
         Swal.fire("Error", errorMessage, "error");
       } finally {
         setIsCancelling(false);
@@ -481,6 +696,7 @@ function ContractDetails() {
           communication: d.communication,
           reporting: d.reporting,
           status: d.status,
+          isFunded: d.isFunded,
           totalFunded: d.totalFunded || 0,
           totalPaidToFreelancer: d.totalPaidToFreelancer || 0,
           totalCommissionPaid: d.totalCommissionPaid || 0,
@@ -764,6 +980,7 @@ function ContractDetails() {
       if (!cancelled) {
         loadContractDetail();
         loadReviewStatus();
+        loadCancellationRequest();
       }
     }, 300);
 
@@ -771,7 +988,7 @@ function ContractDetails() {
       cancelled = true;
       clearTimeout(debounceTimer);
     };
-  }, [loadContractDetail, loadReviewStatus]);
+  }, [loadContractDetail, loadReviewStatus, loadCancellationRequest]);
 
   return (
     <>
@@ -829,6 +1046,29 @@ function ContractDetails() {
           {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
+                {contractDetail.status === 'cancellation_requested' && cancellationRequest && cancellationRequest.status === 'pending' && cancellationRequest.initiatedBy === 'freelancer' && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-blue-900 mb-1">Cancellation Request from Freelancer</h4>
+                        <p className="text-sm text-blue-800 mb-3">
+                          The freelancer has requested to cancel this contract with a proposed fund split. Please review and accept or raise a dispute.
+                        </p>
+                        <button
+                          onClick={() => setIsCancellationRequestModalOpen(true)}
+                          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {contractDetail.cancelledBy &&
                   (contractDetail.status === "cancelled" ||
                     contractDetail.status === "disputed") && (
@@ -1278,6 +1518,25 @@ function ContractDetails() {
             onConfirm={handleConfirmEndContract}
             isProcessing={isEndingContract}
           />
+
+          <SplitHeldFundsModal
+            isOpen={isSplitFundsModalOpen}
+            onClose={() => setIsSplitFundsModalOpen(false)}
+            heldAmount={contractDetail.totalAmountHeld}
+            onSubmit={handleSplitFundsSubmit}
+            reason={cancellationReason}
+          />
+
+          {cancellationRequest && (
+            <CancellationRequestModal
+              isOpen={isCancellationRequestModalOpen}
+              onClose={() => setIsCancellationRequestModalOpen(false)}
+              cancellationRequest={cancellationRequest}
+              onAccept={handleAcceptCancellationRequest}
+              onRaiseDispute={handleRaiseCancellationDispute}
+              isProcessing={isProcessingCancellationRequest}
+            />
+          )}
         </>
       )}
     </>

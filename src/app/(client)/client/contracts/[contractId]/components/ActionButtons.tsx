@@ -12,7 +12,8 @@ interface ActionButtonsProps {
     | "completed"
     | "cancelled"
     | "refunded"
-    | "disputed";
+    | "disputed"
+    | "cancellation_requested";
   onFundContract: () => void;
   onCancelContract: (cancelContractReason: string) => void;
   onEndContract?: () => void;

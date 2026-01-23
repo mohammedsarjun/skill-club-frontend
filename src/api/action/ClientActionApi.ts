@@ -14,6 +14,7 @@ import { MeetingProposalRequest, MeetingProposalResponse } from "@/types/interfa
 import { ISubmitReviewRequest, IReviewStatusResponse, ISubmitReviewResponse } from "@/types/interfaces/IReview";
 import { IFreelancerReviewsResponse } from "@/types/interfaces/IFreelancerReviews";
 import { IDispute, ICreateDisputeRequest, ICancelContractWithDisputeRequest } from "@/types/interfaces/IDispute";
+import { ICreateCancellationRequest } from "@/types/interfaces/ICancellationRequest";
 
 export const clientActionApi = {
   async getDashboardData() {
@@ -417,6 +418,58 @@ export const clientActionApi = {
         return error.response?.data || "Something went wrong";
       } else {
         return "Unexpected error";
+      }
+    }
+  },
+
+  async createCancellationRequest(contractId: string, data: ICreateCancellationRequest) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.createCancellationRequest(contractId), data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async getCancellationRequest(contractId: string) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getCancellationRequest(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async acceptCancellationRequest(contractId: string, responseMessage?: string) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.acceptCancellationRequest(contractId), { responseMessage });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async raiseCancellationDispute(contractId: string, notes: string) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.raiseCancellationDispute(contractId), { notes });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
       }
     }
   },
