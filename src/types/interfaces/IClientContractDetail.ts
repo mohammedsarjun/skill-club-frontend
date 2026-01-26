@@ -32,6 +32,7 @@ export interface IClientContractDetail {
     amountBaseUSD?: number;
     expectedDelivery: string;
     status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    isFunded?: boolean;
     submittedAt?: string;
     approvedAt?: string;
     revisionsAllowed?: number;

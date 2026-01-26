@@ -212,11 +212,87 @@ function ContractDetails() {
     const hasDeliverables = contractDetail.deliverables && contractDetail.deliverables.length > 0;
     const isFunded = contractDetail.totalFunded > 0;
     const isFixed = contractDetail.paymentType === 'fixed';
+    const isMilestone = contractDetail.paymentType === 'fixed_with_milestones';
     
     if (isFixed && isFunded && hasDeliverables) {
       setCancelReason(cancelContractReason);
       setIsCancelModalOpen(false);
       setIsSplitHeldFundsModalOpen(true);
+      return;
+    }
+
+    if (isMilestone) {
+      const hasAtLeastOneFundedMilestone = contractDetail.milestones?.some(
+        (milestone) => milestone.isFunded === true
+      );
+
+      if (!hasAtLeastOneFundedMilestone) {
+        setIsCancelling(true);
+        try {
+          const result = await freelancerActionApi.cancelContract(String(contractId), cancelContractReason);
+          
+          if (result?.success) {
+            await Swal.fire({
+              title: 'Contract Cancelled',
+              text: 'Your contract has been cancelled successfully.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            });
+            window.location.reload();
+          } else {
+            Swal.fire('Error', result?.message || 'Failed to cancel contract', 'error');
+            setIsCancelling(false);
+          }
+        } catch (e) {
+          const errorMessage = (e as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                               (e as Error)?.message || 
+                               'Unexpected error while cancelling';
+          Swal.fire('Error', errorMessage, 'error');
+          setIsCancelling(false);
+        }
+        return;
+      }
+
+      const hasSubmittedMilestoneDeliverables = contractDetail.milestones?.some(
+        (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+      );
+
+      if (!hasSubmittedMilestoneDeliverables) {
+        setIsCancelling(true);
+        try {
+          const result = await freelancerActionApi.cancelContract(String(contractId), cancelContractReason);
+          
+          if (result?.success) {
+            await Swal.fire({
+              title: 'Contract Cancelled',
+              text: 'Your contract has been cancelled successfully. All funded milestones will be refunded to the client.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+            });
+            window.location.reload();
+          } else {
+            Swal.fire('Error', result?.message || 'Failed to cancel contract', 'error');
+            setIsCancelling(false);
+          }
+        } catch (e) {
+          const errorMessage = (e as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                               (e as Error)?.message || 
+                               'Unexpected error while cancelling';
+          Swal.fire('Error', errorMessage, 'error');
+          setIsCancelling(false);
+        }
+        return;
+      }
+
+      const currentMilestoneWithDeliverables = contractDetail.milestones?.find(
+        (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+      );
+
+      if (currentMilestoneWithDeliverables) {
+        setCancelReason(cancelContractReason);
+        setIsCancelModalOpen(false);
+        setIsSplitHeldFundsModalOpen(true);
+      }
       return;
     }
     
@@ -1104,7 +1180,9 @@ function ContractDetails() {
         <SplitHeldFundsModal
           isOpen={isSplitHeldFundsModalOpen}
           onClose={() => setIsSplitHeldFundsModalOpen(false)}
-          heldAmount={contractDetail.totalAmountHeld || 0}
+          heldAmount={contractDetail.paymentType === 'fixed_with_milestones' 
+            ? (contractDetail.milestones?.find(m => m.deliverables && m.deliverables.length > 0)?.amount || contractDetail.totalAmountHeld || 0)
+            : (contractDetail.totalAmountHeld || 0)}
           onSubmit={handleSplitHeldFundsSubmit}
           reason={cancelReason}
         />

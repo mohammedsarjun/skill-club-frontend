@@ -292,7 +292,7 @@ function ContractDetails() {
     async (cancelContractReason: string) => {
       if (!contractId || !contractDetail) return;
       
-      if (contractDetail.paymentType !== 'fixed') {
+      if (contractDetail.paymentType === 'hourly') {
         setIsCancelling(true);
         try {
           const checkResult = await clientActionApi.cancelContract(
@@ -324,6 +324,99 @@ function ContractDetails() {
             "Unexpected error while cancelling";
           await Swal.fire("Error", errorMessage, "error");
           setIsCancelling(false);
+        }
+        return;
+      }
+
+      if (contractDetail.paymentType === 'fixed_with_milestones') {
+        const hasAtLeastOneFundedMilestone = contractDetail.milestones?.some(
+          (milestone) => milestone.isFunded === true
+        );
+
+        if (!hasAtLeastOneFundedMilestone) {
+          setIsCancelling(true);
+          try {
+            const checkResult = await clientActionApi.cancelContract(
+              String(contractId),
+              cancelContractReason,
+            );
+
+            if (checkResult?.success) {
+              await Swal.fire({
+                title: "Contract Cancelled",
+                text: "Your contract has been cancelled successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+              });
+              window.location.reload();
+            } else {
+              setIsCancelling(false);
+              Swal.fire(
+                "Error",
+                checkResult?.message || "Failed to cancel contract",
+                "error",
+              );
+            }
+          } catch (e) {
+            const errorMessage =
+              (e as { response?: { data?: { message?: string } } })?.response?.data
+                ?.message ||
+              (e as Error)?.message ||
+              "Unexpected error while cancelling";
+            await Swal.fire("Error", errorMessage, "error");
+            setIsCancelling(false);
+          }
+          return;
+        }
+
+        const hasSubmittedMilestoneDeliverables = contractDetail.milestones?.some(
+          (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+        );
+
+        if (!hasSubmittedMilestoneDeliverables) {
+          setIsCancelling(true);
+          try {
+            const checkResult = await clientActionApi.cancelContract(
+              String(contractId),
+              cancelContractReason,
+            );
+
+            if (checkResult?.success) {
+              await Swal.fire({
+                title: "Contract Cancelled",
+                text: "Your contract has been cancelled successfully. All funded milestones will be refunded.",
+                icon: "success",
+                confirmButtonText: "OK",
+              });
+              window.location.reload();
+            } else {
+              setIsCancelling(false);
+              Swal.fire(
+                "Error",
+                checkResult?.message || "Failed to cancel contract",
+                "error",
+              );
+            }
+          } catch (e) {
+            const errorMessage =
+              (e as { response?: { data?: { message?: string } } })?.response?.data
+                ?.message ||
+              (e as Error)?.message ||
+              "Unexpected error while cancelling";
+            await Swal.fire("Error", errorMessage, "error");
+            setIsCancelling(false);
+          }
+          return;
+        }
+
+        const currentMilestoneWithDeliverables = contractDetail.milestones?.find(
+          (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+        );
+
+        if (currentMilestoneWithDeliverables) {
+          setCancellationReason(cancelContractReason);
+          setIsCancelModalOpen(false);
+          setIsSplitFundsModalOpen(true);
         }
         return;
       }
@@ -1522,7 +1615,9 @@ function ContractDetails() {
           <SplitHeldFundsModal
             isOpen={isSplitFundsModalOpen}
             onClose={() => setIsSplitFundsModalOpen(false)}
-            heldAmount={contractDetail.totalAmountHeld}
+            heldAmount={contractDetail.paymentType === 'fixed_with_milestones' 
+              ? (contractDetail.milestones?.find(m => m.deliverables && m.deliverables.length > 0)?.amount || contractDetail.totalAmountHeld)
+              : contractDetail.totalAmountHeld}
             onSubmit={handleSplitFundsSubmit}
             reason={cancellationReason}
           />
