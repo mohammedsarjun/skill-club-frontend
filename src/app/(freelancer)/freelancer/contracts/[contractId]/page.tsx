@@ -416,7 +416,7 @@ function ContractDetails() {
     try {
       const resp = await freelancerActionApi.getContractDetail(String(contractId));
 
-      console.log(resp)
+
       if (resp?.success && resp.data) {
         const d = resp.data;
         const mapped: IFreelancerContractDetail = {
@@ -453,6 +453,7 @@ function ContractDetails() {
                 amountBaseUSD: m.amountBaseUSD,
                 expectedDelivery: m.expectedDelivery,
                 status: m.status,
+                isFunded: m.isFunded,
                 submittedAt: m.submittedAt,
                 approvedAt: m.approvedAt,
                 disputeEligible: m.disputeEligible,
@@ -538,6 +539,7 @@ function ContractDetails() {
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
+              console.log(mapped)
 
         if( mapped.paymentType === "fixed" ){
           setHasActiveCancellationDisputeWindow(
