@@ -37,6 +37,7 @@ const freelancerRouterEndPoints = {
   createCancellationRequest: (contractId: string) => `/freelancer/contracts/${contractId}/cancellation-request`,
   cancelContract: (contractId: string) => `/freelancer/contracts/${contractId}/cancel`,
   cancelContractWithDispute: (contractId: string) => `/freelancer/contracts/${contractId}/cancel-with-dispute`,
+  endHourlyContract: (contractId: string) => `/freelancer/contracts/${contractId}/end`,
   createDispute: "/freelancer/disputes",
   getDisputeById: (disputeId: string) => `/freelancer/disputes/${disputeId}`,
   getDisputesByContract: (contractId: string) => `/freelancer/contracts/${contractId}/disputes`,

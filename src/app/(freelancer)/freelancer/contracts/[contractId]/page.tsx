@@ -38,6 +38,7 @@ import { FreelancerCancellationRequestAlert } from './components/FreelancerCance
 import { CancellationRequestModal } from './components/CancellationRequestModal';
 import { IFreelancerCancellationRequest } from '@/types/interfaces/IFreelancerCancellationRequest';
 import SplitHeldFundsModal from './components/SplitHeldFunds';
+import { EndContractModal } from './components/EndContractModal';
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] = useState<IFreelancerContractDetail | null>(null);
@@ -61,6 +62,8 @@ function ContractDetails() {
   const [isProcessingCancellationRequest, setIsProcessingCancellationRequest] = useState(false);
   const [isSplitHeldFundsModalOpen, setIsSplitHeldFundsModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [isEndContractModalOpen, setIsEndContractModalOpen] = useState(false);
+  const [isEndingContract, setIsEndingContract] = useState(false);
   const params = useParams();
   const router = useRouter();
   const contractId = params.contractId;
@@ -351,6 +354,35 @@ function ContractDetails() {
       Swal.fire('Error', errorMessage, 'error');
     } finally {
       setIsCancelling(false);
+    }
+  }, [contractId]);
+
+  const handleEndContract = useCallback(async () => {
+    if (!contractId) return;
+    
+    setIsEndingContract(true);
+    try {
+      const result = await freelancerActionApi.endHourlyContract(String(contractId));
+      
+      if (result?.success) {
+        setIsEndContractModalOpen(false);
+        await Swal.fire({
+          title: 'Contract Ended',
+          text: result.message || 'The contract has been ended successfully and unused funds have been refunded.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+        window.location.reload();
+      } else {
+        Swal.fire('Error', result?.message || 'Failed to end contract', 'error');
+      }
+    } catch (e) {
+      const errorMessage = (e as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+                           (e as Error)?.message || 
+                           'Unexpected error while ending contract';
+      Swal.fire('Error', errorMessage, 'error');
+    } finally {
+      setIsEndingContract(false);
     }
   }, [contractId]);
 
@@ -963,12 +995,15 @@ function ContractDetails() {
                   />
                   <ActionButtons
                     status={contractDetail.status}
+                    paymentType={contractDetail.paymentType}
                     onRateClient={handleRateClient}
                     onCancelContract={handleCancelContract}
+                    onEndContract={() => setIsEndContractModalOpen(true)}
                     onScheduleMeeting={handleScheduleMeeting}
                     hasReviewed={hasReviewed}
-                    canCancel={contractDetail.status === 'active' || contractDetail.status === 'pending_funding'}
-                    isProcessing={isCancelling}
+                    canCancel={contractDetail.paymentType !== 'hourly' && (contractDetail.status === 'active' || contractDetail.status === 'pending_funding')}
+                    canEnd={contractDetail.paymentType === 'hourly' && contractDetail.status === 'active'}
+                    isProcessing={isCancelling || isEndingContract}
                   />
                 </div>
               </div>
@@ -1189,6 +1224,13 @@ function ContractDetails() {
           reason={cancelReason}
         />
       )}
+
+      <EndContractModal
+        isOpen={isEndContractModalOpen}
+        onClose={() => setIsEndContractModalOpen(false)}
+        onConfirm={handleEndContract}
+        isProcessing={isEndingContract}
+      />
     </>
   );
 }

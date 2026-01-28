@@ -3,18 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, DollarSign } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { adminActionApi } from '@/api/adminActionApi';
 import { IAdminDisputeDetail } from '@/types/interfaces/IAdminDisputeDetail';
 import { DisputeOverview } from './components/DisputeOverview';
 import { ContractDetails } from './components/ContractDetails';
 import { DeliverablesTab } from './components/DeliverablesTab';
 import { MilestonesTab } from './components/MilestonesTab';
+import { AdminSplitFundsModal } from './components/AdminSplitFundsModal';
 
 const DisputeDetailsPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dispute, setDispute] = useState<IAdminDisputeDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSplitModal, setShowSplitModal] = useState(false);
   
   const params = useParams();
   const router = useRouter();
@@ -42,6 +45,28 @@ const DisputeDetailsPage = () => {
       loadDisputeDetail();
     }
   }, [disputeId]);
+
+  const handleSplitFunds = async (clientPercentage: number, freelancerPercentage: number) => {
+    try {
+      const response = await adminActionApi.splitDisputeFunds(disputeId, {
+        clientPercentage,
+        freelancerPercentage
+      });
+      
+      if (response.success) {
+        toast.success(response.message || 'Funds split successfully');
+        setShowSplitModal(false);
+        const updatedResponse = await adminActionApi.getDisputeDetail(disputeId);
+        if (updatedResponse.success && updatedResponse.data) {
+          setDispute(updatedResponse.data);
+        }
+      } else {
+        toast.error(response.message || 'Failed to split funds');
+      }
+    } catch (err) {
+      toast.error('An error occurred while splitting funds');
+    }
+  };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -128,6 +153,15 @@ const DisputeDetailsPage = () => {
                 </span>
               </div>
             </div>
+            {dispute.contract.paymentType === 'fixed_with_milestones' && 
+             (dispute.status === 'open' || dispute.status === 'under_review') && (
+              <button
+                onClick={() => setShowSplitModal(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Split Money
+              </button>
+            )}
           </div>
         )}
 
@@ -161,6 +195,15 @@ const DisputeDetailsPage = () => {
             )}
           </div>
         </div>
+
+        {dispute.holdTransaction && (
+          <AdminSplitFundsModal
+            isOpen={showSplitModal}
+            onClose={() => setShowSplitModal(false)}
+            heldAmount={dispute.holdTransaction.amount}
+            onSubmit={handleSplitFunds}
+          />
+        )}
       </div>
     </div>
   );

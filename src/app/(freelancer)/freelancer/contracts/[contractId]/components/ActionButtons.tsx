@@ -6,15 +6,29 @@ import { FREELANCER_CANCELLATION_CODES } from "@/constants/freelancer-cancellati
 
 interface ActionButtonsProps {
   status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  paymentType?: 'fixed' | 'fixed_with_milestones' | 'hourly';
   onRateClient?: () => void;
   onCancelContract?: (cancelContractReason: string) => void;
+  onEndContract?: () => void;
   onScheduleMeeting?: () => void;
   hasReviewed?: boolean;
   canCancel?: boolean;
+  canEnd?: boolean;
   isProcessing?: boolean;
 }
 
-export const ActionButtons = ({ status, onRateClient, onCancelContract, onScheduleMeeting, hasReviewed, canCancel, isProcessing }: ActionButtonsProps) => {
+export const ActionButtons = ({ 
+  status, 
+  paymentType,
+  onRateClient, 
+  onCancelContract, 
+  onEndContract,
+  onScheduleMeeting, 
+  hasReviewed, 
+  canCancel,
+  canEnd, 
+  isProcessing 
+}: ActionButtonsProps) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
@@ -44,6 +58,19 @@ export const ActionButtons = ({ status, onRateClient, onCancelContract, onSchedu
           >
             <Video className="w-4 h-4" />
             Schedule Meeting
+          </button>
+        )}
+        {canEnd && onEndContract && (
+          <button
+            onClick={onEndContract}
+            disabled={isProcessing}
+            className={`w-full px-4 py-3 rounded-lg transition-colors font-medium ${
+              isProcessing
+                ? 'bg-blue-400 text-white cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {isProcessing ? 'Ending...' : 'End Contract'}
           </button>
         )}
         {canCancel && onCancelContract && (

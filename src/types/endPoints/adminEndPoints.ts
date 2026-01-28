@@ -42,6 +42,7 @@ const adminRouterEndPoints ={
 
     adminGetDisputes:"/admin/disputes",
     adminGetDisputeDetail:(disputeId:string) => `/admin/disputes/${disputeId}`,
+    adminSplitDisputeFunds:(disputeId:string) => `/admin/disputes/${disputeId}/split`,
 
     adminGetDashboardStats:"/admin/dashboard/stats",
     adminGetRevenueData:"/admin/dashboard/revenue",

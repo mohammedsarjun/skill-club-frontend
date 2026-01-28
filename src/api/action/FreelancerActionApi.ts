@@ -978,6 +978,19 @@ export const freelancerActionApi = {
     }
   },
 
+  async endHourlyContract(contractId: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.endHourlyContract(contractId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
   async createCancellationRequest(contractId: string, data: ICreateFreelancerCancellationRequest): Promise<{ success: boolean; message: string; data?: IFreelancerCancellationRequestResponse }> {
     try {
       const response = await axiosClient.post(
