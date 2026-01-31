@@ -547,16 +547,19 @@ function ContractDetails() {
     setIsProcessingCancellationRequest(true);
 
     try {
+
+      console.log("raising dispute with notes:", notes);
       const result = await clientActionApi.raiseCancellationDispute(String(contractId), notes);
 
       if (result?.success) {
         await Swal.fire({
           title: 'Dispute Raised',
-          text: 'You have raised a dispute against the cancellation request. The admin will review it within 3–5 business days.',
+          text: 'You have raised a dispute against the cancellation split. The admin will review it within 3–5 business days.',
           icon: 'success',
           confirmButtonText: 'OK',
         });
         setIsCancellationRequestModalOpen(false);
+        setIsSplitFundsModalOpen(false);
         window.location.reload();
       } else {
         Swal.fire('Error', result?.message || 'Failed to raise dispute', 'error');
