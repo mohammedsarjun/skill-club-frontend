@@ -14,7 +14,8 @@ const authenticationRoutes = {
     verifyEmailChange:"/auth/change-email/verify",
     resendChangeEmailOtp:"/auth/change-email/resend-otp",
     changePassword:"/auth/change-password",
-    refreshToken:"/auth/refresh-token"
+    refreshToken:"/auth/refresh-token",
+    me:"/auth/me",
 
 
 }

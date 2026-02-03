@@ -1,19 +1,24 @@
 "use client";
 
+import { authApi } from "@/api/authApi";
 import { setUser } from "@/store/slices/authSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-
 
 export default function ClientInit() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      dispatch(setUser(JSON.parse(storedUser)));
+    async function me() {
+      const respose = await authApi.me();
+      if (respose.success) {
+        dispatch(setUser(respose.data));
+      } else {
+        dispatch(setUser(null));
+      }
     }
-  }, [dispatch]);
+    me();
+  }, []);
 
-  return null; // it doesn’t render anything visible
+  return null
 }
