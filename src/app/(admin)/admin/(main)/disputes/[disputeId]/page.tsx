@@ -11,7 +11,7 @@ import { ContractDetails } from './components/ContractDetails';
 import { DeliverablesTab } from './components/DeliverablesTab';
 import { MilestonesTab } from './components/MilestonesTab';
 import { AdminSplitFundsModal } from './components/AdminSplitFundsModal';
-
+import { WorklogCard } from './components/WorkLogCard';
 const DisputeDetailsPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dispute, setDispute] = useState<IAdminDisputeDetail | null>(null);
@@ -29,6 +29,7 @@ const DisputeDetailsPage = () => {
       setError(null);
       try {
         const response = await adminActionApi.getDisputeDetail(disputeId);
+        console.log('Dispute detail response:', response);
         if (response.success && response.data) {
           setDispute(response.data);
         } else {
@@ -116,6 +117,10 @@ const DisputeDetailsPage = () => {
     tabs.push('milestones');
   }
 
+    if (dispute.contract.paymentType === 'hourly') {
+    tabs.push('worklog');
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -193,6 +198,7 @@ const DisputeDetailsPage = () => {
             {activeTab === 'milestones' && dispute.milestones && (
               <MilestonesTab milestones={dispute.milestones} scopeId={dispute.scopeId || undefined} />
             )}
+            {activeTab === 'worklog' && dispute.workLog && <WorklogCard data={dispute.workLog} disputeId={dispute.disputeId} />}
           </div>
         </div>
 

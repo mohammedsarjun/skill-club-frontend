@@ -1,3 +1,26 @@
+
+interface WorklogFile {
+  _id: string;
+  fileName: string;
+  fileUrl: string;
+}
+interface Worklog {
+  worklogId: string;
+  contractId: string;
+  freelancerId: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  status: "rejected" | "approved" | "pending";
+  reviewMessage: string;
+  reviewedAt: string;
+  disputeWindowEndDate: string;
+  files: WorklogFile[];
+}
+
+
+
 export interface IAdminDisputeDetail {
   disputeId: string;
   contractId: string;
@@ -14,6 +37,7 @@ export interface IAdminDisputeDetail {
   holdTransaction?: IAdminDisputeHoldTransaction;
   milestones?: IAdminDisputeMilestone[];
   deliverables?: IAdminDisputeDeliverable[];
+  workLog?: Worklog;
 }
 
 export interface IAdminDisputeContract {
