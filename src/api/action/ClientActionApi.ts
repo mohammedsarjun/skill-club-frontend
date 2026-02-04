@@ -43,6 +43,56 @@ export const clientActionApi = {
     }
   },
 
+  async requestWithdrawal(amount: number, note?: string) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.financeWithdraw, { amount, note });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getWithdrawals(page: number = 1, limit: number = 10) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.financeWithdrawals, { params: { page, limit } });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getBankDetails() {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getBankDetails);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async saveBankDetails(data: { accountHolderName: string; bankName: string; accountNumber: string; ifscCode: string; accountType: string }) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.saveBankDetails, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async getClientData() {
     try {
       const response = await axiosClient.get(clientRouterEndPoints.me);

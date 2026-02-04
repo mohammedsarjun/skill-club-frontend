@@ -3,9 +3,10 @@
 import { useState } from "react";
 import PersonalInformation from "@/components/userCommon/profile/personal-information";
 import AddressInformation from "@/components/userCommon/profile/address-information";
-import { FaUser, FaMapMarkerAlt, FaCog } from "react-icons/fa";
+import BankDetails from './components/BankDetails';
+import { FaUser, FaMapMarkerAlt, FaCog, FaPiggyBank, FaMoneyBill } from "react-icons/fa";
 
-type Section = "personal" | "address";
+type Section = "personal" | "address" | 'bank';
 
 export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState<Section>("personal");
@@ -20,6 +21,11 @@ export default function ProfilePage() {
       id: "address" as Section,
       label: "Address",
       icon: FaMapMarkerAlt,
+    },
+        {
+      id: 'bank' as Section,
+      label: "Bank Details",
+      icon: FaMoneyBill,
     },
   ];
 
@@ -64,6 +70,7 @@ export default function ProfilePage() {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200">
               {activeSection === "personal" && <PersonalInformation />}
               {activeSection === "address" && <AddressInformation />}
+              {activeSection === 'bank' && <BankDetails />}
             </div>
           </main>
         </div>
