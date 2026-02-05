@@ -8,9 +8,10 @@ import ViewModal from "./components/ViewModal";
 import { IWithdrawalItem } from "@/types/interfaces/IWithdrawals";
 import adminActionApi from "@/api/action/AdminActionApi";
 import toast from "react-hot-toast";
+import WithdrawalListingPage from "./components/WithdrawTable";
 
 export default function AdminWithdrawPage() {
-	const [stats, setStats] = useState({ pendingRequests: 0, totalPendingAmount: 0, approvedToday: 0 });
+	const [stats, setStats] = useState({ pendingRequests: 0, totalPendingAmount: 0, totalWithdrawn: 0 });
 	const [items, setItems] = useState<IWithdrawalItem[]>([]);
 	const [page, setPage] = useState(1);
 	const [limit] = useState(10);
@@ -64,11 +65,11 @@ export default function AdminWithdrawPage() {
 		<div>
 			<h1 className="text-2xl font-semibold mb-4">Withdrawals</h1>
 
-			<StatsBoxes pendingRequests={stats.pendingRequests} totalPendingAmount={stats.totalPendingAmount} approvedToday={stats.approvedToday} />
+			<StatsBoxes pendingRequests={stats.pendingRequests} totalPendingAmount={stats.totalPendingAmount} totalWithdrawn={stats.totalWithdrawn} />
 
 			<Filters roleFilter={roleFilter} statusFilter={statusFilter} onChange={handleFilterChange} />
 
-			<WithdrawTable items={items} onView={(it) => setSelected(it)} />
+			<WithdrawalListingPage roleFilter={roleFilter} statusFilter={statusFilter} />
 
 			<div className="mt-4 flex justify-end">
 				<div className="text-sm text-gray-600">Total: {total}</div>

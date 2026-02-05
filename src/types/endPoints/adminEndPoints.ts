@@ -59,6 +59,7 @@ const adminRouterEndPoints = {
   adminGetWithdrawStats: "/admin/withdraws/stats",
   adminGetWithdrawals: "/admin/withdraws",
   adminApproveWithdrawal: (id: string) => `/admin/withdraws/${id}/approve`,
+  
 };
 
 export default adminRouterEndPoints;
