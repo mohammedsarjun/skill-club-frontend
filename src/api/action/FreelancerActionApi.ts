@@ -1122,6 +1122,34 @@ export const freelancerActionApi = {
     }
   },
 
+  async requestWithdrawal(amount: number, note?: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.financeWithdraw, { amount, note });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawals(page: number = 1, limit: number = 10, status?: string) {
+    try {
+      const params: any = { page, limit };
+      if (status) params.status = status;
+      const response = await axiosClient.get(freelancerRouterEndPoints.financeWithdrawals, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async getDashboardContractStats() {
     try {
       const response = await axiosClient.get(

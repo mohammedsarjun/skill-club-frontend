@@ -4,8 +4,7 @@ const clientRouterEndPoints = {
   finance: "/client/finance",
   financeWithdraw: "/client/finance/withdraw",
   financeWithdrawals: "/client/finance/withdrawals",
-  getBankDetails: "/client/bank-details",
-  saveBankDetails: "/client/bank-details",
+
   updateClient: "/client/update",
   getAllCategories: "/client/categories",
   getSpecialitiesWithSkills: "/client/specialities",

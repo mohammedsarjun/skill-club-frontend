@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+"use client"
+import { useState } from 'react';
 import { Calendar, X } from 'lucide-react';
 import { BeautifulCalendar } from '@/components/common/Calandar';
+import { IFreelancerTransactionsQuery } from '@/types/interfaces/IFreelancerEarnings';
 
 interface PeriodFilterProps {
   selectedPeriod: 'week' | 'month' | 'year' | 'custom' | null;
@@ -9,12 +11,7 @@ interface PeriodFilterProps {
   onCustomDateChange: (startDate: Date | null, endDate: Date | null) => void;
 }
 
-const PeriodFilter: React.FC<PeriodFilterProps> = ({
-  selectedPeriod,
-  onPeriodChange,
-  customDateRange,
-  onCustomDateChange,
-}) => {
+const PeriodFilter = ({ selectedPeriod, onPeriodChange, customDateRange, onCustomDateChange }: PeriodFilterProps) => {
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<Date | null>(customDateRange.startDate);
   const [tempEndDate, setTempEndDate] = useState<Date | null>(customDateRange.endDate);
@@ -95,43 +92,18 @@ const PeriodFilter: React.FC<PeriodFilterProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                <BeautifulCalendar
-                  value={tempStartDate || undefined}
-                  onChange={(date) => setTempStartDate(date)}
-                  maxDate={tempEndDate || undefined}
-                />
+                <BeautifulCalendar value={tempStartDate || undefined} onChange={(date) => setTempStartDate(date)} maxDate={tempEndDate || undefined} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                <BeautifulCalendar
-                  value={tempEndDate || undefined}
-                  onChange={(date) => setTempEndDate(date)}
-                  minDate={tempStartDate || undefined}
-                  maxDate={new Date()}
-                />
+                <BeautifulCalendar value={tempEndDate || undefined} onChange={(date) => setTempEndDate(date)} minDate={tempStartDate || undefined} maxDate={new Date()} />
               </div>
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={handleClearCustom}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-              >
-                Clear
-              </button>
-              <button
-                onClick={handleCustomCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCustomApply}
-                disabled={!tempStartDate || !tempEndDate}
-                className="px-4 py-2 text-sm font-medium text-white bg-[#14A800] rounded-lg hover:bg-[#0f7d00] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Apply
-              </button>
+              <button onClick={handleClearCustom} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Clear</button>
+              <button onClick={handleCustomCancel} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+              <button onClick={handleCustomApply} disabled={!tempStartDate || !tempEndDate} className="px-4 py-2 text-sm font-medium text-white bg-[#14A800] rounded-lg hover:bg-[#0f7d00] disabled:opacity-50 disabled:cursor-not-allowed">Apply</button>
             </div>
           </div>
         </div>

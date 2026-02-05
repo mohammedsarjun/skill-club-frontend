@@ -4,6 +4,7 @@ import { clientActionApi } from '@/api/action/ClientActionApi';
 import { IBankDetails } from '@/types/interfaces/IBankDetails';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
+import { userApi } from '@/api/userApi';
 
 interface BankDetailsData {
   accountHolderName: string;
@@ -174,7 +175,7 @@ const BankDetails: React.FC = () => {
         accountType: formData.accountType
       });
       (async () => {
-        const res = await clientActionApi.saveBankDetails({
+        const res = await userApi.saveBankDetails({
           accountHolderName: formData.accountHolderName,
           bankName: formData.bankName,
           accountNumber: formData.accountNumber,
@@ -201,7 +202,7 @@ const BankDetails: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await clientActionApi.getBankDetails();
+      const res = await userApi.getBankDetails();
       if (res?.success && res.data) {
         const d: IBankDetails = res.data;
         setBankDetails({

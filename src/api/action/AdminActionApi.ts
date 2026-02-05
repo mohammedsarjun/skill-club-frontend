@@ -514,6 +514,46 @@ const AdminActionApi = {
       }
     }
   },
+
+  async getWithdrawStats() {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawStats);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawals(page: number = 1, limit: number = 10, filters?: Record<string, any>) {
+    try {
+      const params = { page, limit, ...(filters || {}) };
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawals, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveWithdrawal(id: string) {
+    try {
+      const response = await axiosClient.post(adminEndPoint.adminApproveWithdrawal(id));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 }
 
 export default AdminActionApi;

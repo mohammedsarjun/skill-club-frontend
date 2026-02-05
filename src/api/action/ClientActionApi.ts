@@ -67,31 +67,7 @@ export const clientActionApi = {
       }
     }
   },
-  async getBankDetails() {
-    try {
-      const response = await axiosClient.get(clientRouterEndPoints.getBankDetails);
-      return response.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        return error.response?.data || "Something went wrong";
-      } else {
-        return "Unexpected error";
-      }
-    }
-  },
 
-  async saveBankDetails(data: { accountHolderName: string; bankName: string; accountNumber: string; ifscCode: string; accountType: string }) {
-    try {
-      const response = await axiosClient.post(clientRouterEndPoints.saveBankDetails, data);
-      return response.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        return error.response?.data || "Something went wrong";
-      } else {
-        return "Unexpected error";
-      }
-    }
-  },
 
   async getClientData() {
     try {

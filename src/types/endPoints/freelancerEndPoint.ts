@@ -75,6 +75,10 @@ const freelancerRouterEndPoints = {
   getTransactions: '/freelancer/earnings/transactions',
   getDashboardContractStats: '/freelancer/dashboard/contract-stats',
   getDashboardEarnings: '/freelancer/dashboard/earnings',
+  // finance
+  finance: '/freelancer/finance',
+  financeWithdraw: '/freelancer/finance/withdraw',
+  financeWithdrawals: '/freelancer/finance/withdrawals',
   getDashboardMeetings: '/freelancer/dashboard/meetings',
   getDashboardReviewStats: '/freelancer/dashboard/review-stats',
   approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`

@@ -55,6 +55,10 @@ const adminRouterEndPoints = {
   adminGetUserGrowthData: "/admin/dashboard/user-growth",
   adminGetRecentContracts: "/admin/dashboard/recent-contracts",
   adminGetRecentReviews: "/admin/dashboard/recent-reviews",
+  // withdrawals
+  adminGetWithdrawStats: "/admin/withdraws/stats",
+  adminGetWithdrawals: "/admin/withdraws",
+  adminApproveWithdrawal: (id: string) => `/admin/withdraws/${id}/approve`,
 };
 
 export default adminRouterEndPoints;
