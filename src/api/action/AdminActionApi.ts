@@ -580,6 +580,23 @@ const AdminActionApi = {
       }
     }
   },
+
+  async getRevenue(params?: {
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetRevenue, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 }
 
 export default AdminActionApi;

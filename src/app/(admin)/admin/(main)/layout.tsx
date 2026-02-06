@@ -117,6 +117,14 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">User Management</span>
               </Link>
 
+                 <Link
+                href="/admin/revenue"
+                className={linkClasses("/admin/revenue")}
+              >
+                <FaCog className="w-5 h-5" />
+                <span className="font-medium">Revenue</span>
+              </Link>
+
                 <Link href="/admin/withdrawals" className={linkClasses("/admin/withdrawals")}>
                 <FaUsers className="w-5 h-5" />
                 <span className="font-medium">Withdrawals</span>
