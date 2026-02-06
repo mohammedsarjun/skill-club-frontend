@@ -55,10 +55,12 @@ const adminRouterEndPoints = {
   adminGetUserGrowthData: "/admin/dashboard/user-growth",
   adminGetRecentContracts: "/admin/dashboard/recent-contracts",
   adminGetRecentReviews: "/admin/dashboard/recent-reviews",
-  // withdrawals
+  
   adminGetWithdrawStats: "/admin/withdraws/stats",
   adminGetWithdrawals: "/admin/withdraws",
-  adminApproveWithdrawal: (id: string) => `/admin/withdraws/${id}/approve`,
+  adminGetWithdrawalDetail: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}`,
+  adminApproveWithdrawal: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}/approve`,
+  adminRejectWithdrawal: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}/reject`,
   
 };
 

@@ -6,12 +6,18 @@ import EarningsOverview from "./components/EarningsOverview";
 import TransactionsTable from "./components/TransactionsTable";
 import PeriodFilter from "./components/PeriodFilter";
 import WithdrawModal from "./components/WithdrawModal";
+import WithdrawalDetailModal from "./components/WithdrawalDetailModal";
 import Pagination from "@/components/common/Pagination";
 import {
   IFreelancerEarningsOverview,
   IFreelancerTransaction,
 } from "@/types/interfaces/IFreelancerEarnings";
-import { IWithdrawalItem } from "@/types/interfaces/IWithdrawals";
+import {
+  IFreelancerWithdrawalListItem,
+  IFreelancerWithdrawalDetail,
+  IFreelancerWithdrawalsResponse,
+} from "@/types/interfaces/IFreelancerWithdrawal";
+import toast from "react-hot-toast";
 
 const FreelancerEarnings = () => {
   const [activeTab, setActiveTab] = useState("transactions");
@@ -28,15 +34,10 @@ const FreelancerEarnings = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [withdrawals, setWithdrawals] = useState<IWithdrawalItem[]>([]);
+  const [withdrawals, setWithdrawals] = useState<IFreelancerWithdrawalListItem[]>([]);
   const [withdrawPage, setWithdrawPage] = useState(1);
   const [withdrawTotalPages, setWithdrawTotalPages] = useState(1);
-  const [withdrawStatusFilter, setWithdrawStatusFilter] = useState<
-    | "all"
-    | "withdrawal_requested"
-    | "withdrawal_approved"
-    | "withdrawal_rejected"
-  >("all");
+  const [withdrawStatusFilter, setWithdrawStatusFilter] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<
     "week" | "month" | "year" | "custom" | null
   >(null);
@@ -47,6 +48,8 @@ const FreelancerEarnings = () => {
     startDate: null,
     endDate: null,
   });
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<IFreelancerWithdrawalDetail | null>(null);
+  const [showWithdrawalDetail, setShowWithdrawalDetail] = useState(false);
 
   useEffect(() => {
     fetchEarningsOverview();
@@ -110,19 +113,29 @@ const FreelancerEarnings = () => {
 
   const fetchWithdrawals = async () => {
     try {
-      const status =
-        withdrawStatusFilter === "all" ? undefined : withdrawStatusFilter;
-      const res = await freelancerActionApi.getWithdrawals(
-        withdrawPage,
-        10,
-        status as string | undefined,
-      );
+      const status = withdrawStatusFilter === "all" ? undefined : withdrawStatusFilter;
+      const res = await freelancerActionApi.getWithdrawals(withdrawPage, 10, status);
       if (res?.success && res?.data) {
-        setWithdrawals(res.data || []);
-        setWithdrawTotalPages(res.data.pages || 1);
+        const data = res.data as IFreelancerWithdrawalsResponse;
+        setWithdrawals(data.items || []);
+        setWithdrawTotalPages(data.pages || 1);
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleViewWithdrawal = async (withdrawalId: string) => {
+    try {
+      const res = await freelancerActionApi.getWithdrawalDetail(withdrawalId);
+      if (res?.success && res?.data) {
+        setSelectedWithdrawal(res.data);
+        setShowWithdrawalDetail(true);
+      } else {
+        toast.error("Failed to load withdrawal details");
+      }
+    } catch (err) {
+      toast.error("Failed to load withdrawal details");
     }
   };
 
@@ -147,6 +160,18 @@ const FreelancerEarnings = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const statusColors: Record<string, string> = {
+    withdrawal_approved: "bg-green-100 text-green-700",
+    withdrawal_requested: "bg-amber-100 text-amber-700",
+    rejected: "bg-red-100 text-red-700",
+  };
+
+  const statusLabels: Record<string, string> = {
+    withdrawal_approved: "Approved",
+    withdrawal_requested: "Pending",
+    rejected: "Rejected",
   };
 
   return (
@@ -217,54 +242,113 @@ const FreelancerEarnings = () => {
 
             {activeTab === "withdrawals" && (
               <div>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-6">
                   <button
                     onClick={() => setWithdrawStatusFilter("all")}
-                    className={`px-3 py-1 rounded ${withdrawStatusFilter === "all" ? "bg-[#14A800] text-white" : "bg-gray-100"}`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      withdrawStatusFilter === "all"
+                        ? "bg-[#14A800] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setWithdrawStatusFilter("withdrawal_requested")}
-                    className={`px-3 py-1 rounded ${withdrawStatusFilter === "withdrawal_requested" ? "bg-[#14A800] text-white" : "bg-gray-100"}`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      withdrawStatusFilter === "withdrawal_requested"
+                        ? "bg-[#14A800] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   >
-                    Requested
+                    Pending
                   </button>
                   <button
                     onClick={() => setWithdrawStatusFilter("withdrawal_approved")}
-                    className={`px-3 py-1 rounded ${withdrawStatusFilter === "withdrawal_approved" ? "bg-[#14A800] text-white" : "bg-gray-100"}`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      withdrawStatusFilter === "withdrawal_approved"
+                        ? "bg-[#14A800] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   >
                     Approved
                   </button>
                   <button
-                    onClick={() => setWithdrawStatusFilter("withdrawal_rejected")}
-                    className={`px-3 py-1 rounded ${withdrawStatusFilter === "withdrawal_rejected" ? "bg-[#14A800] text-white" : "bg-gray-100"}`}
+                    onClick={() => setWithdrawStatusFilter("rejected")}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      withdrawStatusFilter === "rejected"
+                        ? "bg-[#14A800] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   >
                     Rejected
                   </button>
                 </div>
 
                 {withdrawals.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No withdrawal requests
+                  <div className="text-center py-12">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <p className="mt-2 text-gray-500">No withdrawal requests</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {withdrawals.map((w) => (
                       <div
                         key={w.id}
-                        className="p-4 bg-white border rounded flex justify-between items-center"
+                        onClick={() => handleViewWithdrawal(w.id)}
+                        className="p-5 bg-white border border-gray-200 rounded-lg hover:border-[#14A800] hover:shadow-md transition-all cursor-pointer"
                       >
-                        <div>
-                          <div className="font-medium">
-                            ${w.amount.toFixed(2)}
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <p className="text-2xl font-bold text-gray-900">
+                                ₹{w.amount.toLocaleString("en-IN")}
+                              </p>
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  statusColors[w.status] ||
+                                  "bg-gray-100 text-gray-700"
+                                }`}
+                              >
+                                {statusLabels[w.status] || w.status}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {w.description}
+                            </p>
+                            {w.note && (
+                              <p className="text-sm text-gray-500 italic">
+                                Note: {w.note}
+                              </p>
+                            )}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {w.note || ""}
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">
+                              {new Date(w.createdAt).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(w.createdAt).toLocaleTimeString("en-IN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
                           </div>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {new Date(w.createdAt).toLocaleString()} • {w.status}
                         </div>
                       </div>
                     ))}
@@ -276,25 +360,37 @@ const FreelancerEarnings = () => {
                     currentPage={withdrawPage}
                     totalPages={withdrawTotalPages}
                     onPageChange={setWithdrawPage}
-                    className="mt-4"
+                    className="mt-6"
                   />
                 )}
               </div>
             )}
-
-            {showWithdrawModal && (
-              <WithdrawModal
-                available={earningsOverview.available}
-                onClose={() => setShowWithdrawModal(false)}
-                onSuccess={() => {
-                  fetchEarningsOverview();
-                  fetchWithdrawals();
-                }}
-              />
-            )}
           </div>
         </div>
       </div>
+
+      {showWithdrawModal && (
+        <WithdrawModal
+          available={earningsOverview.available}
+          onClose={() => setShowWithdrawModal(false)}
+          onSuccess={() => {
+            fetchEarningsOverview();
+            if (activeTab === "withdrawals") {
+              fetchWithdrawals();
+            }
+          }}
+        />
+      )}
+
+      {showWithdrawalDetail && (
+        <WithdrawalDetailModal
+          withdrawal={selectedWithdrawal}
+          onClose={() => {
+            setShowWithdrawalDetail(false);
+            setSelectedWithdrawal(null);
+          }}
+        />
+      )}
     </div>
   );
 };

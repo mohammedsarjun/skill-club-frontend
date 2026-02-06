@@ -1137,9 +1137,22 @@ export const freelancerActionApi = {
 
   async getWithdrawals(page: number = 1, limit: number = 10, status?: string) {
     try {
-      const params: any = { page, limit };
+      const params: { page: number; limit: number; status?: string } = { page, limit };
       if (status) params.status = status;
       const response = await axiosClient.get(freelancerRouterEndPoints.financeWithdrawals, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawalDetail(withdrawalId: string) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.financeWithdrawalDetail(withdrawalId));
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

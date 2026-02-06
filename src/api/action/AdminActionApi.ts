@@ -528,7 +528,7 @@ const AdminActionApi = {
     }
   },
 
-  async getWithdrawals(page: number = 1, limit: number = 10, filters?: Record<string, any>) {
+  async getWithdrawals(page: number = 1, limit: number = 10, filters?: { role?: string; status?: string }) {
     try {
       const params = { page, limit, ...(filters || {}) };
       const response = await axiosClient.get(adminEndPoint.adminGetWithdrawals, { params });
@@ -542,9 +542,35 @@ const AdminActionApi = {
     }
   },
 
-  async approveWithdrawal(id: string) {
+  async getWithdrawalDetail(withdrawalId: string) {
     try {
-      const response = await axiosClient.post(adminEndPoint.adminApproveWithdrawal(id));
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawalDetail(withdrawalId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveWithdrawal(withdrawalId: string) {
+    try {
+      const response = await axiosClient.post(adminEndPoint.adminApproveWithdrawal(withdrawalId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async rejectWithdrawal(withdrawalId: string, reason: string) {
+    try {
+      const response = await axiosClient.post(adminEndPoint.adminRejectWithdrawal(withdrawalId), { reason });
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

@@ -12,13 +12,13 @@ export interface IWithdrawalTransaction {
   createdAt: string;
 }
 
-export interface IFreelancerProfile {
+export interface IUserProfile {
   professionalRole: string;
   hourlyRate: number;
   workCategory: string;
 }
 
-export interface IFreelancer {
+export interface IUser {
   id: string;
   name: string;
   email: string;
@@ -26,7 +26,7 @@ export interface IFreelancer {
   phone: string;
   isVerified: boolean;
   isBlocked: boolean;
-  profile: IFreelancerProfile;
+  profile: IUserProfile;
 }
 
 export interface IBankDetails {
@@ -39,16 +39,22 @@ export interface IBankDetails {
 }
 
 export interface IWithdrawalItem {
-  id?: string;
-  transaction: IWithdrawalTransaction;
-  freelancer: IFreelancer;
-  bankDetails: IBankDetails;
+  id: string;
   role: string;
+  transaction: IWithdrawalTransaction;
+  user: IUser;
+  bankDetails: IBankDetails;
 }
 
 export interface IWithdrawalsResponse {
   items: IWithdrawalItem[];
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
   total: number;
+}
+
+export interface IWithdrawalStats {
+  pendingRequests: number;
+  totalPendingAmount: number;
+  totalWithdrawn: number;
 }
