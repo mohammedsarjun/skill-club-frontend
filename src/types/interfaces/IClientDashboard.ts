@@ -29,8 +29,40 @@ export interface IRecentMessage {
   avatar: string;
 }
 
+export interface IRecentActiveContract {
+  _id: string;
+  title: string;
+  freelancer: {
+    _id: string;
+    name: string;
+    logo?: string;
+    country?: string;
+  };
+  status: string;
+  contractType: string;
+  startDate: string;
+  budget: number;
+  currency?: string;
+}
+
+export interface ISavedFreelancer {
+  _id: string;
+  freelancer: {
+    _id: string;
+    name: string;
+    logo?: string;
+    professionalRole?: string;
+    country?: string;
+    hourlyRate?: number;
+    skills: string[];
+  };
+  savedAt: string;
+}
+
 export interface IClientDashboard {
   stats: IClientDashboardStats;
   recentJobs: IRecentJob[];
   recentMessages: IRecentMessage[];
+  recentActiveContracts: IRecentActiveContract[];
+  savedFreelancers: ISavedFreelancer[];
 }
