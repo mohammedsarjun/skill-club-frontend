@@ -251,8 +251,10 @@ const JobDetailPage: React.FC = () => {
       console.log(jobDetail);
     }
 
-    fetchJobDetail();
-  }, []);
+    if (jobId) {
+      fetchJobDetail();
+    }
+  }, [jobId]);
 
   // Check saved state on mount
   useEffect(() => {
@@ -263,7 +265,7 @@ const JobDetailPage: React.FC = () => {
         const savedFlag = resp?.data?.saved as boolean | undefined;
         if (mounted) setIsSaved(!!savedFlag);
       } catch (err) {
-        // ignore silently or show toast if desired
+
       }
     }
     if (jobId) checkSaved();
@@ -272,26 +274,6 @@ const JobDetailPage: React.FC = () => {
     };
   }, [jobId]);
 
-  // Check if proposal already exists
-  useEffect(() => {
-    let mounted = true;
-    async function checkProposal() {
-      if (!jobDetail?.isProposalAlreadySent) {
-        try {
-          const resp = await freelancerActionApi.getMyProposals(jobId as string, {});
-          if (mounted && resp?.success && resp?.data) {
-            const proposals = Array.isArray(resp.data) ? resp.data : [];
-            setHasProposal(proposals.length > 0);
-          }
-        } catch (err) {
-        }
-      }
-    }
-    if (jobId && jobDetail) checkProposal();
-    return () => {
-      mounted = false;
-    };
-  }, [jobId, jobDetail]);
 
   useEffect(() => {
     let mounted = true;

@@ -28,17 +28,32 @@ export default function ViewModal({ item, onClose, onApprove }: Props) {
 
           <div className="p-4 bg-gray-50 rounded">
             <div className="text-sm text-gray-600">Amount</div>
-            <div className="font-medium">${item.amount.toFixed(2)}</div>
+            <div className="font-medium">₹{item.transaction.amount.toFixed(2)}</div>
           </div>
 
           <div className="p-4 bg-gray-50 rounded">
-            <div className="text-sm text-gray-600">Note</div>
-            <div className="font-medium">{item.note || '—'}</div>
+            <div className="text-sm text-gray-600">Description</div>
+            <div className="font-medium">{item.transaction.description || '—'}</div>
           </div>
 
           <div className="p-4 bg-gray-50 rounded">
             <div className="text-sm text-gray-600">Status</div>
-            <div className="font-medium">{item.status}</div>
+            <div className="font-medium capitalize">{item.transaction.status.replace(/_/g, ' ')}</div>
+          </div>
+
+          <div className="p-4 bg-gray-50 rounded">
+            <div className="text-sm text-gray-600">User</div>
+            <div className="font-medium">{item.user.name} ({item.user.email})</div>
+          </div>
+
+          <div className="p-4 bg-gray-50 rounded">
+            <div className="text-sm text-gray-600">Bank Account</div>
+            <div className="font-medium">{item.bankDetails.bankName} - {item.bankDetails.accountNumberMasked}</div>
+          </div>
+
+          <div className="p-4 bg-gray-50 rounded">
+            <div className="text-sm text-gray-600">Requested Date</div>
+            <div className="font-medium">{item.transaction.createdAt}</div>
           </div>
         </div>
 

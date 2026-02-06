@@ -11,6 +11,12 @@ import {
   FaCog,
   FaBookOpen,
   FaBriefcase,
+  FaFileContract,
+  FaChartLine,
+  FaMoneyCheckAlt,
+  FaStar,
+  FaGavel,
+  FaLayerGroup,
 } from "react-icons/fa";
 import Image from "next/image";
 import AdminAuthGuard from "@/components/AdminAuthGaurd";
@@ -91,7 +97,7 @@ function AdminLayout({ children }: LayoutProps) {
                 href="/admin/categories-skills"
                 className={linkClasses("/admin/categories-skills")}
               >
-                <FaBookOpen className="w-5 h-5" />
+                <FaLayerGroup className="w-5 h-5" />
                 <span className="font-medium">Categories</span>
               </Link>
 
@@ -100,7 +106,7 @@ function AdminLayout({ children }: LayoutProps) {
                 onClick={() => setSidebarOpen(false)}
                 className={`${linkClasses("/admin/contracts")} w-full text-left`}
               >
-                <FaBookOpen className="w-5 h-5" />
+                <FaFileContract className="w-5 h-5" />
                 <span className="font-medium">Contracts</span>
               </Link>
 
@@ -121,12 +127,12 @@ function AdminLayout({ children }: LayoutProps) {
                 href="/admin/revenue"
                 className={linkClasses("/admin/revenue")}
               >
-                <FaCog className="w-5 h-5" />
+                <FaChartLine className="w-5 h-5" />
                 <span className="font-medium">Revenue</span>
               </Link>
 
                 <Link href="/admin/withdrawals" className={linkClasses("/admin/withdrawals")}>
-                <FaUsers className="w-5 h-5" />
+                <FaMoneyCheckAlt className="w-5 h-5" />
                 <span className="font-medium">Withdrawals</span>
               </Link>
 
@@ -135,7 +141,7 @@ function AdminLayout({ children }: LayoutProps) {
                 href="/admin/reviews"
                 className={linkClasses("/admin/reviews")}
               >
-                <FaCog className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
                 <span className="font-medium">Reviews</span>
               </Link>
 
@@ -143,7 +149,7 @@ function AdminLayout({ children }: LayoutProps) {
                 href="/admin/disputes"
                 className={linkClasses("/admin/disputes")}
               >
-                <FaCog className="w-5 h-5" />
+                <FaGavel className="w-5 h-5" />
                 <span className="font-medium">Disputes</span>
               </Link>
 
