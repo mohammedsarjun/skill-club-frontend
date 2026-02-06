@@ -11,7 +11,6 @@ import {
   FaAward,
   FaFolder,
   FaStar,
-  FaEnvelope,
 } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import { clientActionApi } from "@/api/action/ClientActionApi";
@@ -49,6 +48,10 @@ const FreelancerProfile = () => {
       education: [],
       portfolio: [],
     },
+    jobSuccessRate: 0,
+    totalEarnedAmount: 0,
+    averageRating: 0,
+    totalReviews: 0,
   });
 
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
@@ -81,6 +84,10 @@ const FreelancerProfile = () => {
               state: (d.address && d.address.state) || prev.address.state,
               country: (d.address && d.address.country) || prev.address.country,
             },
+            jobSuccessRate: typeof d.jobSuccessRate === 'number' ? d.jobSuccessRate : prev.jobSuccessRate,
+            totalEarnedAmount: typeof d.totalEarnedAmount === 'number' ? d.totalEarnedAmount : prev.totalEarnedAmount,
+            averageRating: typeof d.averageRating === 'number' ? d.averageRating : prev.averageRating,
+            totalReviews: typeof d.totalReviews === 'number' ? d.totalReviews : prev.totalReviews,
             freelancerProfile: {
               ...(prev.freelancerProfile || {}),
               logo: d.logo || prev.freelancerProfile.logo,
@@ -229,20 +236,28 @@ const FreelancerProfile = () => {
                     <span className="font-semibold text-gray-900">{formatCurrency(Number(freelancer.freelancerProfile.hourlyRate || 0))}/hr</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FaStar size={14} className="text-yellow-400" />
-                    <span className="font-semibold">4.9</span>
-                    <span className="text-gray-400">(127 reviews)</span>
+                    <FaAward size={14} className="text-green-500" />
+                    <span className="font-semibold text-gray-900">{freelancer.jobSuccessRate}% Success Rate</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <FaDollarSign size={14} className="text-green-500" />
+                    <span className="font-semibold text-gray-900">{formatCurrency(Number(freelancer.totalEarnedAmount || 0))} Earned</span>
+                  </div>
+                  {freelancer.totalReviews > 0 && (
+                    <div className="flex items-center gap-2">
+                      <FaStar size={14} className="text-yellow-400" />
+                      <span className="font-semibold">{freelancer.averageRating.toFixed(1)}</span>
+                      <span className="text-gray-400">({freelancer.totalReviews} review{freelancer.totalReviews !== 1 ? 's' : ''})</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 md:ml-auto">
               <button onClick={()=>router.push(`/client/offers/create/freelancer/${freelancerId}`)} className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
-              <button className="border-2 border-[#108A00] text-[#108A00] px-8 py-3 rounded-lg font-semibold hover:bg-[#108A00] hover:text-white transition-colors"><FaEnvelope className="inline mr-2" size={16} />Message</button>
               <button
                 onClick={() => {
-                  // optimistic
                   const next = !saved;
                   setSaved(next);
                   debouncedToggle(next);

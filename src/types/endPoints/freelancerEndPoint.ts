@@ -22,6 +22,8 @@ const freelancerRouterEndPoints = {
   getJobDetail:(jobId:string)=> `/freelancer/jobs/${jobId}`,
   saveJob: (jobId: string) => `/freelancer/jobs/${jobId}/save`,
   isJobSaved: (jobId: string) => `/freelancer/jobs/${jobId}/saved`,
+  reportJob: (jobId: string) => `/freelancer/jobs/${jobId}/report`,
+  isJobReported: (jobId: string) => `/freelancer/jobs/${jobId}/reported`,
   getSavedJobs: () => `/freelancer/saved-jobs`,
   createProposal:'/freelancer/proposals',
   getMyProposals:(jobId:string)=> `/freelancer/jobs/${jobId}/proposals`,

@@ -107,20 +107,20 @@ export interface FreelancerJobDetailResponse {
     min: number;
     max: number;
   } | null;
-  // Optional FX fields returned from backend
   currency?: string;
-  conversionRate?: number; // USD per 1 unit of `currency`
+  conversionRate?: number;
   hourlyRateBaseUSD?: { min?: number; max?: number };
   fixedRateBaseUSD?: { min?: number; max?: number };
   proposalReceived: number;
-  postedAt: string; // ISO date string
+  postedAt: string;
   client: {
     companyName: string;
     country: string;
     rating: number;
     totalJobsPosted: number;
   };
-  status:string
+  status: string;
+  isProposalAlreadySent?: boolean;
 }
 
 export interface FreelancerJobResponse {
@@ -131,15 +131,22 @@ export interface FreelancerJobResponse {
   specialities: string[];
   skills: string[];
   jobRateType: "hourly" | "fixed";
-  minHourlyRate: number;
-  maxHourlyRate: number;
-  minFixedRate: number;
-  maxFixedRate: number;
+  hourlyRate?: {
+    min: number;
+    max: number;
+    hoursPerWeek?: number;
+    estimatedDuration?: "1 To 3 Months" | "3 To 6 Months";
+  } | null;
+  fixedRate?: {
+    min: number;
+    max: number;
+  } | null;
   totalProposalReceived: number;
   postedAt: string;
   client: {
     companyName: string;
     country: string;
     rating: number;
+    totalMoneySpent: number;
   };
 }

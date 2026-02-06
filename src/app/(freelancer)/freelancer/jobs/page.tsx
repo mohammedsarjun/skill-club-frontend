@@ -143,10 +143,20 @@ const FreelancerJobListing = () => {
           selectedCategory
         );
         if (resp && resp.success && mounted) {
+          // Map specialities and skills to match expected structure
+          const mappedSpecialities = resp.data.map((spec: any) => ({
+            specialityId: spec._id,
+            specialityName: spec.name,
+            skills: spec.skills?.map((skill: any) => ({
+              skillId: skill._id,
+              skillName: skill.name,
+            })) || [],
+          }));
+          
           setApiCategories((prev) =>
             prev.map((cat) =>
               cat.categoryId === selectedCategory
-                ? { ...cat, specialities: resp.data }
+                ? { ...cat, specialities: mappedSpecialities }
                 : cat
             )
           );
@@ -187,7 +197,6 @@ const FreelancerJobListing = () => {
 
   // Filter the backend-provided jobs according to the active filters
   const filteredJobs = jobs.filter((job: any) => {
-    // Search query
     if (
       searchQuery &&
       !job.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -196,7 +205,6 @@ const FreelancerJobListing = () => {
       return false;
     }
 
-    // Skills filter
     if (
       selectedSkills.length > 0 &&
       !selectedSkills.some((skill) => job.skills.includes(skill))
@@ -204,36 +212,32 @@ const FreelancerJobListing = () => {
       return false;
     }
 
-    // Rate type filter
     if (rateType && job.jobRateType !== rateType) {
       return false;
     }
 
-    // Hourly rate filter
-    if (rateType === "hourly" && minHourlyRate && job.minHourlyRate) {
-      if (parseInt(job.minHourlyRate) < parseInt(minHourlyRate)) {
+    if (rateType === "hourly" && minHourlyRate && job.hourlyRate?.min) {
+      if (job.hourlyRate.min < parseInt(minHourlyRate)) {
         return false;
       }
     }
-    if (rateType === "hourly" && maxHourlyRate && job.maxHourlyRate) {
-      if (parseInt(job.maxHourlyRate) > parseInt(maxHourlyRate)) {
-        return false;
-      }
-    }
-
-    // Fixed rate filter
-    if (rateType === "fixed" && minFixedRate && job.minFixedRate) {
-      if (parseInt(job.minFixedRate) < parseInt(minFixedRate)) {
-        return false;
-      }
-    }
-    if (rateType === "fixed" && maxFixedRate && job.maxFixedRate) {
-      if (parseInt(job.maxFixedRate) > parseInt(maxFixedRate)) {
+    if (rateType === "hourly" && maxHourlyRate && job.hourlyRate?.max) {
+      if (job.hourlyRate.max > parseInt(maxHourlyRate)) {
         return false;
       }
     }
 
-    // Proposal range filter
+    if (rateType === "fixed" && minFixedRate && job.fixedRate?.min) {
+      if (job.fixedRate.min < parseInt(minFixedRate)) {
+        return false;
+      }
+    }
+    if (rateType === "fixed" && maxFixedRate && job.fixedRate?.max) {
+      if (job.fixedRate.max > parseInt(maxFixedRate)) {
+        return false;
+      }
+    }
+
     if (selectedProposalRanges.length > 0) {
       const matchesRange = selectedProposalRanges.some((range) => {
         const [min, max] = range.split("-").map(Number);
@@ -244,15 +248,13 @@ const FreelancerJobListing = () => {
       if (!matchesRange) return false;
     }
 
-    // Country filter
-    if (selectedCountry && job.country !== selectedCountry) {
+    if (selectedCountry && job.client?.country !== selectedCountry) {
       return false;
     }
 
-    // Rating filter
     if (
       selectedRating &&
-      parseFloat(job.clientRating) < parseFloat(selectedRating)
+      (job.client?.rating || 0) < parseFloat(selectedRating)
     ) {
       return false;
     }
@@ -550,10 +552,10 @@ const FreelancerJobListing = () => {
                       {availableSpecialties.length > 0
                         ? availableSpecialties.map((spec: any) => (
                             <option
-                              key={spec.specialityId ?? spec}
-                              value={spec.specialityId ?? spec}
+                              key={spec.specialityId}
+                              value={spec.specialityId}
                             >
-                              {spec.specialityName ?? spec}
+                              {spec.specialityName}
                             </option>
                           ))
                         : null}
@@ -570,21 +572,21 @@ const FreelancerJobListing = () => {
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {availableSkills.map((skill: any) => (
                         <label
-                          key={skill.skillId ?? skill}
+                          key={skill.skillId}
                           className="flex items-center gap-2 cursor-pointer"
                         >
                           <input
                             type="checkbox"
                             checked={selectedSkills.includes(
-                              skill.skillId ?? skill
+                              skill.skillId
                             )}
                             onChange={() =>
-                              handleSkillToggle(skill.skillId ?? skill)
+                              handleSkillToggle(skill.skillId)
                             }
                             className="w-4 h-4 text-[#108A00] border-gray-300 rounded focus:ring-[#108A00]"
                           />
                           <span className="text-sm text-gray-700">
-                            {skill.skillName ?? skill}
+                            {skill.skillName}
                           </span>
                         </label>
                       ))}
@@ -784,18 +786,18 @@ const FreelancerJobListing = () => {
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                         <div className="flex items-center gap-1">
                           <FaMapMarkerAlt className="text-gray-400" size={14} />
-                          <span>{job.country}</span>
+                          <span>{job.client?.country || 'N/A'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <FaStar className="text-yellow-400" size={14} />
                           <span className="font-semibold text-gray-900">
-                            {job.clientRating}
+                            {job.client?.rating ? job.client.rating.toFixed(1) : '0.0'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <FaDollarSign className="text-gray-400" size={14} />
                           <span>
-                            ${(job.totalMoneySpend / 1000).toFixed(0)}k spent
+                            ₹{((job.client?.totalMoneySpent || 0) / 1000).toFixed(0)}k spent
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
@@ -810,9 +812,9 @@ const FreelancerJobListing = () => {
                           <div className="text-xs font-medium mb-1">Hourly</div>
                           <div className="text-lg font-bold">
                             <>
-                              {formatCurrency(Number(job.minHourlyRate ?? job.minFixedRate ?? 0))}
+                              {formatCurrency(Number(job.hourlyRate?.min ?? 0))}
                               <span className="mx-1">-</span>
-                              {formatCurrency(Number(job.maxHourlyRate ?? job.maxFixedRate ?? 0))}
+                              {formatCurrency(Number(job.hourlyRate?.max ?? 0))}
                             </>
                           </div>
                         </div>
@@ -823,9 +825,9 @@ const FreelancerJobListing = () => {
                           </div>
                           <div className="text-lg font-bold">
                             <>
-                              {formatCurrency(Number(job.minFixedRate ?? job.minHourlyRate ?? 0))}
+                              {formatCurrency(Number(job.fixedRate?.min ?? 0))}
                               <span className="mx-1">-</span>
-                              {formatCurrency(Number(job.maxFixedRate ?? job.maxHourlyRate ?? 0))}
+                              {formatCurrency(Number(job.fixedRate?.max ?? 0))}
                             </>
                           </div>
                         </div>

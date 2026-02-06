@@ -348,6 +348,34 @@ const AdminActionApi = {
     }
   },
 
+  async getAllReports(page: number = 1, limit: number = 10) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetAllReports, {
+        params: { page, limit },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getJobReports(jobId: string) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetJobReports(jobId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   getContracts: async (query: { search?: string; page?: number; limit?: number; status?: string }) => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetAllContracts, {

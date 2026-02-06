@@ -31,6 +31,10 @@ const adminRouterEndPoints = {
   adminApproveJob: (jobId: string) => `/admin/jobs/${jobId}/approve`,
   adminRejectJob: (jobId: string) => `/admin/jobs/${jobId}/reject`,
   adminSuspendJob: (jobId: string) => `/admin/jobs/${jobId}/suspend`,
+  adminGetJobReports: (jobId: string) => `/admin/jobs/${jobId}/reports`,
+
+  //reports
+  adminGetAllReports: "/admin/reports",
 
   //contracts
   adminGetAllContracts: "/admin/contracts",

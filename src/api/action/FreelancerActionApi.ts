@@ -474,6 +474,35 @@ export const freelancerActionApi = {
       }
     }
   },
+  async reportJob(jobId: string, reason: string) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.reportJob(jobId),
+        { reason }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async isJobReported(jobId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.isJobReported(jobId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async isJobSaved(jobId: string) {
     try {
       const response = await axiosClient.get(freelancerRouterEndPoints.isJobSaved(jobId));
