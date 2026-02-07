@@ -62,6 +62,7 @@ const freelancerRouterEndPoints = {
   getMeetings: '/freelancer/meetings',
   getMeetingDetail: (meetingId: string) => `/freelancer/meetings/${meetingId}`,
   getContractMeetings: (contractId: string) => `/freelancer/contracts/${contractId}/meetings`,
+  getAllFreelancerMeetings: '/freelancer/meetings',
   acceptMeeting: '/freelancer/meetings/accept',
   requestMeetingReschedule: '/freelancer/meetings/reschedule',
   requestMeetingReject: '/freelancer/meetings/reject',

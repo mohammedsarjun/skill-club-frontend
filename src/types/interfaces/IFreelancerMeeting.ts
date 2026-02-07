@@ -1,11 +1,11 @@
 export interface IFreelancerMeetingListItem {
   meetingId: string;
-  contractId: string;
-  contractTitle: string;
-  type: 'recurring' | 'milestone' | 'fixed';
+  contractId?: string;
+  contractTitle?: string;
   scheduledAt: string;
   durationMinutes: number;
   agenda: string;
+  meetingType: 'pre-contract' | 'post-contract';
   status: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
   client?: {
     clientId: string;
@@ -50,6 +50,10 @@ export interface IFreelancerMeetingQueryParams {
   page?: number;
   limit?: number;
   status?: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
+  meetingType?: 'pre-contract' | 'post-contract';
+  requestedBy?: 'client' | 'freelancer';
+  rescheduleRequestedBy?: 'client' | 'freelancer';
+  isExpired?: boolean;
 }
 
 export interface IFreelancerMeetingDetail {

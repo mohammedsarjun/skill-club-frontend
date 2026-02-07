@@ -56,6 +56,7 @@ const clientRouterEndPoints = {
   rejectWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/reject`,
   proposeMeeting: (contractId: string) => `/client/contracts/${contractId}/meetings`,
   getContractMeetings: (contractId: string) => `/client/contracts/${contractId}/meetings`,
+  getAllMeetings: '/client/meetings',
   acceptMeeting: '/client/meetings/accept',
   rejectMeeting: '/client/meetings/reject',
   approveReschedule: '/client/meetings/reschedule/approve',
@@ -69,6 +70,7 @@ const clientRouterEndPoints = {
   activateHourlyContract: (contractId: string) => `/client/contracts/${contractId}/activate`,
   endHourlyContract: (contractId: string) => `/client/contracts/${contractId}/end`,
   joinMeet: (meetingId: string) => `/client/meetings/${meetingId}/join`,
+  proposePreContractMeeting: (freelancerId: string) => `/client/freelancers/${freelancerId}/meetings`,
 };
 
 export default clientRouterEndPoints;

@@ -22,6 +22,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency } from "@/utils/currency";
 import FreelancerReviewsDisplay from "./components/RatingsAndReviews";
+import PreContractMeetingModal from "./components/PreContractMeetingModal";
+import { IPreContractMeetingRequest } from "@/types/interfaces/IPreContractMeeting";
+import { Calendar } from "lucide-react";
+
 const FreelancerProfile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const params = useParams();
@@ -58,6 +62,9 @@ const FreelancerProfile = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolio | null>(null);
   const [saved, setSaved] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
+  const [hasPendingMeetingRequest, setHasPendingMeetingRequest] = useState(false);
+  const [isCheckingMeetingRequest, setIsCheckingMeetingRequest] = useState(true);
   const router=useRouter()
   useEffect(() => {
     // Simple, robust fetch that tolerates multiple API shapes
@@ -163,6 +170,38 @@ const FreelancerProfile = () => {
     return () => { active = false };
   }, [freelancerId]);
 
+  useEffect(() => {
+    let active = true;
+    async function checkExistingMeetingRequest() {
+      if (!freelancerId) return;
+      setIsCheckingMeetingRequest(true);
+      try {
+        const resp = await clientActionApi.getAllMeetings({
+          meetingType: 'pre-contract',
+          limit: 100,
+        });
+        
+        if (!active) return;
+        
+        if (resp && resp.success && resp.data && resp.data.items) {
+          const hasPending = resp.data.items.some((meeting: any) => 
+            meeting.freelancer?.freelancerId === freelancerId &&
+            (meeting.status === 'proposed' || meeting.status === 'accepted')
+          );
+          setHasPendingMeetingRequest(hasPending);
+        }
+      } catch (err) {
+        console.error('Failed to check existing meeting requests:', err);
+      } finally {
+        if (active) {
+          setIsCheckingMeetingRequest(false);
+        }
+      }
+    }
+    checkExistingMeetingRequest();
+    return () => { active = false };
+  }, [freelancerId]);
+
   // Debounced toggle to avoid rapid repeated clicks
   const doToggleSave = async (nextState: boolean) => {
     if (!freelancerId) return;
@@ -208,11 +247,34 @@ const FreelancerProfile = () => {
     setIsPortfolioModalOpen(true);
   }
 
+  async function handleMeetingRequest(data: IPreContractMeetingRequest) {
+    try {
+      const response = await clientActionApi.proposePreContractMeeting(freelancerId as string, data);
+      if (response && response.success) {
+        toast.success('Meeting request sent successfully!');
+        setIsMeetingModalOpen(false);
+        setHasPendingMeetingRequest(true);
+      } else {
+        toast.error(response?.message || 'Failed to send meeting request');
+      }
+    } catch (error) {
+      console.error('Error sending meeting request:', error);
+      toast.error('Failed to send meeting request');
+    }
+  }
+
   return (
     <div className="min-h-screen ">
       {selectedPortfolio && (
         <PortfolioModal portfolio={selectedPortfolio} isOpen={isPortfolioModalOpen} onClose={() => setIsPortfolioModalOpen(false)} />
       )}
+
+      <PreContractMeetingModal
+        isOpen={isMeetingModalOpen}
+        onClose={() => setIsMeetingModalOpen(false)}
+        onSubmit={handleMeetingRequest}
+        freelancerName={`${freelancer.firstName} ${freelancer.lastName}`}
+      />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 mx-6 mt-6">
         <div className="max-w-7xl mx-auto px-6 py-8">
@@ -256,6 +318,19 @@ const FreelancerProfile = () => {
 
             <div className="flex flex-col gap-3 md:ml-auto">
               <button onClick={()=>router.push(`/client/offers/create/freelancer/${freelancerId}`)} className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
+              <button
+                onClick={() => setIsMeetingModalOpen(true)}
+                disabled={hasPendingMeetingRequest || isCheckingMeetingRequest}
+                className={`${
+                  hasPendingMeetingRequest
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                } text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
+                title={hasPendingMeetingRequest ? "Meeting request already sent" : "Request a pre-contract meeting"}
+              >
+                <Calendar className="w-5 h-5" />
+                {isCheckingMeetingRequest ? "Checking..." : hasPendingMeetingRequest ? "Meeting Requested" : "Request Meeting"}
+              </button>
               <button
                 onClick={() => {
                   const next = !saved;

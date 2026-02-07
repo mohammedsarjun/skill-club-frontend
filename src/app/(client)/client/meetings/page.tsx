@@ -2,8 +2,8 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { IFreelancerMeetingListItem, IFreelancerMeetingQueryParams } from '@/types/interfaces/IFreelancerMeeting';
-import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
+import { IClientMeetingListItem, IClientMeetingQueryParams } from '@/types/interfaces/IClientMeeting';
+import { clientActionApi } from '@/api/action/ClientActionApi';
 import CalendarView from './components/CalendarView';
 import TodayMeetings from './components/TodayMeetings';
 import SentRequests from './components/SentRequests';
@@ -18,11 +18,11 @@ const MeetingsPage = () => {
   const [activeTab, setActiveTab] = useState('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [meetings, setMeetings] = useState<IFreelancerMeetingListItem[]>([]);
-  const [completedMeetings, setCompletedMeetings] = useState<IFreelancerMeetingListItem[]>([]);
-  const [expiredMeetings, setExpiredMeetings] = useState<IFreelancerMeetingListItem[]>([]);
-  const [rescheduledMeetings, setRescheduledMeetings] = useState<IFreelancerMeetingListItem[]>([]);
-  const [currentUserRole] = useState('freelancer');
+  const [meetings, setMeetings] = useState<IClientMeetingListItem[]>([]);
+  const [completedMeetings, setCompletedMeetings] = useState<IClientMeetingListItem[]>([]);
+  const [expiredMeetings, setExpiredMeetings] = useState<IClientMeetingListItem[]>([]);
+  const [rescheduledMeetings, setRescheduledMeetings] = useState<IClientMeetingListItem[]>([]);
+  const [currentUserRole] = useState('client');
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [completedLoading, setCompletedLoading] = useState(false);
@@ -42,11 +42,11 @@ const MeetingsPage = () => {
   const fetchMeetings = useCallback(async (page = 1) => {
     try {
       setLoading(true);
-      const params: IFreelancerMeetingQueryParams = {
+      const params: IClientMeetingQueryParams = {
         page,
         limit: 10,
       };
-      const response = await freelancerActionApi.getMeetings(params);
+      const response = await clientActionApi.getAllMeetings(params);
       
       if (response?.success && response?.data) {
         setMeetings(response.data.items || []);
@@ -66,12 +66,12 @@ const MeetingsPage = () => {
   const fetchCompletedMeetings = useCallback(async (page = 1) => {
     try {
       setCompletedLoading(true);
-      const params: IFreelancerMeetingQueryParams = {
+      const params: IClientMeetingQueryParams = {
         page,
         limit: 10,
         status: 'completed',
       };
-      const response = await freelancerActionApi.getMeetings(params);
+      const response = await clientActionApi.getAllMeetings(params);
       
       if (response?.success && response?.data) {
         setCompletedMeetings(response.data.items || []);
@@ -91,12 +91,12 @@ const MeetingsPage = () => {
   const fetchExpiredMeetings = useCallback(async (page = 1) => {
     try {
       setExpiredLoading(true);
-      const params: IFreelancerMeetingQueryParams = {
+      const params: IClientMeetingQueryParams = {
         page,
         limit: 10,
         isExpired: true,
       };
-      const response = await freelancerActionApi.getMeetings(params);
+      const response = await clientActionApi.getAllMeetings(params);
       
       if (response?.success && response?.data) {
         setExpiredMeetings(response.data.items || []);
@@ -116,13 +116,14 @@ const MeetingsPage = () => {
   const fetchRescheduledMeetings = useCallback(async (page = 1) => {
     try {
       setRescheduledLoading(true);
-      const params: IFreelancerMeetingQueryParams = {
+ 
+      const params: IClientMeetingQueryParams = {
         page,
         limit: 10,
         status: 'reschedule_requested',
       };
-      const response = await freelancerActionApi.getMeetings(params);
-      
+      const response = await clientActionApi.getAllMeetings(params);
+           console.log(response)
       if (response?.success && response?.data) {
         setRescheduledMeetings(response.data.items || []);
         setRescheduledPage(response.data.page || 1);
@@ -163,14 +164,14 @@ const MeetingsPage = () => {
 
   const sentRequests = useMemo(() => {
     return meetings.filter((m) => 
-      m.isProposedByFreelancer === true && 
+      m.isProposedByClient === true && 
       m.status === 'proposed'
     );
   }, [meetings]);
 
   const receivedRequests = useMemo(() => {
     return meetings.filter((m) => 
-      m.isProposedByFreelancer === false && 
+      m.isProposedByClient === false && 
       m.status === 'proposed'
     );
   }, [meetings]);
@@ -183,7 +184,7 @@ const MeetingsPage = () => {
 
   const handleAcceptMeeting = useCallback(async (meetingId: string) => {
     try {
-      const response = await freelancerActionApi.acceptMeeting({ meetingId });
+      const response = await clientActionApi.acceptMeeting({ meetingId });
       
       if (response?.success) {
         toast.success('Meeting accepted successfully!');
@@ -204,7 +205,7 @@ const MeetingsPage = () => {
 
   const handleRejectMeeting = useCallback(async (meetingId: string) => {
     try {
-      const response = await freelancerActionApi.rejectMeeting({ meetingId, reason: 'Meeting declined' });
+      const response = await clientActionApi.rejectMeeting({ meetingId, reason: 'Meeting declined' });
       
       if (response?.success) {
         toast.success('Meeting rejected successfully!');
@@ -225,7 +226,7 @@ const MeetingsPage = () => {
 
   const handleApproveReschedule = useCallback(async (meetingId: string) => {
     try {
-      const response = await freelancerActionApi.approveReschedule({ meetingId });
+      const response = await clientActionApi.approveReschedule({ meetingId });
       
       if (response?.success) {
         toast.success('Reschedule approved successfully!');
@@ -246,7 +247,7 @@ const MeetingsPage = () => {
 
   const handleDeclineReschedule = useCallback(async (meetingId: string) => {
     try {
-      const response = await freelancerActionApi.declineReschedule({ meetingId, reason: 'Reschedule declined' });
+      const response = await clientActionApi.declineReschedule({ meetingId, reason: 'Reschedule declined' });
       
       if (response?.success) {
         toast.success('Reschedule declined successfully!');
@@ -267,7 +268,7 @@ const MeetingsPage = () => {
 
   const handleJoinMeeting = useCallback(async (meetingId: string) => {
     try {
-      const response = await freelancerActionApi.joinMeet(meetingId);
+      const response = await clientActionApi.joinMeet(meetingId);
       
       if (response?.success && response?.data?.meetingLink) {
         window.location.href = response.data.meetingLink;
@@ -346,7 +347,7 @@ const MeetingsPage = () => {
     <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Meetings</h1>
-        <p className="text-gray-600">Manage your client meetings and schedule</p>
+        <p className="text-gray-600">Manage your freelancer meetings and schedule</p>
       </div>
 
       {loading && (
