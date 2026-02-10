@@ -67,6 +67,10 @@ const adminRouterEndPoints = {
   adminRejectWithdrawal: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}/reject`,
   
   adminGetRevenue: "/admin/revenue",
+  
+  adminGetNotifications: "/admin/notifications",
+  adminMarkNotificationAsRead: (notificationId: string) => `/admin/notifications/${notificationId}/read`,
+  adminMarkAllNotificationsAsRead: "/admin/notifications/read-all",
 };
 
 export default adminRouterEndPoints;

@@ -85,7 +85,10 @@ const freelancerRouterEndPoints = {
   financeWithdrawalDetail: (withdrawalId: string) => `/freelancer/finance/withdrawals/${withdrawalId}`,
   getDashboardMeetings: '/freelancer/dashboard/meetings',
   getDashboardReviewStats: '/freelancer/dashboard/review-stats',
-  approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`
+  approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`,
+  getNotifications: "/freelancer/notifications",
+  markNotificationAsRead: (notificationId: string) => `/freelancer/notifications/${notificationId}/read`,
+  markAllNotificationsAsRead: "/freelancer/notifications/read-all",
 };
 
 export default freelancerRouterEndPoints;

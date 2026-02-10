@@ -1044,6 +1044,49 @@ export const clientActionApi = {
         return "Unexpected error";
       }
     }
+  },
+
+  async getNotifications() {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getNotifications);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markNotificationAsRead(notificationId: string) {
+    try {
+      const response = await axiosClient.patch(
+        clientRouterEndPoints.markNotificationAsRead(notificationId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const response = await axiosClient.patch(
+        clientRouterEndPoints.markAllNotificationsAsRead
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
   }
 
 }

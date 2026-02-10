@@ -71,6 +71,9 @@ const clientRouterEndPoints = {
   endHourlyContract: (contractId: string) => `/client/contracts/${contractId}/end`,
   joinMeet: (meetingId: string) => `/client/meetings/${meetingId}/join`,
   proposePreContractMeeting: (freelancerId: string) => `/client/freelancers/${freelancerId}/meetings`,
+  getNotifications: "/client/notifications",
+  markNotificationAsRead: (notificationId: string) => `/client/notifications/${notificationId}/read`,
+  markAllNotificationsAsRead: "/client/notifications/read-all",
 };
 
 export default clientRouterEndPoints;

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { FaVideo, FaEnvelope, FaComment } from 'react-icons/fa';
 import { useParams } from 'next/navigation';
 import { clientActionApi } from '@/api/action/ClientActionApi';
 import { OfferHeader } from './components/OfferHeader';
@@ -9,7 +8,7 @@ import { OfferMetrics } from './components/OfferMetrics';
 import { OfferBudget } from './components/OfferBudget';
 import { OfferDescription } from './components/OfferDescription';
 import { OfferMilestones } from './components/OfferMilestones';
-import { OfferCommunication } from './components/OfferCommunication';
+import { OfferCategory } from './components/OfferCategory';
 import { OfferReferences } from './components/OfferReferences';
 import { OfferTimeline } from './components/OfferTimeline';
 import { useRouter } from 'next/navigation';
@@ -41,12 +40,9 @@ interface OfferDetail {
   milestones?: OfferMilestone[];
   expectedStartDate: string;
   expectedEndDate: string;
-  communication: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
+  category?: {
+    categoryId: string;
+    categoryName: string;
   };
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
@@ -92,19 +88,6 @@ function OfferDetails() {
 
   const formatCurrency = (amount: number) => formatCurrencyUtil(amount);
 
-  const getCommunicationIcon = (method: string) => {
-    switch (method) {
-      case 'video_call':
-        return <FaVideo />;
-      case 'email':
-        return <FaEnvelope />;
-      case 'chat':
-        return <FaComment />;
-      default:
-        return <FaComment />;
-    }
-  };
-
   const calculateTotalMilestones = () => (
     offerDetail?.milestones?.reduce((sum, m) => sum + m.amount, 0) || 0
   );
@@ -145,13 +128,10 @@ function OfferDetails() {
             milestones: Array.isArray(d.milestones) ? d.milestones.map((m: any) => ({ title: m.title, amount: m.amount, expectedDelivery: m.expectedDelivery })) : [],
             expectedStartDate: d.expectedStartDate ?? '',
             expectedEndDate: d.expectedEndDate ?? '',
-            communication: d.communication ? {
-              preferredMethod: d.communication.preferredMethod,
-              meetingFrequency: d.communication.meetingFrequency,
-              meetingDayOfWeek: d.communication.meetingDayOfWeek,
-              meetingDayOfMonth: d.communication.meetingDayOfMonth,
-              meetingTimeUtc: d.communication.meetingTimeUtc,
-            } : { preferredMethod: 'chat' },
+            category: d.category ? {
+              categoryId: d.category.categoryId,
+              categoryName: d.category.categoryName,
+            } : undefined,
             reporting: d.reporting ? {
               frequency: d.reporting.frequency,
               dueTimeUtc: d.reporting.dueTimeUtc,
@@ -230,11 +210,7 @@ function OfferDetails() {
               formatCurrency={formatCurrency}
             />
 
-            <OfferCommunication
-              communication={offerDetail.communication}
-              reporting={offerDetail.reporting}
-              getCommunicationIcon={getCommunicationIcon}
-            />
+            <OfferCategory category={offerDetail.category} />
 
             <OfferReferences
               referenceFiles={offerDetail.referenceFiles}

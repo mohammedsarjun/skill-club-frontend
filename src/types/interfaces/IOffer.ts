@@ -51,14 +51,8 @@ export interface OfferPayload {
 
   expected_end_date: string;
   expires_at: string;
+  categoryId: string;
 
-  communication: {
-    preferred_method: CommunicationMethod;
-    meeting_frequency?: ReportingFrequency;
-    meeting_day_of_week?: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
-    meeting_day_of_month?: number;
-    meeting_time_utc?: string; // HH:mm in UTC
-  };
   reporting: {
     frequency: ReportingFrequency;
     due_time_utc: string; // HH:mm in UTC
@@ -131,7 +125,10 @@ export interface Offer {
   milestones?: OfferMilestone[];
   expectedStartDate?: string | Date;
   expectedEndDate: string | Date;
-  communication: OfferCommunication;
+  category?: {
+    categoryId: string;
+    categoryName: string;
+  };
   reporting: OfferReporting;
   referenceFiles?: OfferReferenceFile[];
   referenceLinks?: OfferReferenceLink[];
