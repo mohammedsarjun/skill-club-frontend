@@ -31,7 +31,7 @@ export const MilestonesWorkspace: React.FC<MilestonesWorkspaceProps> = ({
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
-  const isUploadDisabled = contractStatus === 'cancelled' || contractStatus === 'disputed';
+  const isUploadDisabled = contractStatus === 'cancelled' || contractStatus === 'disputed' || contractStatus === 'cancellation_requested';
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [uploading, setUploading] = useState(false);

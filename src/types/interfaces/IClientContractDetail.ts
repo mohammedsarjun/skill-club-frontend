@@ -32,9 +32,12 @@ export interface IClientContractDetail {
     amountBaseUSD?: number;
     expectedDelivery: string;
     status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid';
+    isFunded?: boolean;
     submittedAt?: string;
     approvedAt?: string;
     revisionsAllowed?: number;
+    disputeEligible?: boolean;
+    disputeWindowEndsAt?: string;
     deliverables?: {
       id: string;
       submittedBy: string;
@@ -116,11 +119,16 @@ export interface IClientContractDetail {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded';
-  fundedAmount: number;
-  totalPaid: number;
-  balance: number;
-  
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  totalFunded: number;
+  totalPaidToFreelancer: number;
+  totalCommissionPaid: number;
+  totalAmountHeld: number;
+  totalRefund: number;
+  availableContractBalance: number;
+  cancelledBy?: 'client' | 'freelancer';
+  isFunded?: boolean;
+  hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -8,6 +8,8 @@ import StatCards from "./components/StatCards";
 import RecentJobs from "./components/RecentJobs";
 import RecentMessages from "./components/RecentMessages";
 import NotificationsSection from "./components/NotificationsSection";
+import ActiveContracts from "./components/ActiveContracts";
+import SavedFreelancers from "./components/SavedFreelancers";
 
 function ClientDashboard() {
   const [dashboardData, setDashboardData] = useState<IClientDashboard | null>(null);
@@ -54,6 +56,7 @@ function ClientDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="">
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-1">
@@ -72,10 +75,23 @@ function ClientDashboard() {
           </button>
         </div>
 
+        {/* Stats Cards */}
         <StatCards stats={dashboardData.stats} />
 
+        {/* Active Contracts Section */}
+        <div className="mb-10">
+          <ActiveContracts contracts={dashboardData.recentActiveContracts} />
+        </div>
+
+        {/* Recent Jobs Section */}
         <RecentJobs jobs={dashboardData.recentJobs} />
 
+        {/* Saved Freelancers Section */}
+        <div className="mb-10">
+          <SavedFreelancers freelancers={dashboardData.savedFreelancers} />
+        </div>
+
+        {/* Bottom Section: Notifications and Messages */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <NotificationsSection />
           <RecentMessages messages={dashboardData.recentMessages} />

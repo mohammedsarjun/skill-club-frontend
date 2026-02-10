@@ -127,8 +127,8 @@ export const ClientMilestonesView = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
-        return "border-gray-200 text-gray-700 bg-gray-100";
+      case "cancelled":
+        return "border-red-200 text-red-700 bg-red-100";
       case "funded":
         return "border-blue-200 text-blue-700 bg-blue-50";
       case "submitted":
@@ -137,6 +137,8 @@ export const ClientMilestonesView = ({
         return "border-green-200 text-green-700 bg-green-50";
       case "paid":
         return "border-emerald-200 text-emerald-700 bg-emerald-50";
+      case "changes_requested":
+        return "border-yellow-200 text-yellow-700 bg-yellow-50";
       default:
         return "border-gray-200 text-gray-700 bg-gray-100";
     }

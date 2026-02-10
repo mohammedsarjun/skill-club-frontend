@@ -28,6 +28,7 @@ export interface IWorklogDetail {
   submittedAt: string;
   reviewedAt?: string;
   reviewMessage?: string;
+  disputeRaisedBy?: string;
 }
 
 export interface IWorklogListResponse {

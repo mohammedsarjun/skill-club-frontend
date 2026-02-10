@@ -5,9 +5,10 @@ import { IFreelancerWorklogDetail } from '@/types/interfaces/IFreelancerWorklog'
 interface FreelancerWorklogDetailModalProps {
   worklog: IFreelancerWorklogDetail;
   onClose: () => void;
+  onRaiseDispute: (worklogId: string) => void;
 }
 
-const FreelancerWorklogDetailModal = ({ worklog, onClose }: FreelancerWorklogDetailModalProps) => {
+const FreelancerWorklogDetailModal = ({ worklog, onClose, onRaiseDispute }: FreelancerWorklogDetailModalProps) => {
   const formatDuration = (milliseconds: number) => {
     const hours = Math.floor(milliseconds / 3600000);
     const minutes = Math.floor((milliseconds % 3600000) / 60000);
@@ -22,6 +23,14 @@ const FreelancerWorklogDetailModal = ({ worklog, onClose }: FreelancerWorklogDet
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const canRaiseDispute = () => {
+    if (worklog.status !== 'rejected') return false;
+    if (worklog.disputeRaisedBy) return false;
+    if (!worklog.disputeWindowEndsAt) return false;
+    const windowEndDate = new Date(worklog.disputeWindowEndsAt);
+    return new Date() <= windowEndDate;
   };
 
   const getStatusBadge = () => {
@@ -160,9 +169,29 @@ const FreelancerWorklogDetailModal = ({ worklog, onClose }: FreelancerWorklogDet
               )}
             </div>
           )}
+
+          {worklog.disputeRaisedBy && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                <span className="text-sm font-medium text-yellow-800">Dispute Status</span>
+              </div>
+              <p className="text-sm text-yellow-700">
+                A dispute has been raised by {worklog.disputeRaisedBy} for this worklog.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-2xl">
+          {canRaiseDispute() && (
+            <button
+              onClick={() => onRaiseDispute(worklog.worklogId)}
+              className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors mb-3"
+            >
+              Raise Dispute
+            </button>
+          )}
           <button
             onClick={onClose}
             className="w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"

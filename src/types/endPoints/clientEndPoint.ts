@@ -2,6 +2,9 @@ const clientRouterEndPoints = {
   me: "/client/me",
   dashboard: "/client/dashboard",
   finance: "/client/finance",
+  financeWithdraw: "/client/finance/withdraw",
+  financeWithdrawals: "/client/finance/withdrawals",
+
   updateClient: "/client/update",
   getAllCategories: "/client/categories",
   getSpecialitiesWithSkills: "/client/specialities",
@@ -26,6 +29,10 @@ const clientRouterEndPoints = {
   getContracts:"/client/contracts",
   getContractDetail:(contractId:string)=>`/client/contracts/${contractId}`,
   cancelContract:(contractId:string)=>`/client/contracts/${contractId}/cancel`,
+  createCancellationRequest: (contractId: string) => `/client/contracts/${contractId}/cancellation-request`,
+  getCancellationRequest: (contractId: string) => `/client/contracts/${contractId}/cancellation-request`,
+  acceptCancellationRequest: (contractId: string) => `/client/contracts/${contractId}/cancellation-request/accept`,
+  raiseCancellationDispute: (contractId: string) => `/client/contracts/${contractId}/cancellation-request/dispute`,
   cancelContractWithDispute: (contractId: string) => `/client/contracts/${contractId}/cancel-with-dispute`,
   createDispute: "/client/disputes",
   getDisputeById: (disputeId: string) => `/client/disputes/${disputeId}`,
@@ -49,6 +56,7 @@ const clientRouterEndPoints = {
   rejectWorklog: (contractId: string) => `/client/contracts/${contractId}/worklogs/reject`,
   proposeMeeting: (contractId: string) => `/client/contracts/${contractId}/meetings`,
   getContractMeetings: (contractId: string) => `/client/contracts/${contractId}/meetings`,
+  getAllMeetings: '/client/meetings',
   acceptMeeting: '/client/meetings/accept',
   rejectMeeting: '/client/meetings/reject',
   approveReschedule: '/client/meetings/reschedule/approve',
@@ -60,7 +68,12 @@ const clientRouterEndPoints = {
   getReviewStatus: (contractId: string) => `/client/contracts/${contractId}/review/status`,
   getFreelancerReviews: (freelancerId: string) => `/client/freelancers/${freelancerId}/reviews`,
   activateHourlyContract: (contractId: string) => `/client/contracts/${contractId}/activate`,
+  endHourlyContract: (contractId: string) => `/client/contracts/${contractId}/end`,
   joinMeet: (meetingId: string) => `/client/meetings/${meetingId}/join`,
+  proposePreContractMeeting: (freelancerId: string) => `/client/freelancers/${freelancerId}/meetings`,
+  getNotifications: "/client/notifications",
+  markNotificationAsRead: (notificationId: string) => `/client/notifications/${notificationId}/read`,
+  markAllNotificationsAsRead: "/client/notifications/read-all",
 };
 
 export default clientRouterEndPoints;

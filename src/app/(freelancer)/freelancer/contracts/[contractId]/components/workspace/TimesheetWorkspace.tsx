@@ -7,8 +7,13 @@ import Table from '@/components/admin/Table';
 import { IFreelancerWorklogListItem, IFreelancerWorklogDetail } from '@/types/interfaces/IFreelancerWorklog';
 import { FaClock } from 'react-icons/fa';
 
-const FreelancerWorklogDetailModal = dynamic<{ worklog: IFreelancerWorklogDetail; onClose: () => void }>(
+const FreelancerWorklogDetailModal = dynamic<{ worklog: IFreelancerWorklogDetail; onClose: () => void; onRaiseDispute: (worklogId: string) => void }>(
   () => import('./FreelancerWorklogDetailModal').then(mod => ({ default: mod.FreelancerWorklogDetailModal })),
+  { ssr: false }
+);
+
+const RaiseWorklogDisputeModal = dynamic(
+  () => import('./RaiseWorklogDisputeModal').then(mod => ({ default: mod.RaiseWorklogDisputeModal })),
   { ssr: false }
 );
 
@@ -25,6 +30,8 @@ export const TimesheetWorkspace = ({ contractId }: TimesheetWorkspaceProps) => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [selectedWorklog, setSelectedWorklog] = useState<IFreelancerWorklogDetail | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [disputeWorklogId, setDisputeWorklogId] = useState<string>('');
 
   const loadWorklogs = useCallback(async () => {
     setLoading(true);
@@ -63,6 +70,29 @@ export const TimesheetWorkspace = ({ contractId }: TimesheetWorkspaceProps) => {
       }
     } catch (error) {
       Swal.fire('Error', 'Failed to load worklog details', 'error');
+    }
+  };
+
+  const handleRaiseDispute = (worklogId: string) => {
+    setDisputeWorklogId(worklogId);
+    setShowDetailModal(false);
+    setShowDisputeModal(true);
+  };
+
+  const handleSubmitDispute = async (worklogId: string, description: string) => {
+    try {
+      const response = await freelancerActionApi.raiseWorklogDispute(contractId, {
+        worklogId,
+        description,
+      });
+      if (response?.success) {
+        Swal.fire('Success', 'Dispute raised successfully', 'success');
+        loadWorklogs();
+      } else {
+        Swal.fire('Error', response.message || 'Failed to raise dispute', 'error');
+      }
+    } catch (error) {
+      Swal.fire('Error', 'Failed to raise dispute', 'error');
     }
   };
 
@@ -146,6 +176,15 @@ export const TimesheetWorkspace = ({ contractId }: TimesheetWorkspaceProps) => {
         <FreelancerWorklogDetailModal
           worklog={selectedWorklog}
           onClose={() => setShowDetailModal(false)}
+          onRaiseDispute={handleRaiseDispute}
+        />
+      )}
+
+      {showDisputeModal && (
+        <RaiseWorklogDisputeModal
+          worklogId={disputeWorklogId}
+          onClose={() => setShowDisputeModal(false)}
+          onSubmit={handleSubmitDispute}
         />
       )}
     </>

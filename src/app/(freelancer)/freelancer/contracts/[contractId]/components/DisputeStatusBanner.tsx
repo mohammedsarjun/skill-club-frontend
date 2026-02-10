@@ -6,9 +6,10 @@ interface DisputeStatusBannerProps {
   status: 'cancelled';
   hasActiveDispute?: boolean;
   raisedBy?: 'client' | 'freelancer';
+  hasActiveCancellationDisputeWindow?: boolean;
 }
 
-export const DisputeStatusBanner = ({ status, hasActiveDispute, raisedBy }: DisputeStatusBannerProps) => {
+export const DisputeStatusBanner = ({ status, hasActiveDispute, raisedBy,hasActiveCancellationDisputeWindow }: DisputeStatusBannerProps) => {
   if (status !== 'cancelled' || !hasActiveDispute) {
     return null;
   }

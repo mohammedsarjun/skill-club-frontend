@@ -33,7 +33,7 @@ const OffersPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [offerTypeFilter, setOfferTypeFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(2);
+  const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
 
   const router = useRouter();
