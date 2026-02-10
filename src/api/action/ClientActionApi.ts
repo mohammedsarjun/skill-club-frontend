@@ -437,6 +437,21 @@ export const clientActionApi = {
     }
   },
 
+  async getContractTimeline(contractId: string) {
+    try {
+      const response = await axiosClient.get(
+        clientRouterEndPoints.getContractTimeline(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async cancelContract(contractId: string,cancelContractReason:string) {
     try {
       const response = await axiosClient.post(clientRouterEndPoints.cancelContract(contractId),{cancelContractReason});

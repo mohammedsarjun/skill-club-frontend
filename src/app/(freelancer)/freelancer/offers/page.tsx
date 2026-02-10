@@ -161,15 +161,7 @@ const OffersPage: React.FC = () => {
             : offer.milestones,
           expectedStartDate: d.expectedStartDate ?? offer.expectedStartDate,
           expectedEndDate: d.expectedEndDate ?? offer.expectedEndDate,
-          communication: d.communication
-            ? {
-                preferredMethod: d.communication.preferredMethod,
-                meetingFrequency: d.communication.meetingFrequency,
-                meetingDayOfWeek: d.communication.meetingDayOfWeek,
-                meetingDayOfMonth: d.communication.meetingDayOfMonth,
-                meetingTimeUtc: d.communication.meetingTimeUtc,
-              }
-            : offer.communication,
+          category: d.category || offer.category,
           reporting: d.reporting
             ? {
                 frequency: d.reporting.frequency,

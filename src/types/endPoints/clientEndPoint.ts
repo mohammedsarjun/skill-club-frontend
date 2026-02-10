@@ -28,6 +28,7 @@ const clientRouterEndPoints = {
   rejectProposal:(proposalId:string)=>`/client/proposals/${proposalId}/reject`,
   getContracts:"/client/contracts",
   getContractDetail:(contractId:string)=>`/client/contracts/${contractId}`,
+  getContractTimeline:(contractId:string)=>`/client/contracts/${contractId}/timeline`,
   cancelContract:(contractId:string)=>`/client/contracts/${contractId}/cancel`,
   createCancellationRequest: (contractId: string) => `/client/contracts/${contractId}/cancellation-request`,
   getCancellationRequest: (contractId: string) => `/client/contracts/${contractId}/cancellation-request`,

@@ -3,6 +3,7 @@ import { axiosClient } from "./axiosClient";
 import axios from "axios";
 import { IAdminDisputeDetail } from "@/types/interfaces/IAdminDisputeDetail";
 import { ISplitDisputeFundsRequest, ISplitDisputeFundsResponse } from "@/types/interfaces/ISplitDisputeFunds";
+import { ContractTimeline } from '@/types/interfaces/IContractActivity';
 
 export const adminActionApi = {
   async getDisputeDetail(disputeId: string): Promise<{ success: boolean; message: string; data?: IAdminDisputeDetail }> {
@@ -55,5 +56,19 @@ export const adminActionApi = {
         throw { success: false, message: "Unexpected error" };
       }
     }
+  },
+
+  async getContractTimeline(contractId: string): Promise<{ success: boolean; data: ContractTimeline; message?: string }> {
+    try {
+      const response = await axiosClient.get(adminRouterEndPoints.adminGetContractTimeline(contractId));
+      console.log(response)
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, data: { contractId, activities: [] }, message: "Something went wrong" };
+      } else {
+        return { success: false, data: { contractId, activities: [],total:0 }, message: "Unexpected error" };
+      }
     }
+  }
 };
