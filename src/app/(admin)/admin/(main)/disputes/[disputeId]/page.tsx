@@ -204,7 +204,7 @@ const DisputeDetailsPage = () => {
             {activeTab === 'worklog' && dispute.workLog && <WorklogCard data={dispute.workLog} disputeId={dispute.disputeId} />}
             {activeTab === 'timeline' && (
               <ContractTimeline 
-                contractId={dispute.contract.contractId} 
+                contractId={dispute.contractId} 
                 role="admin"
               />
             )}
