@@ -12,10 +12,10 @@ type LayoutProps = {
 export default function Layout({ children, params }: LayoutProps) {
   return (
     <>
-    <GuestGuard>
+
       <AuthHeader />
       {children}
-      </GuestGuard>
+
     </>
     
   );

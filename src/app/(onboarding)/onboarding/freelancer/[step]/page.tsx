@@ -20,6 +20,7 @@ import Step11Form from "@/components/onboarding/Step11Form";
 import { userApi } from "@/api/userApi";
 import toast from "react-hot-toast";
 import { setUser } from "@/store/slices/authSlice";
+import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 
 const stepComponents: Record<string, any> = {
   "0": Step1Form,
@@ -74,10 +75,11 @@ export default function OnboardingStepPage() {
         
         // Update localStorage to persist the onboarding status
         localStorage.setItem("user", JSON.stringify(roleSelectionResponse.data));
+        setSessionCookie(buildSessionData(roleSelectionResponse.data));
         
         // Small delay to ensure state is updated before redirect
         setTimeout(() => {
-          router.push("/freelancer/profile");
+          router.replace("/freelancer/profile");
         }, 100);
       } else {
         toast.error(roleSelectionResponse.message || "Failed to complete onboarding");

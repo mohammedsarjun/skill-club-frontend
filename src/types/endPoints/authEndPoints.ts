@@ -2,7 +2,7 @@ const authenticationRoutes = {
 
     //userRoutes
     userSignUp : "/auth/signUp",
-    userLogin:"auth/login",
+    userLogin:"/auth/login",
     createOtp: "/auth/otp",
     verifyOtp:"/auth/verify-otp",
     forgotPassword:"/auth/forgot-password",

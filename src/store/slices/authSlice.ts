@@ -4,8 +4,15 @@ export type Role = "freelancer" | "client" | "admin";
 
 export interface User {
   userId: string;
-  roles: Role[];      
-  activeRole: Role;  
+  firstName: string;
+  lastName: string;
+  roles: Role[];
+  activeRole: Role;
+  isOnboardingCompleted: boolean;
+  isFreelancerOnboarded: boolean;
+  isClientOnboarded: boolean;
+  isFreelancerBlocked: boolean;
+  isClientBlocked: boolean;
 }
 
 export interface AuthState {

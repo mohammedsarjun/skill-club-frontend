@@ -1,19 +1,18 @@
-"use client";
-import React, { useEffect } from "react";
+import React from "react";
 import AuthHeader from "@/components/common/AuthHeader";
-import { usePreventBackAfterLogout } from "@/custom-hooks/usePreventBackAfterLogout";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import GuestGuard from "@/components/GuestGaurd";
+import GuestGuard from "@/components/guards/GuestGuard";
 
-export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
+export default function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <GuestGuard>
-      <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
+      <GuestGuard>
         <AuthHeader />
         {children}
-      </div>
-    </GuestGuard>
+      </GuestGuard>
+    </div>
   );
 }

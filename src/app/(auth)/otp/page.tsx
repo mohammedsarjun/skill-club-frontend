@@ -5,10 +5,10 @@ import Button from "@/components/common/Button";
 import { authApi } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/ClientAuthGaurd";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { userApi } from "@/api/userApi";
+import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 
 function OtpPage() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -96,9 +96,9 @@ function OtpPage() {
         }
 
         localStorage.setItem("user", JSON.stringify(hydrateStateResponse.data));
-
         dispatch(setUser(hydrateStateResponse.data));
-        route.push("/onboarding/role");
+        setSessionCookie(buildSessionData(hydrateStateResponse.data));
+        route.replace("/onboarding/role");
       } else if (purpose === "forgotPassword") {
         route.push("/auth/change-password");
       }

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { userApi } from "@/api/userApi";
 import { useState } from "react";
+import { clearSessionCookie, setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 
 export default function ClientHeader() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function ClientHeader() {
       const response = await authApi.logout();
       if (response.success) {
         dispatch(clearUser());
+        clearSessionCookie();
         localStorage.removeItem("user");
         router.push("/login");
       }
@@ -46,6 +48,7 @@ export default function ClientHeader() {
     if (response.success) {
       dispatch(setUser(response.data));
       localStorage.setItem("user", JSON.stringify(response.data));
+      setSessionCookie(buildSessionData(response.data));
       router.push("/freelancer/profile");
     } else {
       router.push("/onboarding/freelancer/0");
