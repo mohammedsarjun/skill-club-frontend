@@ -61,9 +61,7 @@ export const adminActionApi = {
   async getContractTimeline(contractId: string): Promise<{ success: boolean; data: ContractTimeline; message?: string }> {
     try {
       const response = await axiosClient.get(adminRouterEndPoints.adminGetContractTimeline(contractId));
-      console.log(adminRouterEndPoints.adminGetContractTimeline(contractId))
-      console.log(contractId+"contraciD")
-      console.log(response)
+     
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
