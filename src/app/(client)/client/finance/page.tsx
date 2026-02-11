@@ -5,6 +5,7 @@ import { clientActionApi } from '@/api/action/ClientActionApi';
 import { IClientFinance } from '@/types/interfaces/IClientFinance';
 import FinanceStats from './components/FinanceStats';
 import TransactionList from './components/TransactionList';
+import WithdrawalForm from './components/WithdrawalForm';
 
 const FinanceDashboard = () => {
   const [activeTab, setActiveTab] = useState('spent');
@@ -16,6 +17,12 @@ const FinanceDashboard = () => {
   useEffect(() => {
     fetchFinanceData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'withdrawal') {
+      fetchWithdrawals(1);
+    }
+  }, [activeTab]);
 
   const fetchFinanceData = async () => {
     setLoading(true);
@@ -44,6 +51,11 @@ const FinanceDashboard = () => {
     }
   ];
 
+  const [withdrawals, setWithdrawals] = useState<Array<any>>([]);
+  const [withdrawalsPage, setWithdrawalsPage] = useState(1);
+  const [withdrawalsLimit] = useState(5);
+  const [withdrawalsTotal, setWithdrawalsTotal] = useState(0);
+
   const handleWithdrawRequest = (e: React.FormEvent) => {
     e.preventDefault();
     if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
@@ -58,6 +70,15 @@ const FinanceDashboard = () => {
     alert(`Withdrawal request for ₹${withdrawAmount} submitted successfully!`);
     setWithdrawAmount('');
     setWithdrawNote('');
+  };
+
+  const fetchWithdrawals = async (page = 1) => {
+    const res = await clientActionApi.getWithdrawals(page, withdrawalsLimit);
+    if (res?.success) {
+      setWithdrawals(res.data || []);
+      setWithdrawalsTotal(res.total || 0);
+      setWithdrawalsPage(res.page || page);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -167,7 +188,6 @@ const FinanceDashboard = () => {
             {activeTab === 'withdrawal' && (
               <div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Request Withdrawal Form */}
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Request Withdrawal</h2>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
@@ -179,72 +199,53 @@ const FinanceDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Amount ($)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={withdrawAmount}
-                          onChange={(e) => setWithdrawAmount(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Enter amount"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Note (Optional)
-                        </label>
-                        <textarea
-                          value={withdrawNote}
-                          onChange={(e) => setWithdrawNote(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          rows={3}
-                          placeholder="Add a note about this withdrawal"
-                        />
-                      </div>
-                      
-                      <button
-                        onClick={handleWithdrawRequest}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                      >
-                        Submit Withdrawal Request
-                      </button>
-                    </div>
+
+                    <WithdrawalForm
+                      available={financeData.stats.availableBalance}
+                      onSuccess={() => { fetchFinanceData(); fetchWithdrawals(1); }}
+                    />
                   </div>
 
-                  {/* Withdrawal History */}
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Withdrawal History</h2>
                     <div className="space-y-4">
-                      {withdrawalRequests.map((request) => (
-                        <div key={request.id} className="border border-gray-200 rounded-lg p-4">
+                      {withdrawals.map((t) => (
+                        <div key={t.transactionId} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <p className="font-semibold text-gray-900">${request.amount.toFixed(2)}</p>
-                              <p className="text-sm text-gray-600 mt-1">{request.note}</p>
+                              <p className="font-semibold text-gray-900">₹{t.amount.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600 mt-1">{t.description}</p>
                             </div>
-                            {request.status === 'pending' ? (
+                            {t.status === 'withdrawal_requested' ? (
                               <Clock className="w-5 h-5 text-yellow-500" />
                             ) : (
                               <CheckCircle className="w-5 h-5 text-green-500" />
                             )}
                           </div>
                           <div className="flex items-center justify-between text-sm text-gray-500 mt-3">
-                            <span>Requested: {formatDate(request.requestedAt)}</span>
-                            {getStatusBadge(request.status)}
+                            <span>Requested: {t.createdAt}</span>
+                            {getStatusBadge(t.status === 'withdrawal_requested' ? 'pending' : 'completed')}
                           </div>
-                          {request.completedAt && (
-                            <div className="text-xs text-gray-500 mt-2">
-                              Completed: {formatDate(request.completedAt)}
-                            </div>
-                          )}
                         </div>
                       ))}
+
+                      <div className="flex items-center justify-center space-x-3 mt-4">
+                        <button
+                          disabled={withdrawalsPage <= 1}
+                          onClick={() => fetchWithdrawals(withdrawalsPage - 1)}
+                          className="px-3 py-1 border rounded disabled:opacity-50"
+                        >
+                          Prev
+                        </button>
+                        <div className="text-sm text-gray-600">Page {withdrawalsPage} of {Math.max(1, Math.ceil(withdrawalsTotal / withdrawalsLimit))}</div>
+                        <button
+                          disabled={withdrawalsPage >= Math.ceil(withdrawalsTotal / withdrawalsLimit)}
+                          onClick={() => fetchWithdrawals(withdrawalsPage + 1)}
+                          className="px-3 py-1 border rounded disabled:opacity-50"
+                        >
+                          Next
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

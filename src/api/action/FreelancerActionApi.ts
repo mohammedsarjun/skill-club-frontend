@@ -474,6 +474,35 @@ export const freelancerActionApi = {
       }
     }
   },
+  async reportJob(jobId: string, reason: string) {
+    try {
+      const response = await axiosClient.post(
+        freelancerRouterEndPoints.reportJob(jobId),
+        { reason }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async isJobReported(jobId: string) {
+    try {
+      const response = await axiosClient.get(
+        freelancerRouterEndPoints.isJobReported(jobId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
   async isJobSaved(jobId: string) {
     try {
       const response = await axiosClient.get(freelancerRouterEndPoints.isJobSaved(jobId));
@@ -744,6 +773,8 @@ export const freelancerActionApi = {
         freelancerRouterEndPoints.getMeetings,
         { params }
       );
+
+     
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -1122,6 +1153,47 @@ export const freelancerActionApi = {
     }
   },
 
+  async requestWithdrawal(amount: number, note?: string) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.financeWithdraw, { amount, note });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawals(page: number = 1, limit: number = 10, status?: string) {
+    try {
+      const params: { page: number; limit: number; status?: string } = { page, limit };
+      if (status) params.status = status;
+      const response = await axiosClient.get(freelancerRouterEndPoints.financeWithdrawals, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawalDetail(withdrawalId: string) {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.financeWithdrawalDetail(withdrawalId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async getDashboardContractStats() {
     try {
       const response = await axiosClient.get(
@@ -1244,5 +1316,48 @@ export const freelancerActionApi = {
       }
     }
   },
+
+  async getNotifications() {
+    try {
+      const response = await axiosClient.get(freelancerRouterEndPoints.getNotifications);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markNotificationAsRead(notificationId: string) {
+    try {
+      const response = await axiosClient.patch(
+        freelancerRouterEndPoints.markNotificationAsRead(notificationId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const response = await axiosClient.patch(
+        freelancerRouterEndPoints.markAllNotificationsAsRead
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  }
 
 }

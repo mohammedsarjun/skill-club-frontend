@@ -568,7 +568,4 @@ export function TableDemo() {
   );
 }
 
-// Export the reusable generic table as the default export so imports like
-// `import Table from '@/components/admin/Table'` receive the component that
-// accepts props. The demo remains available as a named export.
 export default GenericTable;

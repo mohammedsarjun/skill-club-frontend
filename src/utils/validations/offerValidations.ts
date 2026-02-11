@@ -36,13 +36,7 @@ budget: z.preprocess(
   milestones: z.array(milestoneSchema).optional(),
   expected_end_date: z.string().optional(),
   expires_at: z.string().refine(v => isFutureDate(v, 'expires_at'), 'Expiry must be future date/time'),
-  communication: z.object({
-    preferred_method: z.enum(['chat','video_call','email','mixed']),
-    meeting_frequency: z.enum(['daily','weekly','monthly']).optional(),
-    meeting_day_of_week: dayOfWeek.optional(),
-    meeting_day_of_month: z.number().int().min(1).max(31).optional(),
-    meeting_time_utc: timeHHmm.optional(),
-  }),
+  categoryId: z.string().min(1, 'Category is required'),
   reporting: z.object({
     frequency: z.enum(['daily','weekly','monthly']),
     due_time_utc: timeHHmm,
@@ -90,23 +84,6 @@ budget: z.preprocess(
     const expiry = new Date(data.expires_at).getTime();
     if (!isNaN(end) && !isNaN(expiry) && expiry > end) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['expires_at'], message: 'Expiry must be before end date' });
-    }
-  }
-
-  // When video_call is selected, validate meeting fields according to frequency
-  if (data.communication.preferred_method === 'video_call') {
-    const freq = data.communication.meeting_frequency;
-    if (!freq) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_frequency'], message: 'Meeting frequency is required' });
-    }
-    if (!data.communication.meeting_time_utc) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_time_utc'], message: 'Meeting time (UTC) is required' });
-    }
-    if (freq === 'weekly' && !data.communication.meeting_day_of_week) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_day_of_week'], message: 'Meeting day of week is required for weekly meetings' });
-    }
-    if (freq === 'monthly' && !data.communication.meeting_day_of_month) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['communication.meeting_day_of_month'], message: 'Meeting day of month is required for monthly meetings' });
     }
   }
 

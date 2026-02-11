@@ -31,6 +31,10 @@ const adminRouterEndPoints = {
   adminApproveJob: (jobId: string) => `/admin/jobs/${jobId}/approve`,
   adminRejectJob: (jobId: string) => `/admin/jobs/${jobId}/reject`,
   adminSuspendJob: (jobId: string) => `/admin/jobs/${jobId}/suspend`,
+  adminGetJobReports: (jobId: string) => `/admin/jobs/${jobId}/reports`,
+
+  //reports
+  adminGetAllReports: "/admin/reports",
 
   //contracts
   adminGetAllContracts: "/admin/contracts",
@@ -55,6 +59,18 @@ const adminRouterEndPoints = {
   adminGetUserGrowthData: "/admin/dashboard/user-growth",
   adminGetRecentContracts: "/admin/dashboard/recent-contracts",
   adminGetRecentReviews: "/admin/dashboard/recent-reviews",
+  
+  adminGetWithdrawStats: "/admin/withdraws/stats",
+  adminGetWithdrawals: "/admin/withdraws",
+  adminGetWithdrawalDetail: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}`,
+  adminApproveWithdrawal: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}/approve`,
+  adminRejectWithdrawal: (withdrawalId: string) => `/admin/withdraws/${withdrawalId}/reject`,
+  
+  adminGetRevenue: "/admin/revenue",
+  
+  adminGetNotifications: "/admin/notifications",
+  adminMarkNotificationAsRead: (notificationId: string) => `/admin/notifications/${notificationId}/read`,
+  adminMarkAllNotificationsAsRead: "/admin/notifications/read-all",
 };
 
 export default adminRouterEndPoints;

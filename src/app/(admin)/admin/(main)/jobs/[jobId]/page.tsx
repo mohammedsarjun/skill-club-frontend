@@ -3,6 +3,7 @@ import AdminActionApi from "@/api/action/AdminActionApi";
 import GlobalSpinner from "@/components/common/Spinner";
 import { useSwal } from "@/custom-hooks/useSwal";
 import { JobDetailResponseDTO } from "@/types/interfaces/IJob";
+import ReportsTab from "./components/ReportsTab";
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -67,6 +68,7 @@ function AdminJobDetailPage() {
     suspendedReason: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"details" | "reports">("details");
   const { jobAction, suspendJob } = useSwal();
   const params = useParams();
   const jobIdParam = (params as any)?.jobId as string | undefined;
@@ -335,7 +337,33 @@ function AdminJobDetailPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab("details")}
+              className={`px-6 py-4 font-medium text-sm transition-colors duration-200 border-b-2 ${
+                activeTab === "details"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Job Details
+            </button>
+            <button
+              onClick={() => setActiveTab("reports")}
+              className={`px-6 py-4 font-medium text-sm transition-colors duration-200 border-b-2 ${
+                activeTab === "reports"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Reports
+            </button>
+          </div>
+        </div>
+
+        {activeTab === "details" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Job Description */}
@@ -566,6 +594,9 @@ function AdminJobDetailPage() {
             </div>
           </div>
         </div>
+        ) : (
+          <ReportsTab jobId={job.jobId} />
+        )}
       </div>
     </div>
   );

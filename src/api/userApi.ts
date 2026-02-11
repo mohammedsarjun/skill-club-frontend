@@ -136,4 +136,29 @@ export const userApi = {
       }
     }
   },
+    async getBankDetails() {
+    try {
+      const response = await axiosClient.get(userRoutes.getBankDetails);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async saveBankDetails(data: { accountHolderName: string; bankName: string; accountNumber: string; ifscCode: string; accountType: string }) {
+    try {
+      const response = await axiosClient.post(userRoutes.saveBankDetails, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
 };

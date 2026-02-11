@@ -11,10 +11,12 @@ import { IApproveDeliverableRequest, IRequestChangesRequest, IDownloadDeliverabl
 import { IApproveMilestoneDeliverableRequest, IRequestMilestoneChangesRequest } from "@/types/interfaces/IMilestoneDeliverable";
 import { IApproveWorklogRequest, IRejectWorklogRequest } from "@/types/interfaces/IClientWorklog";
 import { MeetingProposalRequest, MeetingProposalResponse } from "@/types/interfaces/IMeeting";
+import { IClientMeetingQueryParams, IClientMeetingListResponse } from "@/types/interfaces/IClientMeeting";
 import { ISubmitReviewRequest, IReviewStatusResponse, ISubmitReviewResponse } from "@/types/interfaces/IReview";
 import { IFreelancerReviewsResponse } from "@/types/interfaces/IFreelancerReviews";
 import { IDispute, ICreateDisputeRequest, ICancelContractWithDisputeRequest } from "@/types/interfaces/IDispute";
 import { ICreateCancellationRequest } from "@/types/interfaces/ICancellationRequest";
+import { IPreContractMeetingRequest, IPreContractMeetingResponse } from "@/types/interfaces/IPreContractMeeting";
 
 export const clientActionApi = {
   async getDashboardData() {
@@ -42,6 +44,32 @@ export const clientActionApi = {
       }
     }
   },
+
+  async requestWithdrawal(amount: number, note?: string) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.financeWithdraw, { amount, note });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+  async getWithdrawals(page: number = 1, limit: number = 10) {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.financeWithdrawals, { params: { page, limit } });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
 
   async getClientData() {
     try {
@@ -795,6 +823,22 @@ export const clientActionApi = {
     }
   },
 
+  async getAllMeetings(params: IClientMeetingQueryParams) {
+    try {
+      const response = await axiosClient.get<IClientMeetingListResponse>(
+        clientRouterEndPoints.getAllMeetings,
+        { params }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return  "Unexpected error";
+      }
+    }
+  },
+
   async approveReschedule(data: { meetingId: string }) {
     try {
       const response = await axiosClient.post(clientRouterEndPoints.approveReschedule, data);
@@ -975,6 +1019,65 @@ export const clientActionApi = {
     try {
       const response = await axiosClient.post(
         clientRouterEndPoints.endHourlyContract(contractId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async proposePreContractMeeting(freelancerId: string, data: IPreContractMeetingRequest) {
+    try {
+      const response = await axiosClient.post<IPreContractMeetingResponse>(
+        clientRouterEndPoints.proposePreContractMeeting(freelancerId), 
+        data
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getNotifications() {
+    try {
+      const response = await axiosClient.get(clientRouterEndPoints.getNotifications);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markNotificationAsRead(notificationId: string) {
+    try {
+      const response = await axiosClient.patch(
+        clientRouterEndPoints.markNotificationAsRead(notificationId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const response = await axiosClient.patch(
+        clientRouterEndPoints.markAllNotificationsAsRead
       );
       return response.data;
     } catch (error: unknown) {

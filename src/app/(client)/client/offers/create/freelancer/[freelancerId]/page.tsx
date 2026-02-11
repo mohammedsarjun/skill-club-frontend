@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { clientActionApi } from "@/api/action/ClientActionApi";
-import { OfferPayload, PaymentType, CommunicationMethod, ReportingFrequency, ReportingFormat } from "@/types/interfaces/IOffer";
+import { OfferPayload, PaymentType, ReportingFrequency, ReportingFormat } from "@/types/interfaces/IOffer";
 import { validateOffer } from "@/utils/validations/offerValidations";
 import { useRouter } from "next/navigation";
 import {
@@ -11,10 +11,6 @@ import {
   FaClock,
   FaFileAlt,
   FaLink,
-  FaVideo,
-  FaComments,
-  FaEnvelope,
-  FaChartLine,
   FaPlus,
   FaTrash,
   FaInfoCircle,
@@ -25,6 +21,7 @@ import { uploadApi } from "@/api/uploadApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import toast from "react-hot-toast";
+import { ICategory } from "@/types/interfaces/ICategory";
 
 // Local UI-only types reused where needed
 
@@ -56,11 +53,6 @@ interface OfferData {
   milestones?: Milestone[];
   expected_start_date: string;
   expected_end_date: string;
-  communication: {
-    preferred_method: CommunicationMethod;
-    meeting_schedule: string;
-    timezone: string;
-  };
   reporting: {
     frequency: ReportingFrequency;
     due_time: string;
@@ -107,13 +99,9 @@ const SendOfferToFreelancer: React.FC = () => {
   const [expectedEndDate, setExpectedEndDate] = useState<string>("");
   const [expiresAt, setExpiresAt] = useState<string>("");
 
-  // Communication
-  // default to a non-video method so video details are hidden until selected
-  const [preferredMethod, setPreferredMethod] = useState<CommunicationMethod>("chat");
-  const [meetingFrequency, setMeetingFrequency] = useState<"daily" | "weekly" | "monthly">("weekly");
-  const [meetingDay, setMeetingDay] = useState<string>("monday");
-  const [meetingDate, setMeetingDate] = useState<string>("1");
-  const [meetingTime, setMeetingTime] = useState<string>("");
+  // Category
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
   // Reporting
   const [reportingFrequency, setReportingFrequency] = useState<ReportingFrequency>("daily");
@@ -316,17 +304,7 @@ const SendOfferToFreelancer: React.FC = () => {
               .map((m) => ({ title: m.title, amount: parseFloat(m.amount), expected_delivery: m.expected_delivery, revisions: m.revisions ? parseInt(m.revisions) : 0 }))
           : undefined,
       expected_end_date: paymentType !== "fixed_with_milestones" ? expectedEndDate : undefined,
-      communication: (
-        preferredMethod === "video_call"
-          ? {
-              preferred_method: preferredMethod,
-              meeting_frequency: meetingFrequency,
-              meeting_day_of_week: meetingFrequency === "weekly" ? (meetingDay as any) : undefined,
-              meeting_day_of_month: meetingFrequency === "monthly" ? (meetingDate ? parseInt(meetingDate) : undefined) : undefined,
-              meeting_time_utc: meetingTime || undefined,
-            }
-          : { preferred_method: preferredMethod }
-      ),
+      categoryId: selectedCategoryId,
       reporting: {
         frequency: reportingFrequency,
         due_time_utc: reportingDueTime || "",
@@ -423,6 +401,20 @@ const SendOfferToFreelancer: React.FC = () => {
     })(freelancerId as string)
 
   },[freelancerId])
+
+  useEffect(() => {
+    (async function fetchCategories() {
+      try {
+        const response = await clientActionApi.getAllCategories();
+        const categoryData = response?.data ?? response;
+        if (Array.isArray(categoryData)) {
+          setCategories(categoryData);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    })();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -580,7 +572,7 @@ const SendOfferToFreelancer: React.FC = () => {
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <FaChartLine className="text-[#108A00]" />
+                      <FaBriefcase className="text-[#108A00]" />
                       Project Milestones
                     </label>
                     <button
@@ -665,6 +657,7 @@ const SendOfferToFreelancer: React.FC = () => {
                   {errors["milestones"] && (<p className="text-red-600 text-sm mt-2">{errors["milestones"]}</p>)}
                 </div>
               )}
+              {paymentType !== "fixed_with_milestones" && (
                 <div className="col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Revisions</label>
                   <input
@@ -675,6 +668,7 @@ const SendOfferToFreelancer: React.FC = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
                   />
                 </div>
+              )}
             </div>
           </div>
 
@@ -716,117 +710,32 @@ const SendOfferToFreelancer: React.FC = () => {
             </div>
           </div>
 
-          {/* Communication Preferences */}
+          {/* Work Category */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FaComments className="text-[#108A00]" />
-              Communication Preferences
+              <FaBriefcase className="text-[#108A00]" />
+              Work Category
             </h2>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Preferred Communication Method *
+                  Category *
                 </label>
-                <div className="flex items-center gap-6">
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="comm_method"
-                      value="video_call"
-                      checked={preferredMethod === "video_call"}
-                      onChange={(e) => { setPreferredMethod(e.target.value as CommunicationMethod); clearError('communication.preferred_method'); }}
-                      className="form-radio h-4 w-4 text-[#108A00]"
-                    />
-                    <span className="text-sm">Video Call</span>
-                  </label>
-
-                  <label className="inline-flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="comm_method"
-                      value="chat"
-                      checked={preferredMethod === "chat"}
-                      onChange={(e) => { setPreferredMethod(e.target.value as CommunicationMethod); clearError('communication.preferred_method'); }}
-                      className="form-radio h-4 w-4 text-[#108A00]"
-                    />
-                    <span className="text-sm">No Video</span>
-                  </label>
-                </div>
+                <select
+                  value={selectedCategoryId}
+                  onChange={(e) => { setSelectedCategoryId(e.target.value); clearError('categoryId'); }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                >
+                  <option value="">Select a category *</option>
+                  {categories.map((cat) => (
+                    <option key={cat.categoryId} value={cat.categoryId}>
+                      {cat.categoryName}
+                    </option>
+                  ))}
+                </select>
+                {errors["categoryId"] && (<p className="text-red-600 text-sm mt-1">{errors["categoryId"]}</p>)}
               </div>
-
-              {/* Show meeting schedule only when video call is selected */}
-              {preferredMethod === "video_call" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Meeting Frequency
-                    </label>
-                    <select
-                      value={meetingFrequency}
-                      onChange={(e) => { setMeetingFrequency(e.target.value as "daily" | "weekly" | "monthly"); }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                    >
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                  </div>
-
-                  {meetingFrequency === "weekly" && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Meeting Day
-                      </label>
-                      <select
-                        value={meetingDay}
-                        onChange={(e) => { setMeetingDay(e.target.value); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                      >
-                        <option value="monday">Monday</option>
-                        <option value="tuesday">Tuesday</option>
-                        <option value="wednesday">Wednesday</option>
-                        <option value="thursday">Thursday</option>
-                        <option value="friday">Friday</option>
-                        <option value="saturday">Saturday</option>
-                        <option value="sunday">Sunday</option>
-                      </select>
-                    </div>
-                  )}
-
-                  {meetingFrequency === "monthly" && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Meeting Date
-                      </label>
-                      <select
-                        value={meetingDate}
-                        onChange={(e) => { setMeetingDate(e.target.value); }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                      >
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
-                          <option key={date} value={date}>
-                            {date}{getOrdinalSuffix(date)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Meeting Time
-                    </label>
-                    <input
-                      type="time"
-                      value={meetingTime}
-                      onChange={(e) => { setMeetingTime(e.target.value); clearError('communication.meeting_time_utc'); }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
-                    />
-                    {errors["communication.meeting_time_utc"] && (<p className="text-red-600 text-sm mt-1">{errors["communication.meeting_time_utc"]}</p>)}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 

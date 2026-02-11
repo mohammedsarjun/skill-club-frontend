@@ -348,6 +348,34 @@ const AdminActionApi = {
     }
   },
 
+  async getAllReports(page: number = 1, limit: number = 10) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetAllReports, {
+        params: { page, limit },
+      });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getJobReports(jobId: string) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetJobReports(jobId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   getContracts: async (query: { search?: string; page?: number; limit?: number; status?: string }) => {
     try {
       const response = await axiosClient.get(adminEndPoint.adminGetAllContracts, {
@@ -505,6 +533,132 @@ const AdminActionApi = {
           reasonCode: params.reasonCode,
         },
       });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawStats() {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawStats);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawals(page: number = 1, limit: number = 10, filters?: { role?: string; status?: string }) {
+    try {
+      const params = { page, limit, ...(filters || {}) };
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawals, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getWithdrawalDetail(withdrawalId: string) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetWithdrawalDetail(withdrawalId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async approveWithdrawal(withdrawalId: string) {
+    try {
+      const response = await axiosClient.post(adminEndPoint.adminApproveWithdrawal(withdrawalId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async rejectWithdrawal(withdrawalId: string, reason: string) {
+    try {
+      const response = await axiosClient.post(adminEndPoint.adminRejectWithdrawal(withdrawalId), { reason });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getRevenue(params?: {
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+  }) {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetRevenue, { params });
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async getNotifications() {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetNotifications);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markNotificationAsRead(notificationId: string) {
+    try {
+      const response = await axiosClient.patch(
+        adminEndPoint.adminMarkNotificationAsRead(notificationId)
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const response = await axiosClient.patch(
+        adminEndPoint.adminMarkAllNotificationsAsRead
+      );
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

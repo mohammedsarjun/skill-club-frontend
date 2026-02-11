@@ -33,7 +33,7 @@ const OffersPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [offerTypeFilter, setOfferTypeFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(2);
+  const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
 
   const router = useRouter();
@@ -161,15 +161,7 @@ const OffersPage: React.FC = () => {
             : offer.milestones,
           expectedStartDate: d.expectedStartDate ?? offer.expectedStartDate,
           expectedEndDate: d.expectedEndDate ?? offer.expectedEndDate,
-          communication: d.communication
-            ? {
-                preferredMethod: d.communication.preferredMethod,
-                meetingFrequency: d.communication.meetingFrequency,
-                meetingDayOfWeek: d.communication.meetingDayOfWeek,
-                meetingDayOfMonth: d.communication.meetingDayOfMonth,
-                meetingTimeUtc: d.communication.meetingTimeUtc,
-              }
-            : offer.communication,
+
           reporting: d.reporting
             ? {
                 frequency: d.reporting.frequency,

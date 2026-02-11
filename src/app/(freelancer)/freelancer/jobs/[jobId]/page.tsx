@@ -24,6 +24,7 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 import ProposalFormModal from "./components/ProposalModal";
+import ReportJobModal from "./components/ReportJobModal";
 import { ICreateProposal } from "@/types/interfaces/IProposal";
 import toast from "react-hot-toast";
 import { formatCurrency } from "@/utils/currency";
@@ -84,7 +85,9 @@ interface StatusConfig {
 const JobDetailPage: React.FC = () => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isReported, setIsReported] = useState<boolean>(false);
   const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [bidAmount, setBidAmount] = useState<string>("");
   const [coverLetter, setCoverLetter] = useState<string>("");
   const [deliveryTime, setDeliveryTime] = useState<string>("1-2 weeks");
@@ -184,7 +187,24 @@ const JobDetailPage: React.FC = () => {
   };
 
   const handleReportJob = (): void => {
-    console.log("Reporting job:", jobDetail?.jobId);
+    if (!isReported) {
+      setShowReportModal(true);
+    }
+  };
+
+  const handleReportSubmit = async (reason: string): Promise<void> => {
+    try {
+      const response = await freelancerActionApi.reportJob(jobId as string, reason);
+      if (response.success) {
+        toast.success(response.message || "Job reported successfully");
+        setIsReported(true);
+        setShowReportModal(false);
+      } else {
+        toast.error(response.message || "Failed to report job");
+      }
+    } catch (error: unknown) {
+      toast.error("Failed to report job");
+    }
   };
 
   const handleViewClientProfile = (): void => {
@@ -212,7 +232,6 @@ const JobDetailPage: React.FC = () => {
         hourlyRate:
           jobDetail.rateType == "hourly" ? jobDetail.hourlyRate : null,
         fixedRate: jobDetail.rateType == "fixed" ? jobDetail.fixedRate : null,
-        // FX metadata (optional) returned by backend mapper
         currency: jobDetail.currency,
         conversionRate: jobDetail.conversionRate,
         hourlyRateBaseUSD: jobDetail.hourlyRateBaseUSD,
@@ -227,16 +246,15 @@ const JobDetailPage: React.FC = () => {
           totalJobsPosted: jobDetail.client.totalJobsPosted,
         },
       });
-      // Some API shapes may return status under different keys — try common variants
-      const inferredStatus = (jobDetail as any).status || (jobDetail as any).jobStatus || (jobDetail as any).state || undefined;
-      setJobStatus(inferredStatus as JobStatus | undefined);
+      setJobStatus(jobDetail.status as JobStatus);
+      setHasProposal(jobDetail.isProposalAlreadySent || false);
       console.log(jobDetail);
     }
 
-
-
-    fetchJobDetail();
-  }, []);
+    if (jobId) {
+      fetchJobDetail();
+    }
+  }, [jobId]);
 
   // Check saved state on mount
   useEffect(() => {
@@ -247,7 +265,7 @@ const JobDetailPage: React.FC = () => {
         const savedFlag = resp?.data?.saved as boolean | undefined;
         if (mounted) setIsSaved(!!savedFlag);
       } catch (err) {
-        // ignore silently or show toast if desired
+
       }
     }
     if (jobId) checkSaved();
@@ -256,21 +274,19 @@ const JobDetailPage: React.FC = () => {
     };
   }, [jobId]);
 
-  // Check if proposal already exists
+
   useEffect(() => {
     let mounted = true;
-    async function checkProposal() {
+    async function checkReported() {
       try {
-        const resp = await freelancerActionApi.getMyProposals(jobId as string, {});
+        const resp = await freelancerActionApi.isJobReported(jobId as string);
         if (mounted && resp?.success && resp?.data) {
-          const proposals = Array.isArray(resp.data) ? resp.data : [];
-          setHasProposal(proposals.length > 0);
+          setIsReported(!!resp.data.reported);
         }
       } catch (err) {
-        // ignore silently
       }
     }
-    if (jobId) checkProposal();
+    if (jobId) checkReported();
     return () => {
       mounted = false;
     };
@@ -534,7 +550,19 @@ const JobDetailPage: React.FC = () => {
                       "Save"
                     )}
                   </button>
-                 
+                  <button
+                    onClick={handleReportJob}
+                    disabled={isReported || jobStatus === 'suspended' || jobStatus === 'closed' || hasProposal}
+                    title={isReported ? 'You have already reported this job' : jobStatus === 'suspended' ? 'Cannot report — job suspended by admin' : jobStatus === 'closed' ? 'Cannot report — job closed by client' : hasProposal ? 'Cannot report — proposal already submitted' : 'Report this job'}
+                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
+                      isReported || jobStatus === 'suspended' || jobStatus === 'closed' || hasProposal
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <FaFlag className={isReported ? "text-red-600" : ""} />
+                    {isReported ? 'Reported' : 'Report'}
+                  </button>
                 </div>
           
               </div>
@@ -618,6 +646,14 @@ const JobDetailPage: React.FC = () => {
       {/* Proposal Modal */}
       {showProposalModal && (
         <ProposalFormModal jobType={jobDetail?.rateType as "hourly"|"fixed"} onSubmit={handleProposalSubmit} onClose={()=>{setShowProposalModal(false)}} />
+      )}
+
+      {showReportModal && (
+        <ReportJobModal
+          jobTitle={jobDetail?.title || ""}
+          onClose={() => setShowReportModal(false)}
+          onSubmit={handleReportSubmit}
+        />
       )}
     </div>
   );

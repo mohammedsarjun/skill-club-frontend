@@ -22,6 +22,8 @@ const freelancerRouterEndPoints = {
   getJobDetail:(jobId:string)=> `/freelancer/jobs/${jobId}`,
   saveJob: (jobId: string) => `/freelancer/jobs/${jobId}/save`,
   isJobSaved: (jobId: string) => `/freelancer/jobs/${jobId}/saved`,
+  reportJob: (jobId: string) => `/freelancer/jobs/${jobId}/report`,
+  isJobReported: (jobId: string) => `/freelancer/jobs/${jobId}/reported`,
   getSavedJobs: () => `/freelancer/saved-jobs`,
   createProposal:'/freelancer/proposals',
   getMyProposals:(jobId:string)=> `/freelancer/jobs/${jobId}/proposals`,
@@ -60,6 +62,7 @@ const freelancerRouterEndPoints = {
   getMeetings: '/freelancer/meetings',
   getMeetingDetail: (meetingId: string) => `/freelancer/meetings/${meetingId}`,
   getContractMeetings: (contractId: string) => `/freelancer/contracts/${contractId}/meetings`,
+  getAllFreelancerMeetings: '/freelancer/meetings',
   acceptMeeting: '/freelancer/meetings/accept',
   requestMeetingReschedule: '/freelancer/meetings/reschedule',
   requestMeetingReject: '/freelancer/meetings/reject',
@@ -75,9 +78,17 @@ const freelancerRouterEndPoints = {
   getTransactions: '/freelancer/earnings/transactions',
   getDashboardContractStats: '/freelancer/dashboard/contract-stats',
   getDashboardEarnings: '/freelancer/dashboard/earnings',
+  // finance
+  finance: '/freelancer/finance',
+  financeWithdraw: '/freelancer/finance/withdraw',
+  financeWithdrawals: '/freelancer/finance/withdrawals',
+  financeWithdrawalDetail: (withdrawalId: string) => `/freelancer/finance/withdrawals/${withdrawalId}`,
   getDashboardMeetings: '/freelancer/dashboard/meetings',
   getDashboardReviewStats: '/freelancer/dashboard/review-stats',
-  approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`
+  approveDeliverableChanges: (contractId: string, deliverableId: string) => `/freelancer/contracts/${contractId}/deliverables/${deliverableId}/approve-change`,
+  getNotifications: "/freelancer/notifications",
+  markNotificationAsRead: (notificationId: string) => `/freelancer/notifications/${notificationId}/read`,
+  markAllNotificationsAsRead: "/freelancer/notifications/read-all",
 };
 
 export default freelancerRouterEndPoints;
