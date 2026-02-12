@@ -70,15 +70,18 @@ export const ActionButtons = ({
           </button>
         )}
 
-        {status === "active" && onScheduleMeeting && (
-          <button
-            onClick={onScheduleMeeting}
-            className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center justify-center gap-2"
-          >
-            <Calendar className="w-4 h-4" />
-            Schedule Meeting
-          </button>
-        )}
+        {(status === "active" ||
+          status === "pending_funding" ||
+          status === "held") &&
+          onScheduleMeeting && (
+            <button
+              onClick={onScheduleMeeting}
+              className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              Schedule Meeting
+            </button>
+          )}
         {contractType === "hourly" && status === "active" && onEndContract && (
           <button
             onClick={onEndContract}
