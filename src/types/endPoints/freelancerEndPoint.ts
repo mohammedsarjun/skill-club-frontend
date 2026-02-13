@@ -33,6 +33,7 @@ const freelancerRouterEndPoints = {
   acceptOffer: (offerId: string) => `/freelancer/offers/${offerId}/accept`,
   getContracts: '/freelancer/contracts',
   getContractDetail: (contractId: string) => `/freelancer/contracts/${contractId}`,
+  getContractTimeline: (contractId: string) => `/freelancer/contracts/${contractId}/timeline`,
   getCancellationRequest: (contractId: string) => `/freelancer/contracts/${contractId}/cancellation-request`,
   acceptCancellationRequest: (contractId: string) => `/freelancer/contracts/${contractId}/cancellation-request/accept`,
   raiseCancellationDispute: (contractId: string) => `/freelancer/contracts/${contractId}/cancellation-request/raise-dispute`,

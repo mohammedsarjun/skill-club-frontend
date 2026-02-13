@@ -50,6 +50,7 @@ import { EndContractModal } from "./components/EndContractModal";
 import SplitHeldFundsModal from "./components/SplitHeldFunds";
 import { CancellationRequestModal } from "./components/CancellationRequestModal";
 import { ICancellationRequest } from "@/types/interfaces/ICancellationRequest";
+import { ContractTimeline } from "@/components/common/ContractTimeline";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -71,7 +72,7 @@ function ContractDetails() {
   const [cancellationRequest, setCancellationRequest] = useState<ICancellationRequest | null>(null);
   const [isCancellationRequestModalOpen, setIsCancellationRequestModalOpen] = useState(false);
   const [isProcessingCancellationRequest, setIsProcessingCancellationRequest] = useState(false);
-  const [activeTab, setActiveTab] = useState<"details" | "workspace">(
+  const [activeTab, setActiveTab] = useState<"details" | "workspace" | "timeline">(
     "details",
   );
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<
@@ -1151,10 +1152,17 @@ function ContractDetails() {
               >
                 <span className="flex items-center justify-center gap-2">
                   Workspace
-                  {/* {contractDetail.status === "pending_funding" && (
-                    <FaLock className="text-sm" />
-                  )} */}
                 </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("timeline")}
+                className={`flex-1 px-6 py-4 font-medium transition-colors ${
+                  activeTab === "timeline"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Timeline
               </button>
             </div>
           </div>
@@ -1529,6 +1537,13 @@ function ContractDetails() {
                 )}
               </div>
             </div>
+          )}
+
+          {activeTab === "timeline" && (
+            <ContractTimeline
+              contractId={contractId as string}
+              role="client"
+            />
           )}
         </div>
       )}

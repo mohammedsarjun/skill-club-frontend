@@ -161,7 +161,7 @@ const OffersPage: React.FC = () => {
             : offer.milestones,
           expectedStartDate: d.expectedStartDate ?? offer.expectedStartDate,
           expectedEndDate: d.expectedEndDate ?? offer.expectedEndDate,
-
+          category: d.category || offer.category,
           reporting: d.reporting
             ? {
                 frequency: d.reporting.frequency,

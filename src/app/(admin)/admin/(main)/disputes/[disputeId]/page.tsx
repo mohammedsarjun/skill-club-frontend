@@ -12,6 +12,7 @@ import { DeliverablesTab } from './components/DeliverablesTab';
 import { MilestonesTab } from './components/MilestonesTab';
 import { AdminSplitFundsModal } from './components/AdminSplitFundsModal';
 import { WorklogCard } from './components/WorkLogCard';
+import { ContractTimeline } from '@/components/common/ContractTimeline';
 const DisputeDetailsPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dispute, setDispute] = useState<IAdminDisputeDetail | null>(null);
@@ -120,6 +121,8 @@ const DisputeDetailsPage = () => {
     if (dispute.contract.paymentType === 'hourly') {
     tabs.push('worklog');
   }
+  
+  tabs.push('timeline');
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -199,6 +202,12 @@ const DisputeDetailsPage = () => {
               <MilestonesTab milestones={dispute.milestones} scopeId={dispute.scopeId || undefined} />
             )}
             {activeTab === 'worklog' && dispute.workLog && <WorklogCard data={dispute.workLog} disputeId={dispute.disputeId} />}
+            {activeTab === 'timeline' && (
+              <ContractTimeline 
+                contractId={dispute.contractId} 
+                role="admin"
+              />
+            )}
           </div>
         </div>
 

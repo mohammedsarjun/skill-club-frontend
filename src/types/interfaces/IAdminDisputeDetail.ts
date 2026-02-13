@@ -41,6 +41,7 @@ export interface IAdminDisputeDetail {
 }
 
 export interface IAdminDisputeContract {
+  contractObjectId: string;
   contractId: string;
   title: string;
   description: string;

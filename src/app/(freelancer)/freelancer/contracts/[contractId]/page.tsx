@@ -39,12 +39,13 @@ import { CancellationRequestModal } from './components/CancellationRequestModal'
 import { IFreelancerCancellationRequest } from '@/types/interfaces/IFreelancerCancellationRequest';
 import SplitHeldFundsModal from './components/SplitHeldFunds';
 import { EndContractModal } from './components/EndContractModal';
+import { ContractTimeline } from '@/components/common/ContractTimeline';
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] = useState<IFreelancerContractDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'details' | 'workspace'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'workspace' | 'timeline'>('details');
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<'deliverables' | 'milestones' | 'timesheet' | 'chat' | 'files'|'worklogTracker' | 'meetings'>('deliverables');
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -841,6 +842,16 @@ function ContractDetails() {
         
                 </span>
               </button>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`flex-1 px-6 py-4 font-medium transition-colors ${
+                  activeTab === 'timeline'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Timeline
+              </button>
             </div>
           </div>
 
@@ -1154,6 +1165,13 @@ function ContractDetails() {
                 )}
               </div>
             </div>
+          )}
+
+          {activeTab === 'timeline' && (
+            <ContractTimeline
+              contractId={contractId as string}
+              role="freelancer"
+            />
           )}
         </div>
       )}
