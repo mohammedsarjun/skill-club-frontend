@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { useSocket } from './useSocket';
 import { INotification } from '@/types/interfaces/INotification';
 
-const NOTIFICATION_SOUND_URL = '/audios/notification-sound-1.mp3';;
+const NOTIFICATION_SOUND_URL = '';;
 
 interface UseNotificationOptions {
   onNotification?: (notification: INotification) => void;
