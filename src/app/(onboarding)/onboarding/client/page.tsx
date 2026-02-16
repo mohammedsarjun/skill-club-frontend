@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaUpload, FaGlobe, FaBuilding } from "react-icons/fa";
 import Button from "@/components/common/Button";
-import { uploadApi } from "@/api/uploadApi"; // ✅ uses backend upload endpoint
+import { uploadApi } from "@/api/uploadApi";
 import { userApi } from "@/api/userApi";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { setUser } from "@/store/slices/authSlice";
 import { useDispatch } from "react-redux";
+import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 
 interface ClientDetailsProps {
   onBack: () => void;
@@ -146,10 +147,11 @@ export default function ClientDetailsForm() {
           
           // Update localStorage to persist the onboarding status
           localStorage.setItem("user", JSON.stringify(roleSelectionResponse.data));
+          setSessionCookie(buildSessionData(roleSelectionResponse.data));
           
           // Small delay to ensure state is updated before redirect
           setTimeout(() => {
-            router.push("/client/profile");
+            router.replace("/client");
           }, 100);
         } else {
           toast.error(roleSelectionResponse.message || "Failed to complete onboarding");

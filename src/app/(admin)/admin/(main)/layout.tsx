@@ -1,8 +1,8 @@
 "use client";
 
-import React, { Children, ReactNode, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // ✅ for active route detection
+import { usePathname } from "next/navigation";
 import {
   FaUser,
   FaBars,
@@ -19,12 +19,12 @@ import {
   FaLayerGroup,
 } from "react-icons/fa";
 import Image from "next/image";
-import AdminAuthGuard from "@/components/AdminAuthGaurd";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { setUser, clearUser } from "@/store/slices/authSlice";
+import { clearUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
-import VerifyAuthAdmin from "@/components/verifyAdmin";
+import { clearSessionCookie } from "@/utils/session-cookie";
+
 type LayoutProps = {
   children: ReactNode;
 };
@@ -39,6 +39,7 @@ function AdminLayout({ children }: LayoutProps) {
     try {
       await adminAuthApi.logout();
       dispatch(clearUser());
+      clearSessionCookie();
       localStorage.removeItem("user");
       router.push("/admin/login");
     } catch (err) {
@@ -185,8 +186,6 @@ function AdminLayout({ children }: LayoutProps) {
 
 export default function AdminPageLayout({ children }: LayoutProps) {
   return (
-    <VerifyAuthAdmin>
-      <AdminLayout>{children}</AdminLayout>
-    </VerifyAuthAdmin>
+    <AdminLayout>{children}</AdminLayout>
   );
 }

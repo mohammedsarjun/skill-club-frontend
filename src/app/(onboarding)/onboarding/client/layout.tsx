@@ -1,4 +1,4 @@
-import ClientOnboardingGuard from "@/components/auth/ClientOnboardingGuard";
+import ClientOnboardingGuard from "@/components/guards/ClientOnboardingGuard";
 
 export default function OnboardingLayout({
   children,

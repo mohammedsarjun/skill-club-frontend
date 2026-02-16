@@ -1,5 +1,6 @@
 import authenticationRoutes from "@/types/endPoints/authEndPoints";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import { clearSessionCookie } from "@/utils/session-cookie";
 
 export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -61,9 +62,18 @@ axiosClient.interceptors.response.use(
         return axiosClient(originalRequest);
       } catch (err) {
         processQueue(err);
-        // Refresh failed — redirect to login
-        console.log(err);
-
+        clearSessionCookie();
+        localStorage.removeItem("user");
+        if (typeof window !== "undefined") {
+          const guestPaths = ["/login", "/signup", "/otp", "/forgot-password", "/reset-password", "/admin/login"];
+          const currentPath = window.location.pathname;
+          const isAlreadyOnGuestPage = guestPaths.some(
+            (p) => currentPath === p || currentPath.startsWith(p + "/")
+          );
+          if (!isAlreadyOnGuestPage) {
+            window.location.href = "/login";
+          }
+        }
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

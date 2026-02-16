@@ -25,7 +25,7 @@ export default function AdminAuthGuard({
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        let currentUser = user;
+        const currentUser = user;
 
         // No user → force login
         if (!currentUser) {

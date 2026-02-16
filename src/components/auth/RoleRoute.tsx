@@ -44,7 +44,7 @@ export default function RoleRoute({
 }: RoleRouteProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading } = useSelector(
+  const { user, isLoading } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -53,7 +53,7 @@ export default function RoleRoute({
     if (isLoading) return;
 
     // Should already be authenticated (ProtectedRoute handles this)
-    if (!isAuthenticated || !user) {
+    if (!user) {
       router.replace("/login");
       return;
     }
@@ -115,7 +115,7 @@ export default function RoleRoute({
       return;
     }
 
-  }, [isLoading, isAuthenticated, user, allowedRoles, requireOnboarding, router, pathname]);
+  }, [isLoading, user, allowedRoles, requireOnboarding, router, pathname]);
 
   // Show loading state while checking
   if (isLoading) {
@@ -131,7 +131,6 @@ export default function RoleRoute({
 
   // If all checks pass, render children
   if (
-    isAuthenticated &&
     user &&
     user.activeRole &&
     allowedRoles.includes(user.activeRole)

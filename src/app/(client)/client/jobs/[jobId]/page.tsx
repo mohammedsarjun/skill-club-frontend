@@ -164,6 +164,32 @@ function JobDetailPage() {
           setJob(jobResponse.data);
         }
 
+        // fetch proposals count from backend if job fetched
+        try {
+          const resp = await clientActionApi.getAllJobProposals(jobIdParam as string, { page: 1, limit: 1 });
+          const payload = resp && resp.data ? resp.data : resp;
+
+          const total =
+            typeof payload?.totalCount === 'number'
+              ? payload.totalCount
+              : typeof payload?.total === 'number'
+              ? payload.total
+              : typeof payload?.meta?.total === 'number'
+              ? payload.meta.total
+              : undefined;
+
+          if (typeof total === 'number') {
+            setJob((prev) => {
+              if (prev) return { ...prev, totalProposal: total } as JobDetailResponseDTO;
+              return prev;
+            });
+          }
+        } catch (err) {
+          // ignore proposal count fetch failures; keep using job data
+          console.debug('Could not fetch proposals count', err);
+        }
+
+        // keep legacy mock proposals for local UI until real data loads in the proposals table
         setProposals(mockProposals);
       } catch (err) {
         console.error("Failed to fetch job details", err);
@@ -297,7 +323,7 @@ function JobDetailPage() {
             >
               <div className="flex items-center justify-center gap-2">
                 <FaUsers className="w-4 h-4" />
-                Proposals ({proposals.length})
+                Proposals ({job?.totalProposal ?? 0})
               </div>
             </button>
           </div>

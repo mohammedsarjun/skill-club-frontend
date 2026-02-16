@@ -1,4 +1,4 @@
-import FreelancerOnboardingGuard from "@/components/auth/FreelancerOnboardingGuard";
+import FreelancerOnboardingGuard from "@/components/guards/FreelancerOnboardingGuard";
 
 export default function OnboardingLayout({
   children,

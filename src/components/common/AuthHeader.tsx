@@ -8,6 +8,7 @@ import { setUser, clearUser } from "@/store/slices/authSlice";
 import { RootState } from "@/store";
 import Button from "./Button";
 import { LogOut, User } from "lucide-react";
+import { clearSessionCookie } from "@/utils/session-cookie";
 
 export default function AuthHeader() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function AuthHeader() {
     try {
       await authApi.logout();
       dispatch(clearUser());
+      clearSessionCookie();
+      localStorage.removeItem("user");
       router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);

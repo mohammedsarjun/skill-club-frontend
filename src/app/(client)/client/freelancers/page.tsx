@@ -213,7 +213,7 @@ const Freelancers = () => {
 
   const handleFilterUpdate = (key: keyof FilterState, value: any) => {
     setFilters((prev) => {
-      let newFilters = { ...prev, [key]: value };
+      const newFilters = { ...prev, [key]: value };
 
       // Ensure minHourlyRate <= maxHourlyRate
       if (key === "minHourlyRate" && value > prev.maxHourlyRate) {

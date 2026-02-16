@@ -248,5 +248,16 @@ export const authApi = {
         return "Unexpected error";
       }
     }
-  },
+  },  async me() {
+    try {
+      const response = await axiosClient.get(authenticationRoutes.me);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  }
 };

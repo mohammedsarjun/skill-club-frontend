@@ -1,21 +1,14 @@
-"use client";
 import React from "react";
-import AuthHeader from "@/components/common/AuthHeader";
-import AuthGuard from "@/components/ClientAuthGaurd";
 import ClientHeader from "@/components/client/Header";
-import { usePreventBackAfterLogout } from "@/custom-hooks/usePreventBackAfterLogout";
+import AuthGuard from "@/components/guards/AuthGuard";
 
-
-export default function Layout({ children, params }: { children: React.ReactNode; params?: any }) {
-  usePreventBackAfterLogout();
-
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-
+    <AuthGuard>
       <div className="bg-gray-50 min-h-screen">
-          <ClientHeader />
-          {children}
+        <ClientHeader />
+        {children}
       </div>
-
-    
+    </AuthGuard>
   );
 }

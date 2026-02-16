@@ -40,6 +40,8 @@ const adminRouterEndPoints = {
   adminGetAllContracts: "/admin/contracts",
   adminGetContractDetail: (contractId: string) =>
     `/admin/contracts/${contractId}`,
+  adminGetContractTimeline: (contractId: string) =>
+    `/admin/contracts/${contractId}/timeline`,
 
   //reviews
   adminGetReviews: "/admin/reviews",

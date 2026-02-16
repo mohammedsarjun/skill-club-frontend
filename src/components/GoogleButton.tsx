@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
+import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
+import { getAuthRedirectPath } from "@/utils/auth-redirect";
 export default function GoogleLogin() {
   const dispatch = useDispatch();
   const route = useRouter();
@@ -39,11 +40,12 @@ export default function GoogleLogin() {
       const res = await authApi.googleLogin(response.credential);
 
       if (res.success) {
-       const user= localStorage.setItem("user", JSON.stringify(res.data));
+        localStorage.setItem("user", JSON.stringify(res.data));
         dispatch(setUser(res.data));
-        route.push("/client/profile");
+        setSessionCookie(buildSessionData(res.data));
+        route.replace(getAuthRedirectPath(res.data));
       } else {
-        toast.error(response.message);
+        toast.error(res.message);
       }
 
       // localStorage.setItem("token", res.data.token); // store JWT for SPA

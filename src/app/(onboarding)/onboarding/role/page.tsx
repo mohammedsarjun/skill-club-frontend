@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { RootState } from "@/store";
+import RoleSelectionGuard from "@/components/guards/RoleSelectionGuard";
 
 function ChooseRolePage() {
   const router = useRouter();
@@ -116,8 +117,8 @@ function ChooseRolePage() {
 
 export default function ChooseRole() {
   return (
-
-      <ChooseRolePage></ChooseRolePage>
-
-  )
+    <RoleSelectionGuard>
+      <ChooseRolePage />
+    </RoleSelectionGuard>
+  );
 }

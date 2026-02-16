@@ -6,15 +6,14 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
-import AuthGuard from "@/components/ClientAuthGaurd";
 import { emailSchema, passwordSchema } from "@/utils/validations/validation";
-import { z } from "zod";
 import { authApi } from "@/api/authApi";
 import { LoginData } from "@/api/authApi";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/authSlice";
 import { adminAuthApi } from "@/api/adminAuthApi";
+import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,6 +67,7 @@ function LoginPage() {
     if (response.success) {
       dispatch(setUser(response.data));
       localStorage.setItem("user", JSON.stringify(response.data));
+      setSessionCookie(buildSessionData(response.data));
       route.replace("/admin/categories-skills");
     } else {
       toast.error(response.message);

@@ -24,8 +24,6 @@ export const userApi = {
   me: async () => {
     try {
       const response = await axiosClient.get(userRoutes.me);
-
-      console.log(response);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

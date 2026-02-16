@@ -17,6 +17,8 @@ import {
   Settings,
   GitBranch,
 } from "lucide-react";
+
+import { clearSessionCookie, setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import { INotification } from "@/types/interfaces/INotification";
@@ -74,6 +76,7 @@ export default function FreelancerHeader() {
       const response = await authApi.logout();
       if (response.success) {
         dispatch(clearUser());
+        clearSessionCookie();
         localStorage.removeItem("user");
         router.push("/login");
       }
@@ -87,6 +90,7 @@ export default function FreelancerHeader() {
     if (response.success) {
       dispatch(setUser(response.data));
       localStorage.setItem("user", JSON.stringify(response.data));
+      setSessionCookie(buildSessionData(response.data));
       router.push("/client/profile");
     } else {
       router.push("/onboarding/client");

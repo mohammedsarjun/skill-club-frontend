@@ -24,6 +24,7 @@ import { formatCurrency } from "@/utils/currency";
 import FreelancerReviewsDisplay from "./components/RatingsAndReviews";
 import PreContractMeetingModal from "./components/PreContractMeetingModal";
 import { IPreContractMeetingRequest } from "@/types/interfaces/IPreContractMeeting";
+import { IClientMeetingListItem } from "@/types/interfaces/IClientMeeting";
 import { Calendar } from "lucide-react";
 
 const FreelancerProfile = () => {
@@ -170,35 +171,39 @@ const FreelancerProfile = () => {
     return () => { active = false };
   }, [freelancerId]);
 
+  const checkExistingMeetingRequest = async () => {
+    if (!freelancerId) return;
+    setIsCheckingMeetingRequest(true);
+    try {
+      const resp = await clientActionApi.getAllMeetings({
+        meetingType: 'pre-contract',
+        limit: 100,
+      });
+
+      if (resp && resp.success && resp.data && resp.data.items) {
+        const hasPending = resp.data.items.some(
+          (meeting: IClientMeetingListItem) =>
+            meeting.freelancer?.freelancerId === freelancerId &&
+            (meeting.status === 'proposed' ||
+              meeting.status === 'accepted' ||
+              meeting.status === 'ongoing')
+        );
+        setHasPendingMeetingRequest(hasPending);
+      }
+    } catch (err) {
+      console.error('Failed to check existing meeting requests:', err);
+    } finally {
+      setIsCheckingMeetingRequest(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
-    async function checkExistingMeetingRequest() {
-      if (!freelancerId) return;
-      setIsCheckingMeetingRequest(true);
-      try {
-        const resp = await clientActionApi.getAllMeetings({
-          meetingType: 'pre-contract',
-          limit: 100,
-        });
-        
-        if (!active) return;
-        
-        if (resp && resp.success && resp.data && resp.data.items) {
-          const hasPending = resp.data.items.some((meeting: any) => 
-            meeting.freelancer?.freelancerId === freelancerId &&
-            (meeting.status === 'proposed' || meeting.status === 'accepted')
-          );
-          setHasPendingMeetingRequest(hasPending);
-        }
-      } catch (err) {
-        console.error('Failed to check existing meeting requests:', err);
-      } finally {
-        if (active) {
-          setIsCheckingMeetingRequest(false);
-        }
-      }
-    }
-    checkExistingMeetingRequest();
+    const check = async () => {
+      await checkExistingMeetingRequest();
+      if (!active) return;
+    };
+    check();
     return () => { active = false };
   }, [freelancerId]);
 
@@ -254,11 +259,11 @@ const FreelancerProfile = () => {
         toast.success('Meeting request sent successfully!');
         setIsMeetingModalOpen(false);
         setHasPendingMeetingRequest(true);
+        await checkExistingMeetingRequest();
       } else {
         toast.error(response?.message || 'Failed to send meeting request');
       }
     } catch (error) {
-      console.error('Error sending meeting request:', error);
       toast.error('Failed to send meeting request');
     }
   }
