@@ -117,7 +117,7 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
     if (!newMessage.trim() && attachments.length === 0) return;
     setSending(true);
     try {
-      let uploadedAttachments: { fileName: string; fileUrl: string; fileSize: number; fileType: string }[] = [];
+      const uploadedAttachments: { fileName: string; fileUrl: string; fileSize: number; fileType: string }[] = [];
       if (attachments.length > 0) {
 
         for (const file of attachments) {
