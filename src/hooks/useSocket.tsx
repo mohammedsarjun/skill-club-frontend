@@ -1,14 +1,25 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { RootState } from "@/store";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { useSelector } from "react-redux";
+import { io, Socket } from "socket.io-client";
 
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
 }
 
-const SocketContext = createContext<SocketContextType>({ socket: null, isConnected: false });
+const SocketContext = createContext<SocketContextType>({
+  socket: null,
+  isConnected: false,
+});
 
 export const useSocket = () => useContext(SocketContext);
 
@@ -19,40 +30,28 @@ interface SocketProviderProps {
 export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
-    // const getAccessToken = () => {
-    //   if (typeof document !== 'undefined') {
-    //     const cookies = document.cookie.split('; ');
-    //     const tokenCookie = cookies.find(row => row.startsWith('accessToken='));
-    //     return tokenCookie ? tokenCookie.split('=')[1] : null;
-    //   }
-    //   return null;
-    // };
+    if (!user) return;
 
-    // const accessToken = getAccessToken();
-    
-    // if (!accessToken) {
-    //   return;
-    // }
+    console.log("socket instance running");
+    const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
+      withCredentials: true,
+    });
 
-const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL , {
-  withCredentials: true,
-});
-
-
-    socketInstance.on('connect', () => {
+    socketInstance.on("connect", () => {
       setIsConnected(true);
-      console.log('Socket connected:', socketInstance.id);
+      console.log("Socket connected:", socketInstance.id);
     });
 
-    socketInstance.on('disconnect', () => {
+    socketInstance.on("disconnect", () => {
       setIsConnected(false);
-      console.log('Socket disconnected');
+      console.log("Socket disconnected");
     });
 
-    socketInstance.on('connect_error', (error: Error) => {
-      console.error('Socket connection error:', error.message);
+    socketInstance.on("connect_error", (error: Error) => {
+      console.error("Socket connection error:", error.message);
       setIsConnected(false);
     });
 
@@ -61,7 +60,7 @@ const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL , {
     return () => {
       socketInstance.disconnect();
     };
-  }, []);
+  }, [user]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>
@@ -69,4 +68,3 @@ const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL , {
     </SocketContext.Provider>
   );
 };
-

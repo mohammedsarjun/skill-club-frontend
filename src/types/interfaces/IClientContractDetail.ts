@@ -86,6 +86,20 @@ export interface IClientContractDetail {
     timestamp: string;
   }[];
 
+    disputeDetail?: {
+    raisedBy: "client" | "freelancer" | "system";
+    scope: "contract" | "milestone" | "worklog";
+    reasonCode: string;
+    status: "open" | "under_review" | "resolved" | "rejected";
+    resolution?: {
+      outcome?: "refund_client" | "pay_freelancer" | "split";
+      clientAmount?: number;
+      freelancerAmount?: number;
+      decidedBy: "admin" | "system";
+      decidedAt?: string;
+    };
+  };
+
   title: string;
   description: string;
   expectedStartDate: string;

@@ -73,6 +73,12 @@ const adminRouterEndPoints = {
   adminGetNotifications: "/admin/notifications",
   adminMarkNotificationAsRead: (notificationId: string) => `/admin/notifications/${notificationId}/read`,
   adminMarkAllNotificationsAsRead: "/admin/notifications/read-all",
+
+  adminGetAllContents: "/admin/contents",
+  adminGetContentBySlug: (slug: string) => `/admin/contents/${slug}`,
+  adminUpdateContent: (slug: string) => `/admin/contents/${slug}`,
+  publicGetAllContents: "/admin/public/contents",
+  publicGetContentBySlug: (slug: string) => `/admin/public/contents/${slug}`,
 };
 
 export default adminRouterEndPoints;

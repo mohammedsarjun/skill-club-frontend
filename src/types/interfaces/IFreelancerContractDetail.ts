@@ -1,11 +1,11 @@
 export interface IFreelancerContractDetail {
   contractId: string;
   offerId: string;
-  offerType?: 'direct' | 'proposal';
+  offerType?: "direct" | "proposal";
   jobId?: string;
   jobTitle?: string;
   proposalId?: string;
-  
+
   client?: {
     clientId: string;
     firstName?: string;
@@ -15,14 +15,14 @@ export interface IFreelancerContractDetail {
     country?: string;
   };
 
-  paymentType: 'fixed' | 'fixed_with_milestones' | 'hourly';
+  paymentType: "fixed" | "fixed_with_milestones" | "hourly";
   budget?: number;
   budgetBaseUSD?: number;
   hourlyRate?: number;
   hourlyRateBaseUSD?: number;
   conversionRate?: number;
   estimatedHoursPerWeek?: number;
-  currency: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+  currency: "USD" | "EUR" | "GBP" | "INR" | "AUD" | "CAD" | "SGD" | "JPY";
 
   milestones?: {
     id?: string;
@@ -31,7 +31,13 @@ export interface IFreelancerContractDetail {
     amount: number;
     amountBaseUSD?: number;
     expectedDelivery: string;
-    status: 'pending_funding' | 'funded' | 'changes_requested' | 'submitted' | 'approved' | 'paid';
+    status:
+      | "pending_funding"
+      | "funded"
+      | "changes_requested"
+      | "submitted"
+      | "approved"
+      | "paid";
     isFunded?: boolean;
     submittedAt?: string;
     approvedAt?: string;
@@ -43,7 +49,7 @@ export interface IFreelancerContractDetail {
       submittedBy: string;
       files: { fileName: string; fileUrl: string }[];
       message?: string;
-      status: 'submitted' | 'approved' | 'changes_requested';
+      status: "submitted" | "approved" | "changes_requested";
       version: number;
       submittedAt: string;
       approvedAt?: string;
@@ -55,19 +61,33 @@ export interface IFreelancerContractDetail {
       requestedBy: string;
       requestedDeadline: string;
       reason: string;
-      status: 'pending' | 'approved' | 'rejected';
+      status: "pending" | "approved" | "rejected";
       requestedAt: string;
       respondedAt?: string;
       responseMessage?: string;
     };
   }[];
 
+  disputeDetail?: {
+    raisedBy: "client" | "freelancer" | "system";
+    scope: "contract" | "milestone" | "worklog";
+    reasonCode: string;
+    status: "open" | "under_review" | "resolved" | "rejected";
+    resolution?: {
+      outcome?: "refund_client" | "pay_freelancer" | "split";
+      clientAmount?: number;
+      freelancerAmount?: number;
+      decidedBy: "admin" | "system";
+      decidedAt?: string;
+    };
+  };
+
   timesheets?: {
     weekStart: string;
     weekEnd: string;
     totalHours: number;
     totalAmount: number;
-    status: 'pending' | 'approved' | 'paid';
+    status: "pending" | "approved" | "paid";
   }[];
 
   deliverables?: {
@@ -75,7 +95,7 @@ export interface IFreelancerContractDetail {
     submittedBy: string;
     files: { fileName: string; fileUrl: string }[];
     message?: string;
-    status: 'submitted' | 'approved' | 'changes_requested';
+    status: "submitted" | "approved" | "changes_requested";
     version: number;
     submittedAt: string;
     approvedAt?: string;
@@ -99,41 +119,48 @@ export interface IFreelancerContractDetail {
   expectedEndDate: string;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  
+
   extensionRequest?: {
     requestedBy: string;
     requestedDeadline: string;
     reason: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: "pending" | "approved" | "rejected";
     requestedAt: string;
     respondedAt?: string;
     responseMessage?: string;
   };
-  
+
   communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
+    preferredMethod: "chat" | "video_call" | "email" | "mixed";
+    meetingFrequency?: "daily" | "weekly" | "monthly";
     meetingDayOfWeek?: string;
     meetingDayOfMonth?: number;
     meetingTimeUtc?: string;
   };
-  
+
   reporting?: {
-    frequency: 'daily' | 'weekly' | 'monthly';
+    frequency: "daily" | "weekly" | "monthly";
     dueTimeUtc: string;
     dueDayOfWeek?: string;
     dueDayOfMonth?: number;
-    format: 'text_with_attachments' | 'text_only' | 'video';
+    format: "text_with_attachments" | "text_only" | "video";
   };
 
-  status: 'pending_funding' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  status:
+    | "pending_funding"
+    | "active"
+    | "completed"
+    | "cancelled"
+    | "refunded"
+    | "disputed"
+    | "cancellation_requested";
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;
   totalAmountHeld: number;
   totalRefund: number;
   availableContractBalance: number;
-  cancelledBy?: 'client' | 'freelancer';
+  cancelledBy?: "client" | "freelancer";
   isFunded?: boolean;
   hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: string;

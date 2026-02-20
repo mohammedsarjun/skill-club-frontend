@@ -51,6 +51,7 @@ import SplitHeldFundsModal from "./components/SplitHeldFunds";
 import { CancellationRequestModal } from "./components/CancellationRequestModal";
 import { ICancellationRequest } from "@/types/interfaces/ICancellationRequest";
 import { ContractTimeline } from "@/components/common/ContractTimeline";
+import DisputeCard from "./components/DisputeNotice";
 
 function ContractDetails() {
   const [contractDetail, setContractDetail] =
@@ -69,12 +70,15 @@ function ContractDetails() {
   const [isSplitFundsModalOpen, setIsSplitFundsModalOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const [hasReviewed, setHasReviewed] = useState(false);
-  const [cancellationRequest, setCancellationRequest] = useState<ICancellationRequest | null>(null);
-  const [isCancellationRequestModalOpen, setIsCancellationRequestModalOpen] = useState(false);
-  const [isProcessingCancellationRequest, setIsProcessingCancellationRequest] = useState(false);
-  const [activeTab, setActiveTab] = useState<"details" | "workspace" | "timeline">(
-    "details",
-  );
+  const [cancellationRequest, setCancellationRequest] =
+    useState<ICancellationRequest | null>(null);
+  const [isCancellationRequestModalOpen, setIsCancellationRequestModalOpen] =
+    useState(false);
+  const [isProcessingCancellationRequest, setIsProcessingCancellationRequest] =
+    useState(false);
+  const [activeTab, setActiveTab] = useState<
+    "details" | "workspace" | "timeline"
+  >("details");
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<
     "deliverables" | "milestones" | "timesheet" | "chat" | "files" | "meetings"
   >("deliverables");
@@ -135,75 +139,75 @@ function ContractDetails() {
         freelancer: d.freelancer,
         milestones: Array.isArray(d.milestones)
           ? d.milestones.map(
-            (m: {
-              milestoneId: string;
-              title: string;
-              amount: number;
-              expectedDelivery: string;
-              status:
-              | "pending"
-              | "funded"
-              | "submitted"
-              | "approved"
-              | "paid";
-            }) => ({
-              milestoneId: m.milestoneId,
-              title: m.title,
-              amount: m.amount,
-              expectedDelivery: m.expectedDelivery,
-              status: m.status,
-            }),
-          )
+              (m: {
+                milestoneId: string;
+                title: string;
+                amount: number;
+                expectedDelivery: string;
+                status:
+                  | "pending"
+                  | "funded"
+                  | "submitted"
+                  | "approved"
+                  | "paid";
+              }) => ({
+                milestoneId: m.milestoneId,
+                title: m.title,
+                amount: m.amount,
+                expectedDelivery: m.expectedDelivery,
+                status: m.status,
+              }),
+            )
           : [],
         deliverables: Array.isArray(d.deliverables)
           ? d.deliverables.map((dlv: any) => ({
-            id: dlv.deliverableId,
-            submittedBy: dlv.submittedBy,
-            files: dlv.files,
-            message: dlv.message,
-            status: dlv.status,
-            version: dlv.version,
-            submittedAt: dlv.submittedAt,
-            approvedAt: dlv.approvedAt,
-            revisionsRequested: dlv.revisionsRequested,
-            revisionsAllowed: dlv.revisionsAllowed,
-            revisionsLeft: dlv.revisionsLeft,
-            isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
-          }))
+              id: dlv.deliverableId,
+              submittedBy: dlv.submittedBy,
+              files: dlv.files,
+              message: dlv.message,
+              status: dlv.status,
+              version: dlv.version,
+              submittedAt: dlv.submittedAt,
+              approvedAt: dlv.approvedAt,
+              revisionsRequested: dlv.revisionsRequested,
+              revisionsAllowed: dlv.revisionsAllowed,
+              revisionsLeft: dlv.revisionsLeft,
+              isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
+            }))
           : [],
         referenceFiles: Array.isArray(d.referenceFiles)
           ? d.referenceFiles.map(
-            (f: { fileName: string; fileUrl: string }) => ({
-              fileName: f.fileName,
-              fileUrl: f.fileUrl,
-            }),
-          )
+              (f: { fileName: string; fileUrl: string }) => ({
+                fileName: f.fileName,
+                fileUrl: f.fileUrl,
+              }),
+            )
           : [],
         referenceLinks: Array.isArray(d.referenceLinks)
           ? d.referenceLinks.map(
-            (l: { description: string; link: string }) => ({
-              description: l.description,
-              link: l.link,
-            }),
-          )
+              (l: { description: string; link: string }) => ({
+                description: l.description,
+                link: l.link,
+              }),
+            )
           : [],
         communication: d.communication
           ? {
-            preferredMethod: d.communication.preferredMethod,
-            meetingFrequency: d.communication.meetingFrequency,
-            meetingDayOfWeek: d.communication.meetingDayOfWeek,
-            meetingDayOfMonth: d.communication.meetingDayOfMonth,
-            meetingTimeUtc: d.communication.meetingTimeUtc,
-          }
+              preferredMethod: d.communication.preferredMethod,
+              meetingFrequency: d.communication.meetingFrequency,
+              meetingDayOfWeek: d.communication.meetingDayOfWeek,
+              meetingDayOfMonth: d.communication.meetingDayOfMonth,
+              meetingTimeUtc: d.communication.meetingTimeUtc,
+            }
           : undefined,
         reporting: d.reporting
           ? {
-            frequency: d.reporting.frequency,
-            dueTimeUtc: d.reporting.dueTimeUtc,
-            dueDayOfWeek: d.reporting.dueDayOfWeek,
-            dueDayOfMonth: d.reporting.dueDayOfMonth,
-            format: d.reporting.format,
-          }
+              frequency: d.reporting.frequency,
+              dueTimeUtc: d.reporting.dueTimeUtc,
+              dueDayOfWeek: d.reporting.dueDayOfWeek,
+              dueDayOfMonth: d.reporting.dueDayOfMonth,
+              format: d.reporting.format,
+            }
           : undefined,
         status: d.status,
         totalFunded: d.totalFunded || 0,
@@ -230,7 +234,9 @@ function ContractDetails() {
     if (!contractId) return;
     setIsEndingContract(true);
     try {
-      const result = await clientActionApi.endHourlyContract(String(contractId));
+      const result = await clientActionApi.endHourlyContract(
+        String(contractId),
+      );
 
       if (result?.success) {
         setIsEndContractModalOpen(false);
@@ -245,7 +251,7 @@ function ContractDetails() {
         Swal.fire(
           "Error",
           result?.message || "Failed to end contract",
-          "error"
+          "error",
         );
       }
     } catch (e) {
@@ -293,7 +299,7 @@ function ContractDetails() {
     async (cancelContractReason: string) => {
       if (!contractId || !contractDetail) return;
 
-      if (contractDetail.paymentType === 'hourly') {
+      if (contractDetail.paymentType === "hourly") {
         setIsCancelling(true);
         try {
           const checkResult = await clientActionApi.cancelContract(
@@ -319,8 +325,8 @@ function ContractDetails() {
           }
         } catch (e) {
           const errorMessage =
-            (e as { response?: { data?: { message?: string } } })?.response?.data
-              ?.message ||
+            (e as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ||
             (e as Error)?.message ||
             "Unexpected error while cancelling";
           await Swal.fire("Error", errorMessage, "error");
@@ -329,11 +335,9 @@ function ContractDetails() {
         return;
       }
 
-      if (contractDetail.paymentType === 'fixed_with_milestones') {
-
-
+      if (contractDetail.paymentType === "fixed_with_milestones") {
         const hasAtLeastOneFundedMilestone = contractDetail.milestones?.some(
-          (milestone) => milestone.isFunded === true
+          (milestone) => milestone.isFunded === true,
         );
 
         if (!hasAtLeastOneFundedMilestone) {
@@ -362,8 +366,8 @@ function ContractDetails() {
             }
           } catch (e) {
             const errorMessage =
-              (e as { response?: { data?: { message?: string } } })?.response?.data
-                ?.message ||
+              (e as { response?: { data?: { message?: string } } })?.response
+                ?.data?.message ||
               (e as Error)?.message ||
               "Unexpected error while cancelling";
             await Swal.fire("Error", errorMessage, "error");
@@ -372,9 +376,11 @@ function ContractDetails() {
           return;
         }
 
-        const hasSubmittedMilestoneDeliverables = contractDetail.milestones?.some(
-          (milestone) => milestone.deliverables && milestone.deliverables.length > 0
-        );
+        const hasSubmittedMilestoneDeliverables =
+          contractDetail.milestones?.some(
+            (milestone) =>
+              milestone.deliverables && milestone.deliverables.length > 0,
+          );
 
         if (!hasSubmittedMilestoneDeliverables) {
           setIsCancelling(true);
@@ -402,8 +408,8 @@ function ContractDetails() {
             }
           } catch (e) {
             const errorMessage =
-              (e as { response?: { data?: { message?: string } } })?.response?.data
-                ?.message ||
+              (e as { response?: { data?: { message?: string } } })?.response
+                ?.data?.message ||
               (e as Error)?.message ||
               "Unexpected error while cancelling";
             await Swal.fire("Error", errorMessage, "error");
@@ -412,9 +418,11 @@ function ContractDetails() {
           return;
         }
 
-        const currentMilestoneWithDeliverables = contractDetail.milestones?.find(
-          (milestone) => milestone.deliverables && milestone.deliverables.length > 0
-        );
+        const currentMilestoneWithDeliverables =
+          contractDetail.milestones?.find(
+            (milestone) =>
+              milestone.deliverables && milestone.deliverables.length > 0,
+          );
 
         if (currentMilestoneWithDeliverables) {
           setCancellationReason(cancelContractReason);
@@ -425,7 +433,8 @@ function ContractDetails() {
       }
 
       if (contractDetail.isFunded) {
-        const hasDeliverables = contractDetail.deliverables && contractDetail.deliverables.length > 0;
+        const hasDeliverables =
+          contractDetail.deliverables && contractDetail.deliverables.length > 0;
 
         if (hasDeliverables) {
           setCancellationReason(cancelContractReason);
@@ -456,8 +465,8 @@ function ContractDetails() {
             }
           } catch (e) {
             const errorMessage =
-              (e as { response?: { data?: { message?: string } } })?.response?.data
-                ?.message ||
+              (e as { response?: { data?: { message?: string } } })?.response
+                ?.data?.message ||
               (e as Error)?.message ||
               "Unexpected error while cancelling";
             await Swal.fire("Error", errorMessage, "error");
@@ -490,8 +499,8 @@ function ContractDetails() {
           }
         } catch (e) {
           const errorMessage =
-            (e as { response?: { data?: { message?: string } } })?.response?.data
-              ?.message ||
+            (e as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ||
             (e as Error)?.message ||
             "Unexpected error while cancelling";
           await Swal.fire("Error", errorMessage, "error");
@@ -505,75 +514,100 @@ function ContractDetails() {
   const loadCancellationRequest = useCallback(async () => {
     if (!contractId) return;
     try {
-      const resp = await clientActionApi.getCancellationRequest(String(contractId));
+      const resp = await clientActionApi.getCancellationRequest(
+        String(contractId),
+      );
       if (resp?.success && resp.data) {
         setCancellationRequest(resp.data);
       }
     } catch (error) {
-      console.error('Error loading cancellation request:', error);
+      console.error("Error loading cancellation request:", error);
     }
   }, [contractId]);
 
-  const handleAcceptCancellationRequest = useCallback(async (responseMessage?: string) => {
-    if (!contractId) return;
-    setIsProcessingCancellationRequest(true);
+  const handleAcceptCancellationRequest = useCallback(
+    async (responseMessage?: string) => {
+      if (!contractId) return;
+      setIsProcessingCancellationRequest(true);
 
-    try {
-      const result = await clientActionApi.acceptCancellationRequest(String(contractId), responseMessage);
+      try {
+        const result = await clientActionApi.acceptCancellationRequest(
+          String(contractId),
+          responseMessage,
+        );
 
-      if (result?.success) {
-        await Swal.fire({
-          title: 'Cancellation Accepted',
-          text: 'You have accepted the cancellation request. The funds will be split as agreed.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        });
-        setIsCancellationRequestModalOpen(false);
-        window.location.reload();
-      } else {
-        Swal.fire('Error', result?.message || 'Failed to accept cancellation request', 'error');
+        if (result?.success) {
+          await Swal.fire({
+            title: "Cancellation Accepted",
+            text: "You have accepted the cancellation request. The funds will be split as agreed.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+          setIsCancellationRequestModalOpen(false);
+          window.location.reload();
+        } else {
+          Swal.fire(
+            "Error",
+            result?.message || "Failed to accept cancellation request",
+            "error",
+          );
+        }
+      } catch (err) {
+        const errorMessage =
+          (err as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message ||
+          (err as Error)?.message ||
+          "Unexpected error while accepting cancellation request";
+        Swal.fire("Error", errorMessage, "error");
+      } finally {
+        setIsProcessingCancellationRequest(false);
       }
-    } catch (err) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (err as Error)?.message ||
-        'Unexpected error while accepting cancellation request';
-      Swal.fire('Error', errorMessage, 'error');
-    } finally {
-      setIsProcessingCancellationRequest(false);
-    }
-  }, [contractId]);
+    },
+    [contractId],
+  );
 
-  const handleRaiseCancellationDispute = useCallback(async (notes: string) => {
-    if (!contractId) return;
-    setIsProcessingCancellationRequest(true);
+  const handleRaiseCancellationDispute = useCallback(
+    async (notes: string) => {
+      if (!contractId) return;
+      setIsProcessingCancellationRequest(true);
 
-    try {
+      try {
+        console.log("raising dispute with notes:", notes);
+        const result = await clientActionApi.raiseCancellationDispute(
+          String(contractId),
+          notes,
+        );
 
-      console.log("raising dispute with notes:", notes);
-      const result = await clientActionApi.raiseCancellationDispute(String(contractId), notes);
-
-      if (result?.success) {
-        await Swal.fire({
-          title: 'Dispute Raised',
-          text: 'You have raised a dispute against the cancellation split. The admin will review it within 3–5 business days.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        });
-        setIsCancellationRequestModalOpen(false);
-        setIsSplitFundsModalOpen(false);
-        window.location.reload();
-      } else {
-        Swal.fire('Error', result?.message || 'Failed to raise dispute', 'error');
+        if (result?.success) {
+          await Swal.fire({
+            title: "Dispute Raised",
+            text: "You have raised a dispute against the cancellation split. The admin will review it within 3–5 business days.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+          setIsCancellationRequestModalOpen(false);
+          setIsSplitFundsModalOpen(false);
+          window.location.reload();
+        } else {
+          Swal.fire(
+            "Error",
+            result?.message || "Failed to raise dispute",
+            "error",
+          );
+        }
+      } catch (err) {
+        const errorMessage =
+          (err as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message ||
+          (err as Error)?.message ||
+          "Unexpected error while raising dispute";
+        Swal.fire("Error", errorMessage, "error");
+      } finally {
+        setIsProcessingCancellationRequest(false);
       }
-    } catch (err) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (err as Error)?.message ||
-        'Unexpected error while raising dispute';
-      Swal.fire('Error', errorMessage, 'error');
-    } finally {
-      setIsProcessingCancellationRequest(false);
-    }
-  }, [contractId]);
+    },
+    [contractId],
+  );
 
   const handleConfirmCancelWithDispute = useCallback(
     async (data: { reasonCode: string; description: string }) => {
@@ -617,16 +651,23 @@ function ContractDetails() {
   );
 
   const handleSplitFundsSubmit = useCallback(
-    async (clientPercentage: number, freelancerPercentage: number, reason: string) => {
+    async (
+      clientPercentage: number,
+      freelancerPercentage: number,
+      reason: string,
+    ) => {
       if (!contractId) return;
       setIsCancelling(true);
 
       try {
-        const result = await clientActionApi.createCancellationRequest(String(contractId), {
-          reason,
-          clientSplitPercentage: clientPercentage,
-          freelancerSplitPercentage: freelancerPercentage,
-        });
+        const result = await clientActionApi.createCancellationRequest(
+          String(contractId),
+          {
+            reason,
+            clientSplitPercentage: clientPercentage,
+            freelancerSplitPercentage: freelancerPercentage,
+          },
+        );
 
         if (result?.success) {
           setIsSplitFundsModalOpen(false);
@@ -730,8 +771,6 @@ function ContractDetails() {
     try {
       const resp = await clientActionApi.getContractDetail(String(contractId));
 
-
-
       if (resp?.success && resp.data) {
         const d = resp.data;
         const mapped: IClientContractDetail = {
@@ -752,47 +791,46 @@ function ContractDetails() {
           currency: d.currency,
           milestones: Array.isArray(d.milestones)
             ? d.milestones.map((m: any) => ({
-              milestoneId: m.milestoneId,
-              title: m.title,
-              amount: m.amount,
-              expectedDelivery: m.expectedDelivery,
-              status: m.status,
-              disputeEligible: m.disputeEligible,
-              disputeWindowEndsAt: m.disputeWindowEndsAt,
-              isFunded: m.isFunded,
-              deliverables: Array.isArray(m.deliverables)
-                ? m.deliverables.map((dlv: any) => ({
-                  id: dlv.deliverableId,
-                  submittedBy: dlv.submittedBy,
-                  files: dlv.files,
-                  message: dlv.message,
-                  status: dlv.status,
-                  version: dlv.version,
-                  submittedAt: dlv.submittedAt,
-                  approvedAt: dlv.approvedAt,
-                  revisionsRequested: dlv.revisionsRequested,
-                  revisionsAllowed: dlv.revisionsAllowed,
-                  revisionsLeft: dlv.revisionsLeft,
-
-                }))
-                : []
-            }))
+                milestoneId: m.milestoneId,
+                title: m.title,
+                amount: m.amount,
+                expectedDelivery: m.expectedDelivery,
+                status: m.status,
+                disputeEligible: m.disputeEligible,
+                disputeWindowEndsAt: m.disputeWindowEndsAt,
+                isFunded: m.isFunded,
+                deliverables: Array.isArray(m.deliverables)
+                  ? m.deliverables.map((dlv: any) => ({
+                      id: dlv.deliverableId,
+                      submittedBy: dlv.submittedBy,
+                      files: dlv.files,
+                      message: dlv.message,
+                      status: dlv.status,
+                      version: dlv.version,
+                      submittedAt: dlv.submittedAt,
+                      approvedAt: dlv.approvedAt,
+                      revisionsRequested: dlv.revisionsRequested,
+                      revisionsAllowed: dlv.revisionsAllowed,
+                      revisionsLeft: dlv.revisionsLeft,
+                    }))
+                  : [],
+              }))
             : [],
           deliverables: Array.isArray(d.deliverables)
             ? d.deliverables.map((dlv: any) => ({
-              id: dlv.deliverableId,
-              submittedBy: dlv.submittedBy,
-              files: dlv.files,
-              message: dlv.message,
-              status: dlv.status,
-              version: dlv.version,
-              submittedAt: dlv.submittedAt,
-              approvedAt: dlv.approvedAt,
-              revisionsRequested: dlv.revisionsRequested,
-              revisionsAllowed: dlv.revisionsAllowed,
-              revisionsLeft: dlv.revisionsLeft,
-              isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
-            }))
+                id: dlv.deliverableId,
+                submittedBy: dlv.submittedBy,
+                files: dlv.files,
+                message: dlv.message,
+                status: dlv.status,
+                version: dlv.version,
+                submittedAt: dlv.submittedAt,
+                approvedAt: dlv.approvedAt,
+                revisionsRequested: dlv.revisionsRequested,
+                revisionsAllowed: dlv.revisionsAllowed,
+                revisionsLeft: dlv.revisionsLeft,
+                isMeetingAlreadyProposed: dlv.isMeetingProposalSent,
+              }))
             : [],
           title: d.title,
           description: d.description,
@@ -800,16 +838,23 @@ function ContractDetails() {
           expectedEndDate: d.expectedEndDate,
           referenceFiles: Array.isArray(d.referenceFiles)
             ? d.referenceFiles.map((f: any) => ({
-              fileName: f.fileName,
-              fileUrl: f.fileUrl,
-            }))
+                fileName: f.fileName,
+                fileUrl: f.fileUrl,
+              }))
             : [],
           referenceLinks: Array.isArray(d.referenceLinks)
             ? d.referenceLinks.map((l: any) => ({
-              description: l.description,
-              link: l.link,
-            }))
+                description: l.description,
+                link: l.link,
+              }))
             : [],
+          disputeDetail: {
+            raisedBy: d?.disputeDetail?.raisedBy,
+            scope: d?.disputeDetail?.scope,
+            reasonCode: d?.disputeDetail?.reasonCode,
+            status: d?.disputeDetail?.status,
+            resolution: d?.disputeDetail?.resolution,
+          },
           communication: d.communication,
           reporting: d.reporting,
           status: d.status,
@@ -829,17 +874,23 @@ function ContractDetails() {
           extensionRequest: d.extensionRequest,
         };
 
-
-
         if (mapped.paymentType === "fixed") {
           setHasActiveCancellationDisputeWindow(
             d.hasActiveCancellationDisputeWindow,
-          )
+          );
         } else if (mapped.paymentType === "fixed_with_milestones") {
-          const anyMilestoneInDisputeWindow = mapped?.milestones?.some((milestone) => {
-            return milestone.disputeEligible && milestone.disputeWindowEndsAt && new Date(milestone.disputeWindowEndsAt) > new Date();
-          })
-          setHasActiveCancellationDisputeWindow(anyMilestoneInDisputeWindow || false);
+          const anyMilestoneInDisputeWindow = mapped?.milestones?.some(
+            (milestone) => {
+              return (
+                milestone.disputeEligible &&
+                milestone.disputeWindowEndsAt &&
+                new Date(milestone.disputeWindowEndsAt) > new Date()
+              );
+            },
+          );
+          setHasActiveCancellationDisputeWindow(
+            anyMilestoneInDisputeWindow || false,
+          );
         }
 
         console.log(mapped);
@@ -1066,7 +1117,12 @@ function ContractDetails() {
     const weeklyAmount =
       (contractDetail.hourlyRate || 0) *
       (contractDetail.estimatedHoursPerWeek || 0);
-    const currentBalance = contractDetail.totalFunded - contractDetail.totalPaidToFreelancer - contractDetail.totalCommissionPaid - contractDetail.totalRefund - contractDetail.totalAmountHeld;
+    const currentBalance =
+      contractDetail.totalFunded -
+      contractDetail.totalPaidToFreelancer -
+      contractDetail.totalCommissionPaid -
+      contractDetail.totalRefund -
+      contractDetail.totalAmountHeld;
     return Math.max(0, weeklyAmount - currentBalance);
   }, [contractDetail]);
 
@@ -1125,10 +1181,11 @@ function ContractDetails() {
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => setActiveTab("details")}
-                className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === "details"
+                className={`flex-1 px-6 py-4 font-medium transition-colors ${
+                  activeTab === "details"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-900"
-                  }`}
+                }`}
               >
                 Contract Details
               </button>
@@ -1144,11 +1201,12 @@ function ContractDetails() {
                   setActiveTab("workspace");
                   // }
                 }}
-                className={`flex-1 px-6 py-4 font-medium transition-colors relative ${activeTab === "workspace"
+                className={`flex-1 px-6 py-4 font-medium transition-colors relative ${
+                  activeTab === "workspace"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600 hover:text-gray-900"
-                  }`}
-              // disabled={contractDetail.status === "pending_funding"}
+                }`}
+                // disabled={contractDetail.status === "pending_funding"}
               >
                 <span className="flex items-center justify-center gap-2">
                   Workspace
@@ -1170,29 +1228,46 @@ function ContractDetails() {
           {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                {contractDetail.status === 'cancellation_requested' && cancellationRequest && cancellationRequest.status === 'pending' && cancellationRequest.initiatedBy === 'freelancer' && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-blue-900 mb-1">Cancellation Request from Freelancer</h4>
-                        <p className="text-sm text-blue-800 mb-3">
-                          The freelancer has requested to cancel this contract with a proposed fund split. Please review and accept or raise a dispute.
-                        </p>
-                        <button
-                          onClick={() => setIsCancellationRequestModalOpen(true)}
-                          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          View Details
-                        </button>
+                {contractDetail.status === "cancellation_requested" &&
+                  cancellationRequest &&
+                  cancellationRequest.status === "pending" &&
+                  cancellationRequest.initiatedBy === "freelancer" && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <svg
+                            className="w-5 h-5 text-blue-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-blue-900 mb-1">
+                            Cancellation Request from Freelancer
+                          </h4>
+                          <p className="text-sm text-blue-800 mb-3">
+                            The freelancer has requested to cancel this contract
+                            with a proposed fund split. Please review and accept
+                            or raise a dispute.
+                          </p>
+                          <button
+                            onClick={() =>
+                              setIsCancellationRequestModalOpen(true)
+                            }
+                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            View Details
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 {contractDetail.cancelledBy &&
                   (contractDetail.status === "cancelled" ||
                     contractDetail.status === "disputed") && (
@@ -1212,7 +1287,13 @@ function ContractDetails() {
                       estimatedHoursPerWeek={
                         contractDetail.estimatedHoursPerWeek || 0
                       }
-                      currentBalance={contractDetail.totalFunded - contractDetail.totalPaidToFreelancer - contractDetail.totalCommissionPaid - contractDetail.totalRefund - contractDetail.totalAmountHeld}
+                      currentBalance={
+                        contractDetail.totalFunded -
+                        contractDetail.totalPaidToFreelancer -
+                        contractDetail.totalCommissionPaid -
+                        contractDetail.totalRefund -
+                        contractDetail.totalAmountHeld
+                      }
                       currency={contractDetail.currency || "USD"}
                       onFundContract={handleFundContract}
                     />
@@ -1236,6 +1317,13 @@ function ContractDetails() {
                   jobTitle={contractDetail.jobTitle}
                 />
 
+                {contractDetail.status == "disputed" &&
+                  contractDetail.disputeDetail && (
+                    <DisputeCard
+                      dispute={contractDetail.disputeDetail}
+                    ></DisputeCard>
+                  )}
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <ContractMetrics
                     startDate={contractDetail.expectedStartDate}
@@ -1246,7 +1334,9 @@ function ContractDetails() {
                     totalCommissionPaid={contractDetail.totalCommissionPaid}
                     totalAmountHeld={contractDetail.totalAmountHeld}
                     totalRefund={contractDetail.totalRefund}
-                    availableContractBalance={contractDetail.availableContractBalance}
+                    availableContractBalance={
+                      contractDetail.availableContractBalance
+                    }
                     formatDate={formatDate}
                     formatCurrency={formatCurrency}
                   />
@@ -1331,10 +1421,11 @@ function ContractDetails() {
                 {contractDetail.paymentType === "fixed" && (
                   <button
                     onClick={() => handleWorkspaceTabClick("deliverables")}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeWorkspaceTab === "deliverables"
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === "deliverables"
                         ? "bg-blue-100 text-blue-700"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
+                    }`}
                   >
                     Deliverables
                   </button>
@@ -1342,10 +1433,11 @@ function ContractDetails() {
                 {contractDetail.paymentType === "fixed_with_milestones" && (
                   <button
                     onClick={() => handleWorkspaceTabClick("milestones")}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeWorkspaceTab === "milestones"
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === "milestones"
                         ? "bg-blue-100 text-blue-700"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
+                    }`}
                   >
                     Milestones
                   </button>
@@ -1353,40 +1445,44 @@ function ContractDetails() {
                 {contractDetail.paymentType === "hourly" && (
                   <button
                     onClick={() => handleWorkspaceTabClick("timesheet")}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeWorkspaceTab === "timesheet"
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      activeWorkspaceTab === "timesheet"
                         ? "bg-blue-100 text-blue-700"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
+                    }`}
                   >
                     Timesheet
                   </button>
                 )}
                 <button
                   onClick={() => handleWorkspaceTabClick("chat")}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${activeWorkspaceTab === "chat"
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    activeWorkspaceTab === "chat"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <FaComments />
                   Chat
                 </button>
                 <button
                   onClick={() => handleWorkspaceTabClick("files")}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${activeWorkspaceTab === "files"
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    activeWorkspaceTab === "files"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <FaFolder />
                   Files
                 </button>
                 <button
                   onClick={() => handleWorkspaceTabClick("meetings")}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${activeWorkspaceTab === "meetings"
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    activeWorkspaceTab === "meetings"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <Calendar />
                   Meetings
@@ -1433,13 +1529,13 @@ function ContractDetails() {
 
                           const normalizedDeliverable = rawDeliverable
                             ? {
-                              milestoneId: m.milestoneId,
-                              title: m.title,
-                              amount: m.amount,
-                              expectedDelivery: m.expectedDelivery,
-                              status: m.status,
-                              deliverable: rawDeliverable,
-                            }
+                                milestoneId: m.milestoneId,
+                                title: m.title,
+                                amount: m.amount,
+                                expectedDelivery: m.expectedDelivery,
+                                status: m.status,
+                                deliverable: rawDeliverable,
+                              }
                             : undefined;
 
                           return {
@@ -1540,10 +1636,7 @@ function ContractDetails() {
           )}
 
           {activeTab === "timeline" && (
-            <ContractTimeline
-              contractId={contractId as string}
-              role="client"
-            />
+            <ContractTimeline contractId={contractId as string} role="client" />
           )}
         </div>
       )}
@@ -1647,9 +1740,13 @@ function ContractDetails() {
           <SplitHeldFundsModal
             isOpen={isSplitFundsModalOpen}
             onClose={() => setIsSplitFundsModalOpen(false)}
-            heldAmount={contractDetail.paymentType === 'fixed_with_milestones'
-              ? (contractDetail.milestones?.find(m => m.deliverables && m.deliverables.length > 0)?.amount || contractDetail.totalAmountHeld)
-              : contractDetail.totalAmountHeld}
+            heldAmount={
+              contractDetail.paymentType === "fixed_with_milestones"
+                ? contractDetail.milestones?.find(
+                    (m) => m.deliverables && m.deliverables.length > 0,
+                  )?.amount || contractDetail.totalAmountHeld
+                : contractDetail.totalAmountHeld
+            }
             onSubmit={handleSplitFundsSubmit}
             reason={cancellationReason}
           />
