@@ -13,7 +13,7 @@ export default function ClientInit() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const guestPaths = ["/login", "/signup", "/otp", "/forgot-password", "/reset-password"];
+    const guestPaths = ["/","/login", "/signup", "/otp", "/forgot-password", "/reset-password"];
     const isGuestRoute = guestPaths.some(
       (p) => pathname === p || pathname.startsWith(p + "/")
     );

@@ -173,19 +173,19 @@ function SignupPage() {
               label={
                 <span>
                   I agree to the Skill Club{" "}
-                  <a
-                    href="/user-agreement"
-                    className="text-blue-600 hover:underline"
+                  <span
+                    onClick={() => route.push("/terms")}
+                    className="text-blue-600 hover:underline cursor-pointer"
                   >
                     User Agreement
-                  </a>{" "}
+                  </span>{" "}
                   and{" "}
-                  <a
-                    href="/privacy-policy"
-                    className="text-blue-600 hover:underline"
+                  <span
+                    onClick={() => route.push("/privacy")}
+                    className="text-blue-600 hover:underline cursor-pointer"
                   >
                     Privacy Policy
-                  </a>
+                  </span>
                 </span>
               }
             />
