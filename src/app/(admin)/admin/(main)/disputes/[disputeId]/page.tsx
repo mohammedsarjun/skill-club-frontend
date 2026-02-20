@@ -161,7 +161,7 @@ const DisputeDetailsPage = () => {
                 </span>
               </div>
             </div>
-            {dispute.contract.paymentType === 'fixed_with_milestones' && 
+            { 
              (dispute.status === 'open' || dispute.status === 'under_review') && (
               <button
                 onClick={() => setShowSplitModal(true)}
