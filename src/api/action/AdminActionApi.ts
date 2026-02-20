@@ -9,6 +9,7 @@ import { IJobQueryParams } from "@/types/interfaces/IJob";
 import { IAdminReviewsResponse, IToggleHideReviewResponse } from "@/types/interfaces/IAdminReview";
 import axios from "axios";
 import { reject } from "lodash";
+import { IContentListResponse, IContentResponse, IUpdateContentRequest } from "@/types/interfaces/IContent";
 
 const AdminActionApi = {
   createCategory: async (data: IcategoryData) => {
@@ -665,6 +666,71 @@ const AdminActionApi = {
         return error.response?.data || "Something went wrong";
       } else {
         return "Unexpected error";
+      }
+    }
+  },
+
+  async getAllContents(): Promise<IContentListResponse> {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetAllContents);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error", data: { data: [] } };
+      }
+    }
+  },
+
+  async getContentBySlug(slug: string): Promise<IContentResponse> {
+    try {
+      const response = await axiosClient.get(adminEndPoint.adminGetContentBySlug(slug));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async updateContent(slug: string, data: IUpdateContentRequest): Promise<IContentResponse> {
+    try {
+      const response = await axiosClient.patch(adminEndPoint.adminUpdateContent(slug), data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
+      }
+    }
+  },
+
+  async getPublishedContents(): Promise<IContentListResponse> {
+    try {
+      const response = await axiosClient.get(adminEndPoint.publicGetAllContents);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error", data: { data: [] } };
+      }
+    }
+  },
+
+  async getPublishedContentBySlug(slug: string): Promise<IContentResponse> {
+    try {
+      const response = await axiosClient.get(adminEndPoint.publicGetContentBySlug(slug));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || { success: false, message: "Something went wrong" };
+      } else {
+        return { success: false, message: "Unexpected error" };
       }
     }
   },

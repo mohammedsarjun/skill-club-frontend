@@ -8,7 +8,6 @@ import {
   FaBars,
   FaHome,
   FaUsers,
-  FaCog,
   FaBookOpen,
   FaBriefcase,
   FaFileContract,
@@ -155,11 +154,11 @@ function AdminLayout({ children }: LayoutProps) {
               </Link>
 
               <Link
-                href="/admin/settings"
-                className={linkClasses("/admin/settings")}
+                href="/admin/content-management"
+                className={linkClasses("/admin/content-management")}
               >
-                <FaCog className="w-5 h-5" />
-                <span className="font-medium">Settings</span>
+                <FaBookOpen className="w-5 h-5" />
+                <span className="font-medium">Content</span>
               </Link>
             </nav>
           </div>
