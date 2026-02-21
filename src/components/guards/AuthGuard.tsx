@@ -14,23 +14,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoading = useSelector((state: RootState) => state.auth.isLoading);
 
-  const verify = useCallback(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [isLoading, user, router]);
-
-  useEffect(() => {
-    verify();
-  }, [verify]);
-
-  useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) verify();
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
-  }, [verify]);
+useEffect(() => {
+  if (!isLoading && !user) {
+    router.replace("/login");
+  }
+}, [isLoading, user, router]);
 
   if (isLoading) {
     return (
