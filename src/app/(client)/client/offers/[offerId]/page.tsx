@@ -29,7 +29,7 @@ interface OfferDetail {
   freelancerId: string;
   freelancer?: { freelancerId?: string; firstName?: string; lastName?: string; logo?: string; country?: string; rating?: number };
   jobId?: string;
-  proposalId?: {_id:string};
+  proposalId?: string;
   offerType: 'direct' | 'proposal';
   title: string;
   description: string;

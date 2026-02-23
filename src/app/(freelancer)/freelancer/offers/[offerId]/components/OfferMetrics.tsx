@@ -49,10 +49,19 @@ export function OfferMetrics({
       </div>
       <div className="flex items-center gap-2 text-gray-600">
         <FaClock className="text-gray-400" />
-        <div>
-          <div className="text-xs text-gray-500">Expires In</div>
-          <div className="font-semibold text-gray-900">{daysUntilExpiry} days</div>
-        </div>
+   <div>
+  <div className="text-xs text-gray-500">Expires In</div>
+
+  <div
+    className={`font-semibold ${
+      daysUntilExpiry <= 0 ? "text-red-600" : "text-gray-900"
+    }`}
+  >
+    {daysUntilExpiry <= 0
+      ? "Expired"
+      : `${daysUntilExpiry} day${daysUntilExpiry > 1 ? "s" : ""}`}
+  </div>
+</div>
       </div>
     </div>
   );
