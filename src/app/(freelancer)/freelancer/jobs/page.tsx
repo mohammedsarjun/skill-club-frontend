@@ -1,11 +1,14 @@
 "use client";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 import Pagination from "@/components/common/Pagination";
-import { FreelancerJobFilters, FreelancerJobResponse } from "@/types/interfaces/IJob";
+import {
+  FreelancerJobFilters,
+  FreelancerJobResponse,
+} from "@/types/interfaces/IJob";
 import React, { useEffect, useMemo, useState } from "react";
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { formatCurrency } from '@/utils/currency';
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { formatCurrency } from "@/utils/currency";
 import { useRouter } from "next/navigation";
 import { debounce } from "lodash";
 import {
@@ -20,6 +23,7 @@ import {
   FaGlobe,
   FaChevronDown,
   FaChevronUp,
+  FaTimes,
 } from "react-icons/fa";
 
 // Showing backend-provided jobs only (no local dummy data)
@@ -46,12 +50,14 @@ const FreelancerJobListing = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [jobs, setJobs] = useState<FreelancerJobResponse[]>([]);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
-  const [pendingToggleIds, setPendingToggleIds] = useState<Set<string>>(new Set());
+  const [pendingToggleIds, setPendingToggleIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
   const [jobsError, setJobsError] = useState<string | null>(null);
-  const router=useRouter()
+  const router = useRouter();
   const selectedCategoryObj = apiCategories.find(
-    (c) => c.categoryId === selectedCategory
+    (c) => c.categoryId === selectedCategory,
   );
 
   const availableSpecialties = selectedCategoryObj
@@ -60,7 +66,7 @@ const FreelancerJobListing = () => {
 
   const selectedSpecialityObj = selectedCategoryObj
     ? selectedCategoryObj.specialities?.find(
-        (s: any) => s.specialityId === selectedSpecialty
+        (s: any) => s.specialityId === selectedSpecialty,
       )
     : null;
 
@@ -117,7 +123,7 @@ const FreelancerJobListing = () => {
             categoryName: category.name,
             specialities: [],
           }));
-          console.log(mapped)
+          console.log(mapped);
           setApiCategories(mapped);
         }
       } catch (err) {
@@ -132,33 +138,33 @@ const FreelancerJobListing = () => {
     if (!selectedCategory) return;
 
     const isApiCategory = apiCategories.some(
-      (c) => c.categoryId === selectedCategory
+      (c) => c.categoryId === selectedCategory,
     );
     if (!isApiCategory) return;
 
     let mounted = true;
     async function loadSpecialities() {
       try {
-        const resp = await freelancerActionApi.getSpecialitiesWithSkills(
-          selectedCategory
-        );
+        const resp =
+          await freelancerActionApi.getSpecialitiesWithSkills(selectedCategory);
         if (resp && resp.success && mounted) {
           // Map specialities and skills to match expected structure
           const mappedSpecialities = resp.data.map((spec: any) => ({
             specialityId: spec._id,
             specialityName: spec.name,
-            skills: spec.skills?.map((skill: any) => ({
-              skillId: skill._id,
-              skillName: skill.name,
-            })) || [],
+            skills:
+              spec.skills?.map((skill: any) => ({
+                skillId: skill._id,
+                skillName: skill.name,
+              })) || [],
           }));
-          
+
           setApiCategories((prev) =>
             prev.map((cat) =>
               cat.categoryId === selectedCategory
                 ? { ...cat, specialities: mappedSpecialities }
-                : cat
-            )
+                : cat,
+            ),
           );
         }
 
@@ -185,13 +191,13 @@ const FreelancerJobListing = () => {
   const handleSkillToggle = (skill: string) => {
     console.log(skill);
     setSelectedSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
     );
   };
 
   const handleProposalRangeToggle = (range: string) => {
     setSelectedProposalRanges((prev) =>
-      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
+      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range],
     );
   };
 
@@ -280,8 +286,6 @@ const FreelancerJobListing = () => {
     limit: itemsPerPage,
   });
 
-
-
   // Debounced fetch to backend (500ms)
   const debouncedFetchJobs = useMemo(
     () =>
@@ -290,7 +294,7 @@ const FreelancerJobListing = () => {
         setJobsError(null);
         try {
           const response = await freelancerActionApi.getJobs(filters);
-          console.log(response)
+          console.log(response);
           // Expect response.success & response.data.jobs and response.data.totalCount or totalPages
           if (response?.success) {
             const data = response.data;
@@ -298,17 +302,21 @@ const FreelancerJobListing = () => {
             const jobsArray: FreelancerJobResponse[] = Array.isArray(data?.jobs)
               ? data.jobs
               : Array.isArray(data)
-              ? (data as FreelancerJobResponse[])
-              : [];
+                ? (data as FreelancerJobResponse[])
+                : [];
             setJobs(jobsArray);
             // Derive total pages
             if (typeof data?.totalCount === "number") {
-              setTotalPages(Math.max(1, Math.ceil(data.totalCount / itemsPerPage)));
+              setTotalPages(
+                Math.max(1, Math.ceil(data.totalCount / itemsPerPage)),
+              );
             } else if (typeof data?.totalPages === "number") {
               setTotalPages(Math.max(1, data.totalPages));
             } else {
               // Fallback: derive from length if length >= limit
-              setTotalPages(Math.max(1, Math.ceil(jobsArray.length / itemsPerPage)));
+              setTotalPages(
+                Math.max(1, Math.ceil(jobsArray.length / itemsPerPage)),
+              );
             }
           } else {
             setJobsError(response?.message || "Failed to fetch jobs");
@@ -324,7 +332,7 @@ const FreelancerJobListing = () => {
           setIsLoadingJobs(false);
         }
       }, 500),
-    [itemsPerPage]
+    [itemsPerPage],
   );
 
   // Trigger debounced backend fetch when filters/page change
@@ -366,12 +374,14 @@ const FreelancerJobListing = () => {
     (async () => {
       try {
         const checks = await Promise.allSettled(
-          displayJobs.map((job: any) => freelancerActionApi.isJobSaved(job.jobId)),
+          displayJobs.map((job: any) =>
+            freelancerActionApi.isJobSaved(job.jobId),
+          ),
         );
 
         const ids = new Set<string>(savedJobIds);
         checks.forEach((r, idx) => {
-            if (r.status === 'fulfilled') {
+          if (r.status === "fulfilled") {
             const resp = r.value as any;
             const saved = resp?.data?.saved as boolean | undefined;
             const jobId = displayJobs[idx].jobId;
@@ -396,34 +406,37 @@ const FreelancerJobListing = () => {
     // optimistic
     const newSet = new Set(savedJobIds);
     const willBeSaved = !newSet.has(jobId);
-    if (willBeSaved) newSet.add(jobId); else newSet.delete(jobId);
+    if (willBeSaved) newSet.add(jobId);
+    else newSet.delete(jobId);
     setSavedJobIds(newSet);
-    setPendingToggleIds(prev=> new Set(prev).add(jobId));
-    try{
+    setPendingToggleIds((prev) => new Set(prev).add(jobId));
+    try {
       const resp = await freelancerActionApi.toggleSaveJob(jobId);
       const savedFlag = resp?.data?.saved as boolean | undefined;
-      if (typeof savedFlag === 'boolean'){
-        setSavedJobIds(prev=>{
+      if (typeof savedFlag === "boolean") {
+        setSavedJobIds((prev) => {
           const s = new Set(prev);
-          if (savedFlag) s.add(jobId); else s.delete(jobId);
+          if (savedFlag) s.add(jobId);
+          else s.delete(jobId);
           return s;
-        })
+        });
       }
-    }catch(err){
+    } catch (err) {
       // revert optimistic
-      setSavedJobIds(prev=>{
+      setSavedJobIds((prev) => {
         const s = new Set(prev);
-        if (willBeSaved) s.delete(jobId); else s.add(jobId);
+        if (willBeSaved) s.delete(jobId);
+        else s.add(jobId);
         return s;
-      })
-    }finally{
-      setPendingToggleIds(prev=>{
+      });
+    } finally {
+      setPendingToggleIds((prev) => {
         const s = new Set(prev);
         s.delete(jobId);
         return s;
-      })
+      });
     }
-  }
+  };
 
   // When using fallback (no backend jobs), compute total pages from filteredJobs
   useEffect(() => {
@@ -468,13 +481,23 @@ const FreelancerJobListing = () => {
           <div className="flex gap-4">
             <div className="flex-1 relative">
               <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+
               <input
                 type="text"
                 placeholder="Search for jobs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
+                className="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#108A00] focus:border-transparent"
               />
+
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes />
+                </button>
+              )}
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -528,7 +551,7 @@ const FreelancerJobListing = () => {
                   >
                     <option value="">All Categories</option>
                     {apiCategories.length > 0
-                      ? apiCategories.map((cat,i) => (
+                      ? apiCategories.map((cat, i) => (
                           <option key={i} value={cat.categoryId}>
                             {cat.categoryName}
                           </option>
@@ -577,12 +600,8 @@ const FreelancerJobListing = () => {
                         >
                           <input
                             type="checkbox"
-                            checked={selectedSkills.includes(
-                              skill.skillId
-                            )}
-                            onChange={() =>
-                              handleSkillToggle(skill.skillId)
-                            }
+                            checked={selectedSkills.includes(skill.skillId)}
+                            onChange={() => handleSkillToggle(skill.skillId)}
                             className="w-4 h-4 text-[#108A00] border-gray-300 rounded focus:ring-[#108A00]"
                           />
                           <span className="text-sm text-gray-700">
@@ -770,93 +789,121 @@ const FreelancerJobListing = () => {
               {!isLoadingJobs && jobsError && (
                 <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6 text-center">
                   <p className="text-red-600 font-medium">{jobsError}</p>
-                  <p className="text-gray-500 text-sm mt-1">Showing fallback sample jobs.</p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Showing fallback sample jobs.
+                  </p>
                 </div>
               )}
-              {!isLoadingJobs && displayJobs.map((job: any) => (
-                <div
-                  key={job.jobId}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all cursor-pointer"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-[#108A00] transition-colors">
-                        {job.jobTitle}
-                      </h3>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-1">
-                          <FaMapMarkerAlt className="text-gray-400" size={14} />
-                          <span>{job.client?.country || 'N/A'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FaStar className="text-yellow-400" size={14} />
-                          <span className="font-semibold text-gray-900">
-                            {job.client?.rating ? job.client.rating.toFixed(1) : '0.0'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FaDollarSign className="text-gray-400" size={14} />
-                          <span>
-                            ₹{((job.client?.totalMoneySpent || 0) / 1000).toFixed(0)}k spent
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FaFileAlt className="text-gray-400" size={14} />
-                          <span>{job.totalProposalReceived} proposals</span>
+              {!isLoadingJobs &&
+                displayJobs.map((job: any) => (
+                  <div
+                    key={job.jobId}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-[#108A00] transition-colors">
+                          {job.jobTitle}
+                        </h3>
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                          <div className="flex items-center gap-1">
+                            <FaMapMarkerAlt
+                              className="text-gray-400"
+                              size={14}
+                            />
+                            <span>{job.client?.country || "N/A"}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FaStar className="text-yellow-400" size={14} />
+                            <span className="font-semibold text-gray-900">
+                              {job.client?.rating
+                                ? job.client.rating.toFixed(1)
+                                : "0.0"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FaDollarSign className="text-gray-400" size={14} />
+                            <span>
+                              ₹
+                              {(
+                                (job.client?.totalMoneySpent || 0) / 1000
+                              ).toFixed(0)}
+                              k spent
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FaFileAlt className="text-gray-400" size={14} />
+                            <span>{job.totalProposalReceived} proposals</span>
+                          </div>
                         </div>
                       </div>
+                      <div className="text-right ml-4">
+                        {job.jobRateType === "hourly" ? (
+                          <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
+                            <div className="text-xs font-medium mb-1">
+                              Hourly
+                            </div>
+                            <div className="text-lg font-bold">
+                              <>
+                                {formatCurrency(
+                                  Number(job.hourlyRate?.min ?? 0),
+                                )}
+                                <span className="mx-1">-</span>
+                                {formatCurrency(
+                                  Number(job.hourlyRate?.max ?? 0),
+                                )}
+                              </>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-green-50 text-green-700 px-4 py-2 rounded-lg">
+                            <div className="text-xs font-medium mb-1">
+                              Fixed Price
+                            </div>
+                            <div className="text-lg font-bold">
+                              <>
+                                {formatCurrency(
+                                  Number(job.fixedRate?.min ?? 0),
+                                )}
+                                <span className="mx-1">-</span>
+                                {formatCurrency(
+                                  Number(job.fixedRate?.max ?? 0),
+                                )}
+                              </>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right ml-4">
-                      {job.jobRateType === "hourly" ? (
-                        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-                          <div className="text-xs font-medium mb-1">Hourly</div>
-                          <div className="text-lg font-bold">
-                            <>
-                              {formatCurrency(Number(job.hourlyRate?.min ?? 0))}
-                              <span className="mx-1">-</span>
-                              {formatCurrency(Number(job.hourlyRate?.max ?? 0))}
-                            </>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-green-50 text-green-700 px-4 py-2 rounded-lg">
-                          <div className="text-xs font-medium mb-1">
-                            Fixed Price
-                          </div>
-                          <div className="text-lg font-bold">
-                            <>
-                              {formatCurrency(Number(job.fixedRate?.min ?? 0))}
-                              <span className="mx-1">-</span>
-                              {formatCurrency(Number(job.fixedRate?.max ?? 0))}
-                            </>
-                          </div>
-                        </div>
-                      )}
+
+                    <div
+                      className="line-clamp-3 prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed break-words break-all min-w-0"
+                      dangerouslySetInnerHTML={{ __html: job.description! }}
+                    ></div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(job.skills || []).map((skill: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-[#108A00] hover:text-white transition-colors"
+                        >
+                          {skill}
+                        </span>
+                      ))}
                     </div>
-                  </div>
 
-  
-                                <div className="line-clamp-3 prose max-w-none text-gray-700 whitespace-pre-line leading-relaxed break-words break-all min-w-0"
-              dangerouslySetInnerHTML={{ __html: job.description!}}></div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {(job.skills || []).map((skill: string, idx: number) => (
-                      <span
-                        key={idx}
-                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium hover:bg-[#108A00] hover:text-white transition-colors"
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() =>
+                          router.push(`/freelancer/jobs/${job.jobId}`)
+                        }
+                        className="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:border-[#108A00] hover:text-[#108A00] transition-colors"
                       >
-                        {skill}
-                      </span>
-                    ))}
+                        View Details
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="flex gap-3">
-                    <button onClick={()=>router.push(`/freelancer/jobs/${job.jobId}`)} className="border-2 border-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:border-[#108A00] hover:text-[#108A00] transition-colors">
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))}
 
               {!isLoadingJobs && displayJobs.length === 0 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
@@ -886,7 +933,7 @@ const FreelancerJobListing = () => {
         </div>
       </div>
 
-                  {/* <div className="absolute right-6 top-6">
+      {/* <div className="absolute right-6 top-6">
                     <button
                       onClick={(e)=>{ e.stopPropagation(); toggleSavedFromList(job.jobId); }}
                       disabled={pendingToggleIds.has(job.jobId)}
