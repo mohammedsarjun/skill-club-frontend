@@ -49,7 +49,7 @@ export function OfferTitleCard({
       {proposalId && (
         <div className="flex items-center gap-2 text-gray-600">
           <FaFileAlt className="text-gray-400" />
-          <span className="text-sm">Proposal ID: {proposalId._id}</span>
+          <span className="text-sm">Proposal ID: {proposalId?._id?.toString()}</span>
         </div>
       )}
     </div>

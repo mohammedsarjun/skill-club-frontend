@@ -1,6 +1,7 @@
 import React from 'react';
 import { Video, Calendar } from 'lucide-react';
 import { IFreelancerMeeting } from '@/types/interfaces/IFreelancerDashboard';
+import { formatDate } from '@/utils/formatDate';
 
 interface MeetingsSectionProps {
   meetings: IFreelancerMeeting[];
@@ -8,13 +9,6 @@ interface MeetingsSectionProps {
 }
 
 export const MeetingsSection: React.FC<MeetingsSectionProps> = ({ meetings, onJoinMeeting }) => {
-  const formatDate = (date: Date): string => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   return (
     <div className="lg:col-span-2 bg-white rounded-lg shadow">

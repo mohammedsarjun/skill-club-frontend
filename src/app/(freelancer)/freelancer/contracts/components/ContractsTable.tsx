@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useMemo, useCallback } from 'react';
 import { IFreelancerContractListItemDTO } from '@/types/interfaces/IFreelancerContractList';
 import GenericTable, { Column, Filter } from '@/components/admin/Table';
+import { formatDate } from '@/utils/formatDate';
 
 interface Props {
   items: IFreelancerContractListItemDTO[];
@@ -68,11 +69,19 @@ export function ContractsTable({
   const searchKeys = useMemo(() => ['title', 'contractId'] as (keyof IFreelancerContractListItemDTO)[], []);
   const badgeKeysList = useMemo(() => ['status'] as (keyof IFreelancerContractListItemDTO)[], []);
 
+  const formattedItems = useMemo(
+    () => items.map((item) => ({
+      ...item,
+      createdAt: item.createdAt ? formatDate(item.createdAt) : '',
+    })),
+    [items],
+  );
+
   return (
     <GenericTable<IFreelancerContractListItemDTO>
       title="Contracts"
       columns={columns}
-      data={items}
+      data={formattedItems}
       filters={filters}
       viewOnly={true}
       handleOpenViewModal={handleViewModal}

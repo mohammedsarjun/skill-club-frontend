@@ -5,6 +5,7 @@ import AnalogTimePicker, { TimeValue } from '@/components/common/AnalogTimePicke
 import { BeautifulCalendar } from '@/components/common/Calandar'
 import { FileText, X, Calendar, Clock, CheckCircle, Users } from 'lucide-react'
 import { meetingAgendaSchema } from '@/utils/validations/validation'
+import { formatDateWithDay } from '@/utils/formatDate'
 
 interface PreContractMeetingModalProps {
   isOpen: boolean;
@@ -56,12 +57,7 @@ const PreContractMeetingModal = ({ isOpen, onClose, onSubmit, freelancerName }: 
   };
 
   const formattedDateTime = useMemo(() => {
-    const dateStr = selectedDate.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    const dateStr = formatDateWithDay(selectedDate);
     const timeStr = `${selectedTime.hour.toString().padStart(2, '0')}:${selectedTime.minute.toString().padStart(2, '0')} ${selectedTime.period}`;
     return { dateStr, timeStr };
   }, [selectedDate, selectedTime]);

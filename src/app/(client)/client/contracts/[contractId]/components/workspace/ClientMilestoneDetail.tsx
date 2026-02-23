@@ -12,15 +12,9 @@ import {
   MessageSquare,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { formatDate } from "@/utils/formatDate";
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
+
 
 import { IClientContractDetail } from "@/types/interfaces/IClientContractDetail";
 import { FaDownload } from "react-icons/fa";

@@ -7,6 +7,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
 import ImageViewerModal from '@/components/common/ImageViewer';
 import VideoPlayer from '@/components/common/VideoPlayer';
+import { formatTime } from '@/utils/formatDate';
 
 interface ChatPanelProps {
   contractId: string;
@@ -229,7 +230,7 @@ export const ChatPanel = ({
                   )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1 text-right">
-                  {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {formatTime(msg.sentAt)}
                 </p>
               </div>
             </div>

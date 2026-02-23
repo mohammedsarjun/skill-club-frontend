@@ -2,6 +2,7 @@ import React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { FaTimes, FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { formatDate, formatDateTime } from "@/utils/formatDate";
 
 // ===== Utility =====
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(" ");
@@ -333,11 +334,7 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
               <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                 <p className="text-sm text-gray-600 mb-1">Deadline</p>
                 <p className="text-lg font-bold text-purple-600">
-                  {new Date(proposal.deadline).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
+                  {formatDate(proposal.deadline)}
                 </p>
               </div>
             )}
@@ -374,13 +371,7 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
           <div className="text-sm text-gray-500">
             Submitted on{" "}
             {proposal.createdAt
-              ? new Date(proposal.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
+              ? formatDateTime(proposal.createdAt)
               : ""}
           </div>
         </div>

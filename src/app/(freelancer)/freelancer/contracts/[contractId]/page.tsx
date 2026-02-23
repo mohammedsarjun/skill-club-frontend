@@ -33,6 +33,7 @@ import { IFreelancerContractDetail } from "@/types/interfaces/IFreelancerContrac
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency as formatCurrencyUtil } from "@/utils/currency";
+import { formatDate } from "@/utils/formatDate";
 import WorkLogTracker from "./components/workspace/WorkLogTracker";
 import { CancelContractModal } from "./components/CancelContractModal";
 import toast from "react-hot-toast";
@@ -739,6 +740,7 @@ function ContractDetails() {
           cancelledBy: d.cancelledBy,
           hasActiveCancellationDisputeWindow:
             d.hasActiveCancellationDisputeWindow,
+            workspaceFiles: d.workspaceFiles,
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
         };
@@ -771,6 +773,7 @@ function ContractDetails() {
             setDisputeEligibleMilestone(disputeEligibleMilestone);
           }
         }
+        console.log(mapped)
 
         setContractDetail(mapped);
       } else {
@@ -980,23 +983,31 @@ function ContractDetails() {
       fileType: string;
     }) => {
       try {
-        // TODO: Implement API call
-        // await freelancerActionApi.uploadWorkspaceFile(contractId, file);
-        Swal.fire("Success", "File uploaded successfully", "success");
+        const responseData = await freelancerActionApi.uploadWorkspaceFile(contractId as string, { ...file, fileId: Date.now().toString() } as any);
+        if (responseData && responseData.success) {
+          Swal.fire("Success", "File uploaded successfully", "success");
+          loadContractDetail(); // Refresh to show newly uploaded file
+        } else {
+          Swal.fire("Error", responseData?.message || "Failed to upload file", "error");
+        }
       } catch (error) {
         console.error("Error uploading file:", error);
         Swal.fire("Error", "Failed to upload file", "error");
       }
     },
-    [contractId],
+    [contractId, loadContractDetail],
   );
 
   const handleDeleteFile = useCallback(
     async (fileId: string) => {
       try {
-        // TODO: Implement API call
-        // await freelancerActionApi.deleteWorkspaceFile(contractId, fileId);
-        Swal.fire("Success", "File deleted successfully", "success");
+        const responseData = await freelancerActionApi.deleteWorkspaceFile(contractId as string, fileId);
+        if (responseData && responseData.success) {
+          Swal.fire("Success", "File deleted successfully", "success");
+          loadContractDetail(); // Refresh file list
+        } else {
+          Swal.fire("Error", responseData?.message || "Failed to delete file", "error");
+        }
       } catch (error) {
         console.error("Error deleting file:", error);
         Swal.fire("Error", "Failed to delete file", "error");
@@ -1059,15 +1070,6 @@ function ContractDetails() {
       }
     }
   }, [activeTab, contractDetail]);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
 
   const formatCurrency = (amount: number) =>
     formatCurrencyUtil(Number(amount || 0));
@@ -1551,6 +1553,7 @@ function ContractDetails() {
                       }),
                     )}
                     currentUserId={currentUserId}
+                    userRole="freelancer"
                     onUploadFile={async (file) => {
                       try {
                         const response = await freelancerActionApi.uploadWorkspaceFile(contractId as string, {

@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import Table from '@/components/admin/Table';
 import { IFreelancerWorklogListItem, IFreelancerWorklogDetail } from '@/types/interfaces/IFreelancerWorklog';
 import { FaClock } from 'react-icons/fa';
+import { formatDateTime } from '@/utils/formatDate';
 
 const FreelancerWorklogDetailModal = dynamic<{ worklog: IFreelancerWorklogDetail; onClose: () => void; onRaiseDispute: (worklogId: string) => void }>(
   () => import('./FreelancerWorklogDetailModal').then(mod => ({ default: mod.FreelancerWorklogDetailModal })),
@@ -102,15 +103,7 @@ export const TimesheetWorkspace = ({ contractId }: TimesheetWorkspaceProps) => {
     return `${hours}h ${minutes}m`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatDate = (dateString: string) => formatDateTime(dateString);
 
   const tableData = worklogs.map((w) => ({
     ...w,

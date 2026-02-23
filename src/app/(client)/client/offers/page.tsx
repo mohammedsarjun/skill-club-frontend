@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency } from '@/utils/currency';
+import { formatDate } from '@/utils/formatDate';
 import Swal from 'sweetalert2';
 
 type OfferRow = {
@@ -114,7 +115,7 @@ const ClientOffersPage: React.FC = () => {
     id: o._id,
     title: o.title,
     freelancer: typeof o.freelancerId === "string" ? o.freelancerId : (o.freelancerId as any)?.name ?? String((o.freelancerId as any)?.id ?? "Freelancer"),
-    created: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
+    created: o.createdAt ? formatDate(o.createdAt) : "",
     payment:
       o.paymentType === "hourly"
         ? `${formatCurrency(Number(o.hourlyRate || 0))} /hr • est ${o.estimatedHoursPerWeek ?? 0} hrs/wk`

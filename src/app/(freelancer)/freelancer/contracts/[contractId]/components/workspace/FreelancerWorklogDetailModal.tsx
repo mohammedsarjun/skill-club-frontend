@@ -1,6 +1,7 @@
 "use client";
 import { X, Download, Clock, Calendar, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import { IFreelancerWorklogDetail } from '@/types/interfaces/IFreelancerWorklog';
+import { formatDateTime } from '@/utils/formatDate';
 
 interface FreelancerWorklogDetailModalProps {
   worklog: IFreelancerWorklogDetail;
@@ -15,15 +16,7 @@ const FreelancerWorklogDetailModal = ({ worklog, onClose, onRaiseDispute }: Free
     return `${hours}h ${minutes}m`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatDate = (dateString: string) => formatDateTime(dateString);
 
   const canRaiseDispute = () => {
     if (worklog.status !== 'rejected') return false;

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency } from '@/utils/currency';
+import { formatDate } from '@/utils/formatDate';
 
 
 
@@ -113,7 +114,7 @@ const OffersPage: React.FC = () => {
   id: o._id,
     title: o.title,
     client: typeof o.clientId === "string" ? o.clientId : (o.clientId as any)?.name ?? String((o.clientId as any)?.id ?? "Client"),
-    proposedDate: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
+    proposedDate: o.createdAt ? formatDate(o.createdAt) : "",
     payment: o.paymentType === "hourly"
       ? `${o.hourlyRate !== undefined ? formatCurrency(Number(o.hourlyRate)) : '-'} /hr`
       : o.budget

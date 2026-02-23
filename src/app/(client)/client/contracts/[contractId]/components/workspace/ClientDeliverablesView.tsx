@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { IDeliverable } from "@/types/interfaces/IContractWorkspace";
 import VideoPlayer from "@/components/common/VideoPlayer";
+import { formatDate, formatDateTime } from "@/utils/formatDate";
 import { set } from "lodash";
 import getMediaType from "@/utils/getMediaType";
 import ImageViewer from "@/components/common/ImageViewer";
@@ -148,21 +149,12 @@ export const ClientDeliverablesView = ({
                   <div className="text-right">
                     <p className="text-sm text-gray-500">
                       Submitted on{" "}
-                      {new Date(deliverable.submittedAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
+                      {formatDateTime(deliverable.submittedAt)}
                     </p>
                     {deliverable.approvedAt && (
                       <p className="text-sm text-green-600 mt-1">
                         Approved on{" "}
-                        {new Date(deliverable.approvedAt).toLocaleDateString()}
+                        {formatDate(deliverable.approvedAt)}
                       </p>
                     )}
                   </div>

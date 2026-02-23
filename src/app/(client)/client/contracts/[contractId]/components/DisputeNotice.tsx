@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { formatDate as formatDateUtil, formatDateTime } from "@/utils/formatDate";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,11 +74,7 @@ function toTitleCase(str: string): string {
 }
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return formatDateUtil(date);
 }
 
 // ── Sub-components ───────────────────────────────────────────────────────────
@@ -349,7 +346,7 @@ export default function DisputeCard({
                           </svg>
                           <span className="text-xs text-gray-800 font-semibold">
                             {<span>  {res.decidedAt
-    ? new Date(res.decidedAt).toLocaleString()
+    ? formatDateTime(res.decidedAt)
     : "Not decided"}</span>}
                           </span>
                         </div>

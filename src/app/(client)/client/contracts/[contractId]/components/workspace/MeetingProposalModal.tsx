@@ -7,6 +7,7 @@ import { FileText, X, Calendar, Clock, CheckCircle } from 'lucide-react'
 import { MeetingProposalModalProps } from '@/types/interfaces/IMeetingProposal'
 import { meetingAgendaSchema } from '@/utils/validations/validation'
 import { z } from 'zod'
+import { formatDateWithDay } from '@/utils/formatDate'
 
 const MeetingProposalModal = ({ isOpen, onClose, onSubmit, contractId }: MeetingProposalModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -49,12 +50,7 @@ const MeetingProposalModal = ({ isOpen, onClose, onSubmit, contractId }: Meeting
   };
 
   const formattedDateTime = useMemo(() => {
-    const dateStr = selectedDate.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    const dateStr = formatDateWithDay(selectedDate);
     const timeStr = `${selectedTime.hour.toString().padStart(2, '0')}:${selectedTime.minute.toString().padStart(2, '0')} ${selectedTime.period}`;
     return { dateStr, timeStr };
   }, [selectedDate, selectedTime]);

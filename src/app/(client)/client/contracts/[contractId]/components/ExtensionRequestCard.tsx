@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { formatDateLong as formatDate } from '@/utils/formatDate';
 
 interface ExtensionRequestCardProps {
   extensionRequest: {
@@ -79,13 +80,7 @@ export default function ExtensionRequestCard({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+
 
   const getStatusBadge = () => {
     switch (extensionRequest.status) {

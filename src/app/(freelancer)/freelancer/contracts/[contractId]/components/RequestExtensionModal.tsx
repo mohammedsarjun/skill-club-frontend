@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FaTimes, FaCalendarAlt } from 'react-icons/fa';
 import {BeautifulCalendar} from '@/components/common/Calandar';
+import { formatDate } from '@/utils/formatDate';
 
 interface RequestExtensionModalProps {
   isOpen: boolean;
@@ -61,7 +62,7 @@ export default function RequestExtensionModal({
         <div className="p-6 space-y-6">
           <div>
             <p className="text-gray-600 mb-2">
-              Current deadline: {new Date(contractEndDate).toLocaleDateString()}
+              Current deadline: {formatDate(contractEndDate)}
             </p>
             <p className="text-sm text-gray-500">
               Select a new deadline and provide a reason for the extension request.
@@ -80,7 +81,7 @@ export default function RequestExtensionModal({
             />
             {selectedDate && (
               <p className="mt-2 text-sm text-green-600">
-                Selected: {selectedDate.toLocaleDateString()}
+                Selected: {formatDate(selectedDate)}
               </p>
             )}
           </div>

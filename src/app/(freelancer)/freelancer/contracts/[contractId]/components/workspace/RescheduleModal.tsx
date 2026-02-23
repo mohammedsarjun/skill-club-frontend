@@ -6,6 +6,7 @@ import { BeautifulCalendar } from "@/components/common/Calandar";
 import { X, Calendar, Clock, CheckCircle } from "lucide-react";
 import { z } from "zod";
 import toast from "react-hot-toast";
+import { formatDateWithDay } from "@/utils/formatDate";
 
 const rescheduleSchema = z.object({
   scheduledAt: z.date().refine((date) => date > new Date(), {
@@ -73,12 +74,7 @@ export default function RescheduleModal({ open, meetingId, onClose, onSubmit }: 
   };
 
   const formattedDateTime = useMemo(() => {
-    const dateStr = selectedDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
+    const dateStr = formatDateWithDay(selectedDate);
     const timeStr = `${selectedTime.hour.toString().padStart(2, "0")}:${selectedTime.minute.toString().padStart(2, "0")} ${selectedTime.period}`;
     return { dateStr, timeStr };
   }, [selectedDate, selectedTime]);

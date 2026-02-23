@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { IFreelancerReviewStats } from '@/types/interfaces/IFreelancerDashboard';
+import { formatDate } from '@/utils/formatDate';
 
 interface ReviewsSectionProps {
   reviewStats: IFreelancerReviewStats;
@@ -16,13 +17,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviewStats }) =
     ));
   };
 
-  const formatDate = (date: Date): string => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+
 
   return (
     <div className="bg-white rounded-lg shadow">
