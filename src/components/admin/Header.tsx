@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import AdminActionApi from "@/api/action/AdminActionApi";
-import { INotification } from "@/types/interfaces/INotification";
+import { INotification } from "@/types/interfaces/notification.interface";
 import { useNotification } from "@/hooks/useNotification";
 
 export default function AdminHeader() {

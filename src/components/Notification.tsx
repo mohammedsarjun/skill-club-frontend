@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import { Check, Bell, X } from 'lucide-react';
 
-interface Notification {
-  _id: string;
-  userId: string;
-  role: 'client' | 'freelancer';
-  title: string;
-  message: string;
-  type: 'job' | 'payment' | 'report' | 'system' | 'admin' | 'meeting';
-  isRead: boolean;
-  relatedId?: string;
-  actionUrl?: string;
-  createdAt: Date;
-}
+import { INotification } from '@/types/interfaces/notification.interface';
 
 interface NotificationCenterProps {
-  notifications: Notification[];
+  notifications: INotification[];
   onMarkAsRead: (notificationId: string) => void;
-  onNotificationClick?: (notification: Notification) => void;
+  onNotificationClick?: (notification: INotification) => void;
 }
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
@@ -30,7 +19,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const unreadNotifications = notifications.filter((n) => !n.isRead);
   const displayedNotifications = activeTab === 'unread' ? unreadNotifications : notifications;
 
-  const getTypeColor = (type: Notification['type']) => {
+  const getTypeColor = (type: INotification['type']) => {
     const colors = {
       job: 'bg-blue-100 text-blue-800',
       payment: 'bg-green-100 text-green-800',
@@ -42,7 +31,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     return colors[type] || colors.system;
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date: string) => {
     const now = new Date();
     const notificationDate = new Date(date);
     const diffInMs = now.getTime() - notificationDate.getTime();
@@ -62,7 +51,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     onMarkAsRead(notificationId);
   };
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = (notification: INotification) => {
     if (onNotificationClick) {
       onNotificationClick(notification);
     }

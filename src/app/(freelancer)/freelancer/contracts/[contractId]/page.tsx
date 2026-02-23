@@ -1373,10 +1373,7 @@ function ContractDetails() {
 
               <div className="lg:col-span-1">
                 <div className="sticky top-6 space-y-6">
-                  <ClientCard
-                    client={contractDetail.client}
-                    onViewProfile={handleViewClientProfile}
-                  />
+              
                   <ActionButtons
                     status={contractDetail.status}
                     paymentType={contractDetail.paymentType}

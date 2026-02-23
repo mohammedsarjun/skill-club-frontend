@@ -1,0 +1,10 @@
+﻿src/components/admin/Header.tsx(159,21): error TS2322: Type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/INotification").INotification[]' is not assignable to type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/notification.interface").INotification[]'.
+  Type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/INotification").INotification' is not assignable to type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/notification.interface").INotification'.
+    Types of property 'createdAt' are incompatible.
+      Type 'Date' is not assignable to type 'string'.
+src/components/admin/Header.tsx(161,21): error TS2322: Type '(notification: import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/INotification").INotification) => void' is not assignable to type '(notification: import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/notification.interface").INotification) => void'.
+  Types of parameters 'notification' and 'notification' are incompatible.
+    Type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/notification.interface").INotification' is not assignable to type 'import("D:/Brototype files/Skill-Club/frontend/src/types/interfaces/INotification").INotification'.
+      Types of property 'relatedId' are incompatible.
+        Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+          Type 'null' is not assignable to type 'string | undefined'.

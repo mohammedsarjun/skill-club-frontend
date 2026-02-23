@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useSocket } from './useSocket';
-import { INotification } from '@/types/interfaces/INotification';
+import { INotification } from '@/types/interfaces/notification.interface';
 
 const NOTIFICATION_SOUND_URL = '';;
 
