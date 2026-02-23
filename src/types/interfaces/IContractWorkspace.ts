@@ -40,13 +40,39 @@ export interface ITimesheet {
 
 export interface IChatMessage {
   messageId?: string;
+  contractId?: string;
   senderId: string;
+  senderRole?: string;
   senderName: string;
   senderAvatar?: string;
   message: string;
   attachments?: { fileName: string; fileUrl: string }[];
   sentAt: string;
   readAt?: string;
+  isRead?: boolean;
+}
+
+export interface ISocketAttachment {
+  fileName: string;
+  fileUrl: string;
+}
+
+export interface ISocketNewMessagePayload {
+  contractId: string;
+  messageId: string;
+  senderId: string;
+  senderRole: string;
+  senderName: string;
+  senderAvatar?: string;
+  message: string;
+  attachments?: ISocketAttachment[];
+  sentAt: string;
+}
+
+export interface ISocketMessagesReadPayload {
+  contractId: string;
+  readBy: string;
+  role: string;
 }
 
 export interface IWorkspaceFile {

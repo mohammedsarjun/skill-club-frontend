@@ -75,6 +75,8 @@ const clientRouterEndPoints = {
   getNotifications: "/client/notifications",
   markNotificationAsRead: (notificationId: string) => `/client/notifications/${notificationId}/read`,
   markAllNotificationsAsRead: "/client/notifications/read-all",
+  uploadWorkspaceFile: (contractId: string) => `/client/contracts/${contractId}/workspace/files`,
+  deleteWorkspaceFile: (contractId: string, fileId: string) => `/client/contracts/${contractId}/workspace/files/${fileId}`,
 };
 
 export default clientRouterEndPoints;

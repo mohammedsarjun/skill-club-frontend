@@ -21,7 +21,7 @@ import {
 import { clearSessionCookie, setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
-import { INotification } from "@/types/interfaces/INotification";
+import { INotification } from "@/types/interfaces/notification.interface";
 import { useNotification } from "@/hooks/useNotification";
 
 export default function FreelancerHeader() {

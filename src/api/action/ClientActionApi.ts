@@ -706,6 +706,32 @@ export const clientActionApi = {
     }
   },
 
+  async uploadWorkspaceFile(contractId: string, fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string; }) {
+    try {
+      const response = await axiosClient.post(clientRouterEndPoints.uploadWorkspaceFile(contractId), fileData);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async deleteWorkspaceFile(contractId: string, fileId: string) {
+    try {
+      const response = await axiosClient.delete(clientRouterEndPoints.deleteWorkspaceFile(contractId, fileId));
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async respondToMilestoneExtension(
     contractId: string,
     milestoneId: string,

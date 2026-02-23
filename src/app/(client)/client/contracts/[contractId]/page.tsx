@@ -1588,16 +1588,13 @@ function ContractDetails() {
                 {activeWorkspaceTab === "files" && (
                   <FilesTab
                     contractId={contractId as string}
-                    files={(contractDetail.referenceFiles || []).map(
-                      (f: any, idx: number) => ({
-                        fileId: f.fileUrl || `ref-${idx}`,
+                    files={(contractDetail.workspaceFiles || []).map(
+                      (f: any) => ({
+                        fileId: f.fileId,
                         fileName: f.fileName,
                         fileUrl: f.fileUrl,
-                        uploadedBy:
-                          contractDetail.freelancer?.freelancerId ||
-                          contractDetail.offerId ||
-                          "system",
-                        uploadedAt: new Date().toISOString(),
+                        uploadedBy: f.uploadedBy,
+                        uploadedAt: f.uploadedAt,
                         fileSize: f.fileSize || 0,
                         fileType: f.fileType || "",
                       }),
@@ -1605,30 +1602,34 @@ function ContractDetails() {
                     currentUserId={currentUserId}
                     onUploadFile={async (file) => {
                       try {
-                        console.log("File uploaded:", file);
-                        Swal.fire(
-                          "Success",
-                          "File uploaded successfully",
-                          "success",
-                        );
+                        const response = await clientActionApi.uploadWorkspaceFile(contractId as string, {
+                           ...file,
+                           fileId: Date.now().toString() 
+                        } as any);
+                        if (response.success) {
+                          await loadContractDetail();
+                        } else {
+                          toast.error(response.message || "Failed to upload file");
+                        }
                       } catch (error) {
+                        toast.error("Failed to upload file");
                         console.error("Error uploading file:", error);
-                        Swal.fire("Error", "Failed to upload file", "error");
                       }
                     }}
                     onDeleteFile={async (fileId: string) => {
                       try {
-                        console.log("File deleted:", fileId);
-                        Swal.fire(
-                          "Success",
-                          "File deleted successfully",
-                          "success",
-                        );
+                        const response = await clientActionApi.deleteWorkspaceFile(contractId as string, fileId);
+                        if (response.success) {
+                          await loadContractDetail();
+                        } else {
+                          toast.error(response.message || "Failed to delete file");
+                        }
                       } catch (error) {
+                        toast.error("Failed to delete file");
                         console.error("Error deleting file:", error);
-                        Swal.fire("Error", "Failed to delete file", "error");
                       }
                     }}
+                    contractStatus={contractDetail.status}
                   />
                 )}
               </div>

@@ -315,27 +315,27 @@ const Freelancers = () => {
         setFreelancersError(null);
         try {
           const res = await clientActionApi.getAllFreelancers(f);
-          console.log(res)
-          // Flexible shape handling
-          // Possible shapes:
-          // { success, data: [...], totalCount }
-          // { success, data: { freelancers: [...], totalCount } }
-          // { success, freelancers: [...], totalCount }
-          const rawData = (res?.data && Array.isArray(res.data) ? res.data :
-            res?.data?.freelancers && Array.isArray(res.data.freelancers) ? res.data.freelancers :
-            Array.isArray(res?.freelancers) ? res.freelancers :
-            Array.isArray(res) ? res : []);
-          setFreelancers(rawData);
-
-          // Derive total count from multiple possible locations
-            const totalCount = typeof res?.totalCount === 'number' ? res.totalCount :
-              (res?.data && typeof res.data.totalCount === 'number' ? res.data.totalCount :
-              (typeof res?.count === 'number' ? res.count : rawData.length));
-
-          setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
-        } catch (err: any) {
-          console.error("Error sending filters to backend:", err);
-          setFreelancersError(err?.message || 'Failed to load freelancers');
+          if (res?.success && res.data) {
+            const freelancersArray: Freelancer[] = Array.isArray(res.data.freelancers)
+              ? res.data.freelancers
+              : Array.isArray(res.data)
+              ? res.data
+              : [];
+            const totalCount: number =
+              typeof res.data.totalCount === 'number'
+                ? res.data.totalCount
+                : freelancersArray.length;
+            setFreelancers(freelancersArray);
+            setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
+          } else {
+            setFreelancersError(res?.message || 'Failed to load freelancers');
+            setFreelancers([]);
+            setTotalPages(1);
+          }
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Unexpected error fetching freelancers';
+          console.error('Error fetching freelancers:', err);
+          setFreelancersError(message);
           setFreelancers([]);
           setTotalPages(1);
         } finally {
@@ -448,30 +448,58 @@ const Freelancers = () => {
 
             {/* Search Bar */}
             <div className="flex-1 relative">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search freelancers by name or role..."
-                value={localSearch}
-                onChange={(e) => {
-                  setLocalSearch(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14A800] focus:border-transparent"
-              />
-            </div>
+  {/* Search Icon */}
+  <svg
+    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
+  </svg>
+
+  <input
+    type="text"
+    placeholder="Search freelancers by name or role..."
+    value={localSearch}
+    onChange={(e) => {
+      setLocalSearch(e.target.value);
+      setCurrentPage(1);
+    }}
+    className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14A800] focus:border-transparent"
+  />
+
+  {/* Clear Button */}
+  {localSearch && (
+    <button
+      type="button"
+      onClick={() => {
+        setLocalSearch("");
+        setCurrentPage(1);
+      }}
+      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+    >
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+  )}
+</div>
           </div>
         </div>
       </header>

@@ -27,7 +27,7 @@ interface OfferDetail {
   clientId: string;
   freelancerId: string;
   jobId?: string;
-  proposalId?: string;
+  proposalId?: {_id:string};
   offerType: 'direct' | 'proposal';
   title: string;
   description: string;

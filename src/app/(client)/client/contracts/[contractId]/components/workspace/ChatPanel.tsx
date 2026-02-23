@@ -1,10 +1,12 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FaPaperPlane, FaPaperclip, FaFile } from 'react-icons/fa';
-import { IChatMessage } from '@/types/interfaces/IContractWorkspace';
+import { FaPaperPlane, FaPaperclip, FaFile, FaFileImage, FaFileVideo } from 'react-icons/fa';
+import { IChatMessage, ISocketNewMessagePayload, ISocketMessagesReadPayload } from '@/types/interfaces/IContractWorkspace';
 import { uploadApi } from '@/api/uploadApi';
 import { useSocket } from '@/hooks/useSocket';
 import { clientActionApi } from '@/api/action/ClientActionApi';
+import ImageViewerModal from '@/components/common/ImageViewer';
+import VideoPlayer from '@/components/common/VideoPlayer';
 
 interface ChatPanelProps {
   contractId: string;
@@ -18,6 +20,7 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
   const [attachments, setAttachments] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [previewMedia, setPreviewMedia] = useState<{ url: string; type: 'image' | 'video' | null; name: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { socket, isConnected } = useSocket();
@@ -53,7 +56,7 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
 
     socket.emit('join_contract', { contractId });
 
-    const handleNewMessage = (payload: any) => {
+    const handleNewMessage = (payload: ISocketNewMessagePayload) => {
       if (payload.contractId === contractId) {
         setMessages((prev) => [...prev, {
           messageId: payload.messageId,
@@ -63,14 +66,14 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
           senderName: payload.senderName || 'Unknown',
           senderAvatar: payload.senderAvatar,
           message: payload.message,
-          attachments: payload.attachments?.map((a: any) => ({ fileName: a.name, fileUrl: a.url })),
+          attachments: payload.attachments?.map((a) => ({ fileName: a.fileName, fileUrl: a.fileUrl })),
           sentAt: payload.sentAt,
           isRead: false,
         }]);
       }
     };
 
-    const handleMessagesRead = (payload: any) => {
+    const handleMessagesRead = (payload: ISocketMessagesReadPayload) => {
       if (payload.contractId === contractId && payload.readBy !== currentUserId) {
         setMessages((prev) => prev.map((m) => ({ ...m, isRead: true })));
       }
@@ -125,11 +128,10 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
             folder: `contracts/${contractId}/chat`,
             resourceType: 'auto',
           });
-          const fileUrl = (res as any).secureUrl || (res as any).secure_url || (res as any).url || (res as any).secureURL;
-          if (res && fileUrl) {
+          if (res?.secureUrl) {
             uploadedAttachments.push({
               fileName: file.name,
-              fileUrl,
+              fileUrl: res.secureUrl,
               fileSize: file.size,
               fileType: file.type || 'application/octet-stream',
             });
@@ -200,20 +202,34 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
                     <p className="text-sm whitespace-pre-wrap break-words">{m.message}</p>
                     {m.attachments && m.attachments.length > 0 && (
                       <div className="mt-2 space-y-1">
-                        {m.attachments.map((a, idx) => (
-                          <a
-                            key={idx}
-                            href={a.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-2 p-2 rounded ${
-                              isOwnMessage ? 'bg-blue-700 hover:bg-blue-800' : 'bg-white hover:bg-gray-50'
-                            } text-xs`}
-                          >
-                            <FaFile />
-                            {a.fileName}
-                          </a>
-                        ))}
+                        {m.attachments.map((a, idx) => {
+                          const name = a.fileName?.toLowerCase() || '';
+                          const isImage = name.match(/\.(jpg|jpeg|png|gif|webp)$/);
+                          const isVideo = name.match(/\.(mp4|webm|ogg|mov)$/);
+                          
+                          return (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                if (isImage) setPreviewMedia({ url: a.fileUrl, type: 'image', name: a.fileName });
+                                else if (isVideo) setPreviewMedia({ url: a.fileUrl, type: 'video', name: a.fileName });
+                                else window.open(a.fileUrl, '_blank');
+                              }}
+                              className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+                                isOwnMessage ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-200'
+                              } text-xs`}
+                            >
+                              {isImage ? (
+                                <FaFileImage className={isOwnMessage ? 'text-blue-200' : 'text-blue-400'} />
+                              ) : isVideo ? (
+                                <FaFileVideo className={isOwnMessage ? 'text-purple-200' : 'text-purple-400'} />
+                              ) : (
+                                <FaFile className={isOwnMessage ? 'text-gray-300' : 'text-gray-400'} />
+                              )}
+                              <span className="truncate max-w-[200px]" title={a.fileName}>{a.fileName}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -260,6 +276,23 @@ export const ChatPanel = ({ contractId, currentUserId, contractStatus }: ChatPan
           </button>
         </div>
       </div>
+
+      {previewMedia?.type === 'image' && (
+        <ImageViewerModal
+          isOpen={true}
+          onClose={() => setPreviewMedia(null)}
+          imageUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
+      )}
+      
+      {previewMedia?.type === 'video' && (
+        <VideoPlayer
+          onClose={() => setPreviewMedia(null)}
+          videoUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
+      )}
     </div>
   );
 };

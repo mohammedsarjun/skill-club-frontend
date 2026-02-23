@@ -1373,10 +1373,7 @@ function ContractDetails() {
 
               <div className="lg:col-span-1">
                 <div className="sticky top-6 space-y-6">
-                  <ClientCard
-                    client={contractDetail.client}
-                    onViewProfile={handleViewClientProfile}
-                  />
+              
                   <ActionButtons
                     status={contractDetail.status}
                     paymentType={contractDetail.paymentType}
@@ -1542,10 +1539,47 @@ function ContractDetails() {
                 {activeWorkspaceTab === "files" && (
                   <FilesTab
                     contractId={contractId as string}
-                    files={[]}
-                    currentUserId="freelancer123"
-                    onUploadFile={handleUploadFile}
-                    onDeleteFile={handleDeleteFile}
+                    files={(contractDetail.workspaceFiles || []).map(
+                      (f: any) => ({
+                        fileId: f.fileId,
+                        fileName: f.fileName,
+                        fileUrl: f.fileUrl,
+                        uploadedBy: f.uploadedBy,
+                        uploadedAt: f.uploadedAt,
+                        fileSize: f.fileSize || 0,
+                        fileType: f.fileType || "",
+                      }),
+                    )}
+                    currentUserId={currentUserId}
+                    onUploadFile={async (file) => {
+                      try {
+                        const response = await freelancerActionApi.uploadWorkspaceFile(contractId as string, {
+                           ...file,
+                           fileId: Date.now().toString() 
+                        } as any);
+                        if (response.success) {
+                          await loadContractDetail();
+                        } else {
+                          toast.error(response.message || "Failed to upload file");
+                        }
+                      } catch (error) {
+                        toast.error("Failed to upload file");
+                        console.error("Error uploading file:", error);
+                      }
+                    }}
+                    onDeleteFile={async (fileId: string) => {
+                      try {
+                        const response = await freelancerActionApi.deleteWorkspaceFile(contractId as string, fileId);
+                        if (response.success) {
+                          await loadContractDetail();
+                        } else {
+                          toast.error(response.message || "Failed to delete file");
+                        }
+                      } catch (error) {
+                        toast.error("Failed to delete file");
+                        console.error("Error deleting file:", error);
+                      }
+                    }}
                     contractStatus={contractDetail.status}
                   />
                 )}
