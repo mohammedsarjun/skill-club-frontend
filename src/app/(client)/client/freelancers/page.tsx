@@ -315,27 +315,27 @@ const Freelancers = () => {
         setFreelancersError(null);
         try {
           const res = await clientActionApi.getAllFreelancers(f);
-          console.log(res)
-          // Flexible shape handling
-          // Possible shapes:
-          // { success, data: [...], totalCount }
-          // { success, data: { freelancers: [...], totalCount } }
-          // { success, freelancers: [...], totalCount }
-          const rawData = (res?.data && Array.isArray(res.data) ? res.data :
-            res?.data?.freelancers && Array.isArray(res.data.freelancers) ? res.data.freelancers :
-            Array.isArray(res?.freelancers) ? res.freelancers :
-            Array.isArray(res) ? res : []);
-          setFreelancers(rawData);
-
-          // Derive total count from multiple possible locations
-            const totalCount = typeof res?.totalCount === 'number' ? res.totalCount :
-              (res?.data && typeof res.data.totalCount === 'number' ? res.data.totalCount :
-              (typeof res?.count === 'number' ? res.count : rawData.length));
-
-          setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
-        } catch (err: any) {
-          console.error("Error sending filters to backend:", err);
-          setFreelancersError(err?.message || 'Failed to load freelancers');
+          if (res?.success && res.data) {
+            const freelancersArray: Freelancer[] = Array.isArray(res.data.freelancers)
+              ? res.data.freelancers
+              : Array.isArray(res.data)
+              ? res.data
+              : [];
+            const totalCount: number =
+              typeof res.data.totalCount === 'number'
+                ? res.data.totalCount
+                : freelancersArray.length;
+            setFreelancers(freelancersArray);
+            setTotalPages(Math.max(1, Math.ceil(totalCount / itemsPerPage)));
+          } else {
+            setFreelancersError(res?.message || 'Failed to load freelancers');
+            setFreelancers([]);
+            setTotalPages(1);
+          }
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Unexpected error fetching freelancers';
+          console.error('Error fetching freelancers:', err);
+          setFreelancersError(message);
           setFreelancers([]);
           setTotalPages(1);
         } finally {

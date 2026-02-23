@@ -1,10 +1,12 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { FaPaperPlane, FaPaperclip, FaFile } from 'react-icons/fa';
-import { IChatMessage } from '@/types/interfaces/IContractWorkspace';
+import { FaPaperPlane, FaPaperclip, FaFile, FaFileImage, FaFileVideo } from 'react-icons/fa';
+import { IChatMessage, ISocketNewMessagePayload, ISocketMessagesReadPayload } from '@/types/interfaces/IContractWorkspace';
 import { uploadApi } from '@/api/uploadApi';
 import { useSocket } from '@/hooks/useSocket';
 import { freelancerActionApi } from '@/api/action/FreelancerActionApi';
+import ImageViewerModal from '@/components/common/ImageViewer';
+import VideoPlayer from '@/components/common/VideoPlayer';
 
 interface ChatPanelProps {
   contractId: string;
@@ -22,6 +24,7 @@ export const ChatPanel = ({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [previewMedia, setPreviewMedia] = useState<{ url: string; type: 'image' | 'video' | null; name: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { socket, isConnected } = useSocket();
@@ -54,7 +57,7 @@ export const ChatPanel = ({
 
     socket.emit('join_contract', { contractId });
 
-    const handleNewMessage = (payload: any) => {
+    const handleNewMessage = (payload: ISocketNewMessagePayload) => {
       if (payload.contractId === contractId) {
         setMessages((prev) => [...prev, {
           messageId: payload.messageId,
@@ -64,14 +67,14 @@ export const ChatPanel = ({
           senderName: payload.senderName || 'Unknown',
           senderAvatar: payload.senderAvatar,
           message: payload.message,
-          attachments: payload.attachments?.map((a: any) => ({ fileName: a.name, fileUrl: a.url })),
+          attachments: payload.attachments?.map((a) => ({ fileName: a.fileName, fileUrl: a.fileUrl })),
           sentAt: payload.sentAt,
           isRead: false,
         }]);
       }
     };
 
-    const handleMessagesRead = (payload: any) => {
+    const handleMessagesRead = (payload: ISocketMessagesReadPayload) => {
       if (payload.contractId === contractId && payload.readBy !== currentUserId) {
         setMessages((prev) => prev.map((m) => ({ ...m, isRead: true })));
       }
@@ -109,11 +112,10 @@ export const ChatPanel = ({
             folder: `contracts/${contractId}/chat`,
             resourceType: 'auto',
           });
-          const fileUrl = (res as any).secureUrl || (res as any).secure_url || (res as any).url || (res as any).secureURL;
-          if (res && fileUrl) {
+          if (res?.secureUrl) {
             uploadedAttachments.push({
               fileName: file.name,
-              fileUrl,
+              fileUrl: res.secureUrl,
               fileSize: file.size,
               fileType: file.type || 'application/octet-stream',
             });
@@ -195,20 +197,34 @@ export const ChatPanel = ({
                   <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                   {msg.attachments && msg.attachments.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      {msg.attachments.map((att, idx) => (
-                        <a
-                          key={idx}
-                          href={att.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center gap-2 p-2 rounded ${
-                            isOwnMessage ? 'bg-blue-700 hover:bg-blue-800' : 'bg-white hover:bg-gray-50'
-                          } text-xs`}
-                        >
-                          <FaFile />
-                          {att.fileName}
-                        </a>
-                      ))}
+                      {msg.attachments.map((att, idx) => {
+                          const name = att.fileName?.toLowerCase() || '';
+                          const isImage = name.match(/\.(jpg|jpeg|png|gif|webp)$/);
+                          const isVideo = name.match(/\.(mp4|webm|ogg|mov)$/);
+                          
+                          return (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                if (isImage) setPreviewMedia({ url: att.fileUrl, type: 'image', name: att.fileName });
+                                else if (isVideo) setPreviewMedia({ url: att.fileUrl, type: 'video', name: att.fileName });
+                                else window.open(att.fileUrl, '_blank');
+                              }}
+                              className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+                                isOwnMessage ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-200'
+                              } text-xs`}
+                            >
+                              {isImage ? (
+                                <FaFileImage className={isOwnMessage ? 'text-blue-200' : 'text-blue-400'} />
+                              ) : isVideo ? (
+                                <FaFileVideo className={isOwnMessage ? 'text-purple-200' : 'text-purple-400'} />
+                              ) : (
+                                <FaFile className={isOwnMessage ? 'text-gray-300' : 'text-gray-400'} />
+                              )}
+                              <span className="truncate max-w-[200px]" title={att.fileName}>{att.fileName}</span>
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
@@ -271,6 +287,23 @@ export const ChatPanel = ({
           </button>
         </div>
       </div>
+
+      {previewMedia?.type === 'image' && (
+        <ImageViewerModal
+          isOpen={true}
+          onClose={() => setPreviewMedia(null)}
+          imageUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
+      )}
+      
+      {previewMedia?.type === 'video' && (
+        <VideoPlayer
+          onClose={() => setPreviewMedia(null)}
+          videoUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
+      )}
     </div>
   );
 };

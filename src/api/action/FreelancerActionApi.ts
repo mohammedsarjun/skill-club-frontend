@@ -371,11 +371,11 @@ export const freelancerActionApi = {
     }
   },
 
-    async getMyProposals(jobId: string, query?: { search?: string; page?: number; limit?: number; filters?: any }) {
+  async getMyProposals(query?: { search?: string; page?: number; limit?: number; status?: string }) {
     try {
       const params = query || {};
       const response = await axiosClient.get(
-        freelancerRouterEndPoints.getMyProposals(jobId),
+        freelancerRouterEndPoints.getMyProposals,
         { params }
       );
       return response.data;
@@ -661,13 +661,37 @@ export const freelancerActionApi = {
     files: { fileName: string; fileUrl: string }[],
     message?: string
   ) {
-
-
     try {
       const response = await axiosClient.post(
         freelancerRouterEndPoints.submitMilestoneDeliverable(contractId),
         { milestoneId, files, message }
       );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async uploadWorkspaceFile(contractId: string, fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string; }) {
+    try {
+      const response = await axiosClient.post(freelancerRouterEndPoints.uploadWorkspaceFile(contractId), fileData);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async deleteWorkspaceFile(contractId: string, fileId: string) {
+    try {
+      const response = await axiosClient.delete(freelancerRouterEndPoints.deleteWorkspaceFile(contractId, fileId));
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

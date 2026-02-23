@@ -26,7 +26,8 @@ const freelancerRouterEndPoints = {
   isJobReported: (jobId: string) => `/freelancer/jobs/${jobId}/reported`,
   getSavedJobs: () => `/freelancer/saved-jobs`,
   createProposal:'/freelancer/proposals',
-  getMyProposals:(jobId:string)=> `/freelancer/jobs/${jobId}/proposals`,
+  getMyProposals: '/freelancer/proposals',
+  getMyProposalsByJob:(jobId:string)=>`/freelancer/jobs/${jobId}/proposals`,
   getOffers: '/freelancer/offers',
   getOfferDetail: (offerId: string) => `/freelancer/offers/${offerId}`,
   rejectOffer: (offerId: string) => `/freelancer/offers/${offerId}/reject`,
@@ -90,6 +91,8 @@ const freelancerRouterEndPoints = {
   getNotifications: "/freelancer/notifications",
   markNotificationAsRead: (notificationId: string) => `/freelancer/notifications/${notificationId}/read`,
   markAllNotificationsAsRead: "/freelancer/notifications/read-all",
+  uploadWorkspaceFile: (contractId: string) => `/freelancer/contracts/${contractId}/workspace/files`,
+  deleteWorkspaceFile: (contractId: string, fileId: string) => `/freelancer/contracts/${contractId}/workspace/files/${fileId}`,
 };
 
 export default freelancerRouterEndPoints;

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useCallback } from 'react';
-import { FaFile, FaDownload, FaUpload, FaTrash } from 'react-icons/fa';
+import { FaFile, FaFileImage, FaFileVideo, FaDownload, FaUpload, FaTrash, FaEye } from 'react-icons/fa';
+import ImageViewerModal from '@/components/common/ImageViewer';
+import VideoPlayer from '@/components/common/VideoPlayer';
 import { IWorkspaceFile } from '@/types/interfaces/IContractWorkspace';
 import { uploadApi } from '@/api/uploadApi';
 
@@ -22,6 +24,7 @@ export const FilesTab = ({
   contractStatus,
 }: FilesTabProps) => {
   const [uploading, setUploading] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState<{ url: string; type: 'image' | 'video' | null; name: string } | null>(null);
 
   const isUploadDisabled = contractStatus === 'cancelled' || contractStatus === 'disputed';
 
@@ -39,9 +42,9 @@ export const FilesTab = ({
             });
             await onUploadFile({
               fileName: file.name,
-              fileUrl: uploaded.url,
+              fileUrl: (uploaded as any).secureUrl || (uploaded as any).secure_url || (uploaded as any).url || uploaded.url,
               fileSize: file.size,
-              fileType: file.type,
+              fileType: file.type || 'application/octet-stream',
             });
           })
         );
@@ -58,6 +61,38 @@ export const FilesTab = ({
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const getFileIcon = (fileType?: string, fileName?: string) => {
+    const type = fileType?.toLowerCase() || '';
+    const name = fileName?.toLowerCase() || '';
+    if (type.startsWith('image/') || name.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+      return <FaFileImage className="text-blue-400 text-2xl" />;
+    }
+    if (type.startsWith('video/') || name.match(/\.(mp4|webm|ogg|mov)$/)) {
+      return <FaFileVideo className="text-purple-400 text-2xl" />;
+    }
+    return <FaFile className="text-gray-400 text-2xl" />;
+  };
+
+  const handlePreview = (file: IWorkspaceFile) => {
+    const type = file.fileType?.toLowerCase() || '';
+    const name = file.fileName?.toLowerCase() || '';
+    
+    if (type.startsWith('image/') || name.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+      setPreviewMedia({ url: file.fileUrl, type: 'image', name: file.fileName });
+    } else if (type.startsWith('video/') || name.match(/\.(mp4|webm|ogg|mov)$/)) {
+      setPreviewMedia({ url: file.fileUrl, type: 'video', name: file.fileName });
+    } else {
+      // not previewable, download or open in new tab
+      window.open(file.fileUrl, '_blank');
+    }
+  };
+
+  const isPreviewable = (fileType?: string, fileName?: string) => {
+    const type = fileType?.toLowerCase() || '';
+    const name = fileName?.toLowerCase() || '';
+    return type.startsWith('image/') || type.startsWith('video/') || name.match(/\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg|mov)$/);
   };
 
   return (
@@ -107,38 +142,70 @@ export const FilesTab = ({
           {files.map((file, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors group"
+              className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors group relative cursor-pointer"
+              onClick={() => handlePreview(file)}
             >
               <div className="flex items-start justify-between mb-2">
-                <FaFile className="text-gray-400 text-2xl" />
-                <div className="flex gap-2">
+                {getFileIcon(file.fileType, file.fileName)}
+                <div className="flex gap-2 relative z-10" onClick={e => e.stopPropagation()}>
+                  {isPreviewable(file.fileType, file.fileName) && (
+                     <button
+                       onClick={(e) => { e.stopPropagation(); handlePreview(file); }}
+                       className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                       title="Preview"
+                     >
+                       <FaEye className="text-sm" />
+                     </button>
+                  )}
                   <a
                     href={file.fileUrl}
                     download={file.fileName}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Download/Open"
                   >
                     <FaDownload className="text-sm" />
                   </a>
                   {onDeleteFile && file.uploadedBy === currentUserId && (
                     <button
-                      onClick={() => file.fileId && onDeleteFile(file.fileId)}
+                      onClick={(e) => { e.stopPropagation(); file.fileId && onDeleteFile(file.fileId); }}
                       className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Delete"
                     >
                       <FaTrash className="text-sm" />
                     </button>
                   )}
                 </div>
               </div>
-              <h4 className="text-sm font-medium text-gray-900 mb-1 truncate" title={file.fileName}>
+              <h4 className="text-sm font-medium text-gray-900 mb-1 truncate mt-2" title={file.fileName}>
                 {file.fileName}
               </h4>
-              <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
                 <span>{file.fileSize ? formatFileSize(file.fileSize) : 'Unknown size'}</span>
                 <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Media Previews */}
+      {previewMedia?.type === 'image' && (
+        <ImageViewerModal
+          isOpen={true}
+          onClose={() => setPreviewMedia(null)}
+          imageUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
+      )}
+      
+      {previewMedia?.type === 'video' && (
+        <VideoPlayer
+          onClose={() => setPreviewMedia(null)}
+          videoUrl={previewMedia.url}
+          title={previewMedia.name}
+        />
       )}
     </div>
   );
