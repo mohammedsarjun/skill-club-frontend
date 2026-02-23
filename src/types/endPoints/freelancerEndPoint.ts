@@ -13,6 +13,8 @@ const freelancerRouterEndPoints = {
   updateHourlyRate: "/freelancer/profile/hourlyRate",
   updateEducation: "/freelancer/profile/education",
   updateWorkHistory: "/freelancer/profile/workHistory",
+  updateLogo: "/freelancer/profile/logo",
+  updateName: "/freelancer/profile/name",
   createPortfolio: "/freelancer/portfolio",
   getPortfolio: "/freelancer/portfolio",
   getPortfolioDetails: "/freelancer/portfolio/detail",

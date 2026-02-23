@@ -12,6 +12,10 @@ export const nameSchema = z
 
 export const emailSchema = z.string().email("Invalid email format");
 
+export const freelancerNameSchema = z.object({
+  name: nameSchema,
+});
+
 export const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters long")

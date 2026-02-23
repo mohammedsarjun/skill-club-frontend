@@ -1,9 +1,10 @@
 "use client";
 
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { uploadApi } from "@/api/uploadApi";
 import {
   addressSchema,
   descriptionSchema,
@@ -12,6 +13,7 @@ import {
   languageProficiencySchema,
   professionalRoleSchema,
   workExperienceSchema,
+  freelancerNameSchema,
 } from "@/utils/validations/validation";
 import {
   FaEdit,
@@ -27,6 +29,7 @@ import {
   FaHistory,
   FaTimes,
   FaExclamationTriangle,
+  FaCamera,
 } from "react-icons/fa";
 import Image from "next/image";
 import DynamicFormModal from "@/components/common/Form";
@@ -183,6 +186,9 @@ function FreelancerProfilePage(): JSX.Element {
   const [specialities, setSpecialities] = useState<string[]>([]);
   // const [skills, setSkills] = useState<string[]>([]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const router = useRouter();
   const years = Array.from({ length: 50 }, (_, i) => 2025 - i);
   const months = [
@@ -249,6 +255,10 @@ function FreelancerProfilePage(): JSX.Element {
       //   language: populateData?.language,
       //   proficiency: populateData?.proficiency,
       // });
+    } else if (name === "name") {
+      setEditInitialValues({
+        name: populateData?.name,
+      });
     }
     setIsEditOpenModal(true);
   }
@@ -294,7 +304,52 @@ function FreelancerProfilePage(): JSX.Element {
         toast.error(response.message);
       }
     }
+
+    if (activeModal === "name") {
+      const { name: newName } = submitData as { name: string };
+      const response = await freelancerActionApi.updateFreelancerName(newName);
+
+      if (response.success) {
+        setName(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    }
   }
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Show temporary preview
+      const previewUrl = URL.createObjectURL(file);
+      setLogo(previewUrl);
+
+      try {
+        setUploading(true);
+        const uploaded = await uploadApi.uploadFile(file, {
+          folder: "users/profile_pictures",
+        });
+        
+        const response = await freelancerActionApi.updateFreelancerLogo(uploaded.url);
+        if (response.success) {
+            setLogo(response.data);
+            toast.success("Logo uploaded successfully");
+        } else {
+            toast.error(response.message);
+        }
+      } catch (err) {
+        console.error("Upload failed:", err);
+        toast.error("Failed to upload logo. Please try again.");
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
 
   async function onSubmit(submitData: unknown, mode: string) {
     if (activeModal == "language") {
@@ -489,25 +544,41 @@ function FreelancerProfilePage(): JSX.Element {
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              {logo ? (
-                <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg">
-                  <Image
-                    src={logo}
-                    alt="userLogo"
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center shadow-lg">
-                  <FaUser className="w-8 h-8 text-white" />
-                </div>
-              )}
+              <div className="relative inline-block">
+                {logo ? (
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                    <img src={logo} alt="Company Logo" className="object-cover w-full h-full" />
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center shadow-lg border-4 border-white inline-block relative">
+                    <FaUser className="w-10 h-10 text-white" />
+                  </div>
+                )}
+                <button
+                    onClick={handleUploadClick}
+                    disabled={uploading}
+                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors duration-200 z-10"
+                >
+                    <FaCamera className="w-4 h-4" />
+                </button>
+                <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                />
+              </div>
 
               <div>
                 <div className="flex items-center space-x-2">
                   <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
+                  <button
+                    onClick={() => handleOpenEditModal("name", { name })}
+                    className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                  </button>
                 </div>
 
                 <div className="flex items-center text-gray-600 mt-1">
@@ -1030,11 +1101,20 @@ function FreelancerProfilePage(): JSX.Element {
               ? [
                   {
                     name: "description",
-                    type: "text",
+                    type: "textarea",
                     label: "Description",
                     placeholder: "Enter Your Description",
                   },
                 ]
+              : activeModal == "name"
+              ? [
+                  {
+                      name: "name",
+                      type: "text",
+                      label: "Name",
+                      placeholder: "Enter Your Full Name",
+                  }
+              ]
               : activeModal == "education"
               ? [
                   {
@@ -1167,6 +1247,8 @@ function FreelancerProfilePage(): JSX.Element {
               ? descriptionSchema
               : activeModal == "education"
               ? educationSchema
+              : activeModal == "name"
+              ? freelancerNameSchema
               : activeModal == "workHistory"
               ? workExperienceSchema
               : workExperienceSchema

@@ -62,6 +62,38 @@ export const freelancerActionApi = {
     }
   },
 
+  async updateFreelancerLogo(logo: string) {
+    try {
+      const response = await axiosClient.patch(
+        freelancerRouterEndPoints.updateLogo,
+        { logo }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
+  async updateFreelancerName(name: string) {
+    try {
+      const response = await axiosClient.patch(
+        freelancerRouterEndPoints.updateName,
+        { name }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
+  },
+
   async updateProfessionalRole(professionalRole: IProfessionalRole) {
     try {
       const response = await axiosClient.patch(
