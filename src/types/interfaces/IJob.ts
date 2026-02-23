@@ -15,20 +15,30 @@ export interface IJob {
   status: string;
 }
 
+export type JobStatus =
+  | "pending_verification"
+  | "rejected"
+  | "open"
+  | "closed"
+  | "archived"
+  | "suspended";
+
+export type RateType = "hourly" | "fixed";
+
 export interface IJobQueryParams {
   search: string;
   page: number;
   limit: number;
   filters: {
     category?: string;
-    status?:
-      | "pending_verification"
-      | "rejected"
-      | "open"
-      | "closed"
-      | "archived"
-      | "suspended";
+    status?: JobStatus;
   };
+}
+
+export interface StatusConfig {
+  bg: string;
+  text: string;
+  label: string;
 }
 
 export interface JobDetailResponseDTO {
