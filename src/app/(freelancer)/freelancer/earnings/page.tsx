@@ -18,6 +18,7 @@ import {
   IFreelancerWithdrawalsResponse,
 } from "@/types/interfaces/IFreelancerWithdrawal";
 import toast from "react-hot-toast";
+import { formatDate, formatTime } from "@/utils/formatDate";
 
 const FreelancerEarnings = () => {
   const [activeTab, setActiveTab] = useState("transactions");
@@ -336,17 +337,10 @@ const FreelancerEarnings = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-sm text-gray-600">
-                              {new Date(w.createdAt).toLocaleDateString("en-IN", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
+                              {formatDate(w.createdAt)}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              {new Date(w.createdAt).toLocaleTimeString("en-IN", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {formatTime(w.createdAt)}
                             </p>
                           </div>
                         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { IContract } from '@/types/interfaces/IContract';
 import { formatCurrency } from '@/utils/currency';
+import { formatDate } from '@/utils/formatDate';
 
 interface Props {
   contract: IContract;
@@ -14,7 +15,7 @@ export function ContractRow({ contract, onView }: Props) {
       <td className="px-4 py-3 text-sm">{contract.title}</td>
       <td className="px-4 py-3 text-sm">{contract.paymentType}</td>
       <td className="px-4 py-3 text-sm">{contract.budget ? formatCurrency(Number(contract.budget)) : '-'}</td>
-      <td className="px-4 py-3 text-sm">{new Date(contract.createdAt || '').toLocaleDateString() || '-'}</td>
+      <td className="px-4 py-3 text-sm">{contract.createdAt ? formatDate(contract.createdAt) : '-'}</td>
       <td className="px-4 py-3 text-sm">{contract.status}</td>
       <td className="px-4 py-3 text-sm">
         <button

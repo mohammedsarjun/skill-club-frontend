@@ -1,6 +1,7 @@
 "use client";
 import { FaCheckCircle, FaClock, FaCalendarAlt } from 'react-icons/fa';
 import { ITimesheet } from '@/types/interfaces/IContractWorkspace';
+import { formatDateShort, formatDate } from '@/utils/formatDate';
 
 interface ClientTimesheetViewProps {
   contractId: string;
@@ -48,7 +49,7 @@ export const ClientTimesheetView = ({
                   <div className="flex items-center gap-3 mb-2">
                     <FaCalendarAlt className="text-blue-600" />
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {new Date(timesheet.weekStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(timesheet.weekEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {formatDateShort(timesheet.weekStart)} - {formatDate(timesheet.weekEnd)}
                     </h3>
                   </div>
                   {getStatusBadge(timesheet.status)}
@@ -78,10 +79,7 @@ export const ClientTimesheetView = ({
                       {timesheet.hoursLogged.map((log, idx) => (
                         <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="py-3 px-3 text-sm text-gray-700">
-                            {new Date(log.date).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
+                            {formatDateShort(log.date)}
                           </td>
                           <td className="py-3 px-3 text-sm font-medium text-gray-900">
                             {log.hours.toFixed(2)} hrs

@@ -3,6 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { IFreelancerProposal } from "@/types/interfaces/IProposal";
 import { formatCurrency } from "@/utils/currency";
+import { formatDate } from "@/utils/formatDate";
 
 interface ProposalDetailModalProps {
   proposal: IFreelancerProposal | null;
@@ -42,7 +43,7 @@ export default function ProposalDetailModal({
                     {proposal.jobDetail.title}
                   </h2>
                   <p className="text-sm text-gray-500 mt-1">
-                    Submitted on {new Date(proposal.proposedAt).toLocaleDateString()}
+                    Submitted on {formatDate(proposal.proposedAt)}
                   </p>
                 </div>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColorMap[proposal.status]}`}>
@@ -63,7 +64,7 @@ export default function ProposalDetailModal({
                       <p className="text-xs text-gray-500 mb-1">Deadline</p>
                       <p className="font-semibold text-gray-900">
                         {proposal.deadline
-                          ? new Date(proposal.deadline).toLocaleDateString()
+                          ? formatDate(proposal.deadline)
                           : "—"}
                       </p>
                     </div>

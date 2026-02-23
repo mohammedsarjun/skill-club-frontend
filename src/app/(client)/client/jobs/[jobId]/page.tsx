@@ -37,6 +37,7 @@ import { useSwal } from "@/custom-hooks/useSwal";
 import toast from "react-hot-toast";
 import { set } from "lodash";
 import ProposalManagementTable from "./components/ProposalTable";
+import { formatDateTime } from "@/utils/formatDate";
 
 const mockJobData = {
   jobId: "JOB-12345",
@@ -223,16 +224,7 @@ function JobDetailPage() {
     setShowProposalModal(true);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (dateString: string) => formatDateTime(dateString);
 
   if (isLoading) {
     return (

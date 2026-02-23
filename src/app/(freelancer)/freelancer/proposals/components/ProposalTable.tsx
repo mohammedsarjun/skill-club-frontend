@@ -2,6 +2,7 @@
 
 import { IFreelancerProposal } from "@/types/interfaces/IProposal";
 import { formatCurrency } from "@/utils/currency";
+import { formatDate } from "@/utils/formatDate";
 
 interface ProposalTableProps {
   proposals: IFreelancerProposal[];
@@ -59,7 +60,7 @@ export default function ProposalTable({ proposals, onView }: ProposalTableProps)
                   : "—"}
               </td>
               <td className="px-6 py-4 text-sm text-gray-600">
-                {new Date(proposal.proposedAt).toLocaleDateString()}
+                {formatDate(proposal.proposedAt)}
               </td>
               <td className="px-6 py-4">
                 <span

@@ -17,6 +17,7 @@ import { AcceptOfferModal, RejectOfferModal } from './components/Modals';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
+import { formatDate } from '@/utils/formatDate';
 interface OfferMilestone { title: string; amount: number; expectedDelivery: string; }
 interface OfferReferenceFile { fileName: string; fileUrl: string; }
 interface OfferReferenceLink { description: string; link: string; }
@@ -76,14 +77,6 @@ function OfferDetails() {
     console.log('Navigate to client profile');
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   const formatCurrency = (amount: number) => formatCurrencyUtil(amount);
 

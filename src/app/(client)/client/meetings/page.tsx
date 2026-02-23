@@ -17,6 +17,7 @@ import CompletedMeetings from "./components/CompletedMeetings";
 import ExpiredMeetings from "./components/ExpiredMeetings";
 import Pagination from "./components/Pagination";
 import { useRouter } from "next/navigation";
+import { formatTime as formatTimeUtil, formatFullDateTime } from "@/utils/formatDate";
    const { startAgora } = await import("@/utils/agoraInitialize");
 const MeetingsPage = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -359,22 +360,11 @@ const MeetingsPage = () => {
   }, []);
 
   const formatTime = useCallback((dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return formatTimeUtil(dateStr);
   }, []);
 
   const formatDate = useCallback((dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return formatFullDateTime(dateStr);
   }, []);
 
   const getStatusColor = useCallback((status: string) => {

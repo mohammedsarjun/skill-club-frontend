@@ -1,29 +1,14 @@
 "use client"
 import { IFreelancerTransaction } from '@/types/interfaces/IFreelancerEarnings';
+import { formatRelative } from '@/utils/formatDate';
 
 interface TransactionsTableProps {
   transactions: IFreelancerTransaction[];
 }
 
 const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
-  const formatRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInHours / 24);
+  const formatRelativeTime = (dateString: string) => formatRelative(dateString);
 
-    if (diffInHours < 1) {
-      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-      return `${diffInMinutes} minutes ago`;
-    } else if (diffInHours < 24) {
-      return `${diffInHours} hours ago`;
-    } else if (diffInDays < 30) {
-      return `${diffInDays} days ago`;
-    } else {
-      return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-  };
   const getPurposeLabel = (purpose: string) => {
     switch (purpose) {
       case 'release':

@@ -37,6 +37,7 @@ import { IClientContractDetail } from "@/types/interfaces/IClientContractDetail"
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency as formatCurrencyUtil } from "@/utils/currency";
+import { formatDate } from "@/utils/formatDate";
 import MilestonePaymentModal from "./components/MIlestoneFundDetails";
 import FixedPaymentModal from "./components/FixedFundDetailsModal";
 import { HourlyPaymentModal } from "./components/HourlyFundDetailsModal";
@@ -216,6 +217,7 @@ function ContractDetails() {
         totalAmountHeld: d.totalAmountHeld || 0,
         totalRefund: d.totalRefund || 0,
         availableContractBalance: d.availableContractBalance || 0,
+        workspaceFiles: d.workspaceFiles,
         isFunded: d.isFunded,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,
@@ -699,14 +701,7 @@ function ContractDetails() {
     [contractId],
   );
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+
 
   const formatCurrency = (amount: number) =>
     formatCurrencyUtil(Number(amount || 0));
@@ -766,7 +761,7 @@ function ContractDetails() {
   }, []);
 
   const loadContractDetail = useCallback(async () => {
-    setLoading(true);
+    // setLoading(true);
     setError(null);
     try {
       const resp = await clientActionApi.getContractDetail(String(contractId));
@@ -868,7 +863,7 @@ function ContractDetails() {
           cancelledBy: d.cancelledBy,
           hasActiveCancellationDisputeWindow:
             d.hasActiveCancellationDisputeWindow,
-
+            workspaceFiles: d.workspaceFiles,
           createdAt: d.createdAt,
           updatedAt: d.updatedAt,
           extensionRequest: d.extensionRequest,
@@ -901,6 +896,7 @@ function ContractDetails() {
     } catch (err: any) {
       setError(err.message || "An error occurred");
     } finally {
+     handleWorkspaceTabClick("files")
       setLoading(false);
     }
   }, [contractId]);
@@ -1600,6 +1596,7 @@ function ContractDetails() {
                       }),
                     )}
                     currentUserId={currentUserId}
+                    userRole="client"
                     onUploadFile={async (file) => {
                       try {
                         const response = await clientActionApi.uploadWorkspaceFile(contractId as string, {
@@ -1607,6 +1604,7 @@ function ContractDetails() {
                            fileId: Date.now().toString() 
                         } as any);
                         if (response.success) {
+                          console.log("gonna load")
                           await loadContractDetail();
                         } else {
                           toast.error(response.message || "Failed to upload file");
@@ -1614,6 +1612,8 @@ function ContractDetails() {
                       } catch (error) {
                         toast.error("Failed to upload file");
                         console.error("Error uploading file:", error);
+                      }finally{
+                            handleWorkspaceTabClick("files")
                       }
                     }}
                     onDeleteFile={async (fileId: string) => {

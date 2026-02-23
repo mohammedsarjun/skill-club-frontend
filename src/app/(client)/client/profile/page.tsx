@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { ClientProfileData } from "@/types/interfaces/IClient";
 import { clientProfileSchema } from "@/utils/validations/validation";
 import { z } from "zod";
+import { formatDate } from "@/utils/formatDate";
 
 function ClientProfilePage() {
   const [profileData, setProfileData] = useState<Partial<ClientProfileData>>({
@@ -269,7 +270,7 @@ function ClientProfilePage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500">
-          <p>Last updated: {new Date().toLocaleDateString()}</p>
+          <p>Last updated: {formatDate(new Date())}</p>
         </div>
       </div>
     </div>

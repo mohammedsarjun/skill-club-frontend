@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FaUser, FaEnvelope, FaPhone, FaCalendarAlt } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import DynamicFormModal from "@/components/common/Form";
@@ -17,7 +17,6 @@ interface ProfileData {
   lastName: string;
   email: string;
   phone: string;
-  dob: string;
 }
 
 export default function PersonalInformation() {
@@ -26,7 +25,6 @@ export default function PersonalInformation() {
     lastName: "",
     email: "",
     phone: "",
-    dob: "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileData, string>>>({});
@@ -51,10 +49,7 @@ export default function PersonalInformation() {
           firstName: response.data.firstName,
           lastName: response.data.lastName,
           email: response.data.email,
-          phone: response.data.phone || "Phone Number Not Added",
-          dob: response.data.dob
-            ? new Date(response.data.dob).toISOString().split("T")[0]
-            : "Dob Not Added",
+          phone: response.data.phone || "",
         });
       } else {
         toast.error(response.message);
@@ -259,25 +254,10 @@ export default function PersonalInformation() {
               onChange={e => handleInputChange("phone", e.target.value)}
               disabled={!isEditing}
               className="pl-10"
+              placeholder="Enter phone number"
             />
           </div>
           {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-        </div>
-
-        {/* DOB */}
-        <div className="space-y-2">
-          <label className="text-slate-700">Date of Birth</label>
-          <div className="relative">
-            <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
-            <Input
-              type="date"
-              value={profileData.dob}
-              onChange={e => handleInputChange("dob", e.target.value)}
-              disabled={!isEditing}
-              className="pl-10"
-            />
-          </div>
-          {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob}</p>}
         </div>
       </form>
 

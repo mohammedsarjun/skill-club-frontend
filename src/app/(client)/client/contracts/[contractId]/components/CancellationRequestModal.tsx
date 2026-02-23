@@ -2,6 +2,7 @@ import { FC, useState } from 'react';
 import { FaTimes, FaCheckCircle, FaGavel } from 'react-icons/fa';
 import { ICancellationRequest } from '@/types/interfaces/ICancellationRequest';
 import { formatCurrency } from '@/utils/currency';
+import { formatDateTime } from '@/utils/formatDate';
 
 interface CancellationRequestModalProps {
   isOpen: boolean;
@@ -44,15 +45,7 @@ export const CancellationRequestModal: FC<CancellationRequestModalProps> = ({
     onClose();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const formatDate = (dateString: string) => formatDateTime(dateString);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

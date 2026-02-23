@@ -6,6 +6,7 @@ import { IClientFinance } from '@/types/interfaces/IClientFinance';
 import FinanceStats from './components/FinanceStats';
 import TransactionList from './components/TransactionList';
 import WithdrawalForm from './components/WithdrawalForm';
+import { formatDate } from '@/utils/formatDate';
 
 const FinanceDashboard = () => {
   const [activeTab, setActiveTab] = useState('spent');
@@ -81,13 +82,7 @@ const FinanceDashboard = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {

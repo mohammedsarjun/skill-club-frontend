@@ -17,6 +17,7 @@ import ImageViewerModal from "@/components/common/ImageViewer";
 import getMediaType from "@/utils/getMediaType";
 import toast from "react-hot-toast";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
+import { formatDateTime } from "@/utils/formatDate";
 
 interface DeliverablesWorkspaceProps {
   contractId: string;
@@ -224,16 +225,7 @@ export const DeliverablesWorkspace = ({
                         v{index + 1}
                       </span>
                       <span className="text-sm text-gray-500">
-                        {new Date(deliverable.submittedAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                        {formatDateTime(deliverable.submittedAt)}
                       </span>
                     </div>
                     {deliverable.message && (
