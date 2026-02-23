@@ -821,16 +821,7 @@ const FreelancerJobListing = () => {
                                 : "0.0"}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <FaDollarSign className="text-gray-400" size={14} />
-                            <span>
-                              ₹
-                              {(
-                                (job.client?.totalMoneySpent || 0) / 1000
-                              ).toFixed(0)}
-                              k spent
-                            </span>
-                          </div>
+                 
                           <div className="flex items-center gap-1">
                             <FaFileAlt className="text-gray-400" size={14} />
                             <span>{job.totalProposalReceived} proposals</span>

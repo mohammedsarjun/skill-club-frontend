@@ -1,6 +1,6 @@
 "use client";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
-import { FreelancerJobDetailResponse } from "@/types/interfaces/IJob";
+import { FreelancerJobDetailResponse, JobStatus, StatusConfig } from "@/types/interfaces/IJob";
 import { useParams } from "next/navigation";
 import React, { JSX, useEffect, useState, useRef } from "react";
 import debounce from 'lodash/debounce';
@@ -29,57 +29,6 @@ import { ICreateProposal } from "@/types/interfaces/IProposal";
 import toast from "react-hot-toast";
 import { formatCurrency } from "@/utils/currency";
 
-// TypeScript Interfaces
-interface HourlyRate {
-  min: number;
-  max: number;
-  hoursPerWeek: number;
-  estimatedDuration: "1 To 3 Months" | "3 To 6 Months";
-
-}
-
-interface FixedRate {
-  min: number;
-  max: number;
-}
-
-interface Client {
-  name: string;
-  country: string;
-  rating: number;
-  totalJobsPosted: number;
-}
-
-type JobStatus =
-  | "pending_verification"
-  | "rejected"
-  | "open"
-  | "closed"
-  | "archived"
-  | "suspended";
-type RateType = "hourly" | "fixed";
-
-interface JobDetailResponse {
-  jobId: string;
-  title: string;
-  description: string;
-  category: string;
-  specialities: string[];
-  skills: string[];
-  rateType: RateType;
-  hourlyRate?: HourlyRate | null;
-  fixedRate?: FixedRate | null;
-  status: JobStatus;
-  proposalReceived: number;
-  postedAt: string;
-  client: Client;
-}
-
-interface StatusConfig {
-  bg: string;
-  text: string;
-  label: string;
-}
 
 
 const JobDetailPage: React.FC = () => {

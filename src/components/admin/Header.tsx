@@ -115,7 +115,7 @@ export default function AdminHeader() {
             className="object-contain cursor-pointer"
           />
 
-          <nav className="hidden lg:flex items-center gap-8">
+          {/* <nav className="hidden lg:flex items-center gap-8">
             <div className="relative group">
               <button className="flex items-center gap-1 text-gray-900 hover:text-blue-600 transition-colors font-medium">
                 <span>Dashboard</span>
@@ -137,9 +137,9 @@ export default function AdminHeader() {
                 })}
               </div>
             </div>
-          </nav>
+          </nav> */}
 
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setIsNotificationOpen((p) => !p)}
@@ -207,7 +207,7 @@ export default function AdminHeader() {
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-          </div>
+          </div> */}
         </div>
 
         {isMenuOpen && (
