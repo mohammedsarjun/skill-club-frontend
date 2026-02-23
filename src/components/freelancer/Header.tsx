@@ -67,8 +67,16 @@ export default function FreelancerHeader() {
       }
     };
 
+    const handleOpenPanel = () => {
+      setIsNotificationOpen(true);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("openNotificationPanel", handleOpenPanel);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("openNotificationPanel", handleOpenPanel);
+    };
   }, []);
 
   const handleLogout = async () => {
