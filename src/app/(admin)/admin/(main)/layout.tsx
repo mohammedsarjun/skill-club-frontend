@@ -68,18 +68,18 @@ function AdminLayout({ children }: LayoutProps) {
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <div
           className={`
-            fixed lg:static inset-y-0 left-0  w-64 bg-white text-gray-900 h-full shadow-xl border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none
-            ${
-              sidebarOpen
-                    ? "translate-x-0 z-40"
-                    : "-translate-x-full lg:translate-x-0"
-            }
-          `}
+    fixed lg:static 
+    top-16 bottom-0 left-0
+    w-64 bg-white text-gray-900 h-full 
+    shadow-xl border-r border-gray-200 
+    transform transition-transform duration-300 ease-in-out 
+    lg:transform-none
+    ${sidebarOpen ? "translate-x-0 z-40" : "-translate-x-full lg:translate-x-0"}
+  `}
         >
-          <div className="p-6">
+          <div className="p-8 ">
             <div className="hidden lg:flex items-center space-x-2 mb-8">
               <FaBars className="w-5 h-5 text-gray-400" />
               <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
@@ -110,10 +110,7 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">Contracts</span>
               </Link>
 
-              <Link
-                href="/admin/jobs"
-                className={linkClasses("/admin/skills")}
-              >
+              <Link href="/admin/jobs" className={linkClasses("/admin/skills")}>
                 <FaBriefcase className="w-5 h-5" />
                 <span className="font-medium">Jobs</span>
               </Link>
@@ -123,7 +120,7 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">User Management</span>
               </Link>
 
-                 <Link
+              <Link
                 href="/admin/revenue"
                 className={linkClasses("/admin/revenue")}
               >
@@ -131,11 +128,13 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">Revenue</span>
               </Link>
 
-                <Link href="/admin/withdrawals" className={linkClasses("/admin/withdrawals")}>
+              <Link
+                href="/admin/withdrawals"
+                className={linkClasses("/admin/withdrawals")}
+              >
                 <FaMoneyCheckAlt className="w-5 h-5" />
                 <span className="font-medium">Withdrawals</span>
               </Link>
-
 
               <Link
                 href="/admin/reviews"
@@ -145,7 +144,7 @@ function AdminLayout({ children }: LayoutProps) {
                 <span className="font-medium">Reviews</span>
               </Link>
 
-                <Link
+              <Link
                 href="/admin/disputes"
                 className={linkClasses("/admin/disputes")}
               >
@@ -167,7 +166,7 @@ function AdminLayout({ children }: LayoutProps) {
         {/* Overlay for mobile */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-20 z-30 lg:hidden transition-opacity duration-200"
+            className="fixed inset-0 bg-black/50  z-30 lg:hidden transition-opacity duration-200"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -184,7 +183,5 @@ function AdminLayout({ children }: LayoutProps) {
 }
 
 export default function AdminPageLayout({ children }: LayoutProps) {
-  return (
-    <AdminLayout>{children}</AdminLayout>
-  );
+  return <AdminLayout>{children}</AdminLayout>;
 }
