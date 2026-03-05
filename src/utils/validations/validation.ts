@@ -10,7 +10,25 @@ export const nameSchema = z
     "Name can only contain letters, spaces, hyphens, and apostrophes"
   );
 
-export const emailSchema = z.string().email("Invalid email format");
+export const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Email is required")
+  .email("Invalid email format")
+  .refine((email) => {
+    const [local, domain] = email.split("@");
+    if (!local || !domain) return false;
+    if (local.length < 2) return false;
+    if (/\.\./.test(email)) return false;
+    if (local.startsWith(".") || local.endsWith(".")) return false;
+    const domainParts = domain.split(".");
+    if (domainParts.length < 2) return false;
+    const tld = domainParts[domainParts.length - 1];
+    if (tld.length < 2) return false;
+    if (domainParts.some((part) => part.length === 0)) return false;
+    if (!/^[a-zA-Z0-9._%+\-]+$/.test(local)) return false;
+    return true;
+  }, "Please enter a valid email address (e.g., john@example.com)");
 
 export const freelancerNameSchema = z.object({
   name: nameSchema,
@@ -36,16 +54,18 @@ export const phoneSchema = z
 export const handleSignUpSubmit = (
   e: React.FormEvent,
   formData: SignUpData,
-  setErrors: React.Dispatch<React.SetStateAction<SignUpData>>
+  setErrors: React.Dispatch<React.SetStateAction<Record<string, string | boolean>>>,
+  confirmPassword?: string
 ) => {
   e.preventDefault();
 
-  const newErrors: Record<string, string | null> = {};
+  const newErrors: Record<string, string> = {};
   const firstNameError = nameSchema.safeParse(formData.firstName);
   const lastNameError = nameSchema.safeParse(formData.lastName);
   const emailError = emailSchema.safeParse(formData.email);
   const passwordError = passwordSchema.safeParse(formData.password);
   const phoneError = phoneSchema.safeParse(formData.phone);
+
   if (!firstNameError.success) {
     newErrors.firstName = firstNameError.error.issues[0].message;
   }
@@ -62,6 +82,15 @@ export const handleSignUpSubmit = (
     newErrors.password = passwordError.error.issues[0].message;
   }
 
+  // Confirm password validation
+  if (confirmPassword !== undefined) {
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (confirmPassword !== formData.password) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+  }
+
   if (!phoneError.success) {
     newErrors.phone = phoneError.error.issues[0].message;
   }
@@ -70,7 +99,7 @@ export const handleSignUpSubmit = (
     newErrors.agreement = "You must agree to the terms to continue.";
   }
 
-  setErrors((prev) => ({ ...prev, ...newErrors }));
+  setErrors((prev) => ({ ...prev, ...(newErrors as Record<string, string | boolean>) }));
 
   if (Object.keys(newErrors).length === 0) return true;
   return false;

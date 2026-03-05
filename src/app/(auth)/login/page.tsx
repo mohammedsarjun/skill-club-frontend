@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
-import Checkbox from "@/components/common/CheckBox";
 import Image from "next/image";
 import { emailSchema, passwordSchema } from "@/utils/validations/validation";
 import { authApi } from "@/api/authApi";
@@ -17,7 +16,6 @@ import { setSessionCookie, buildSessionData } from "@/utils/session-cookie";
 import { getAuthRedirectPath } from "@/utils/auth-redirect";
 
 function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<LoginData>({
     email: "",
@@ -25,9 +23,7 @@ function LoginPage() {
     rememberMe: false,
   });
 
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const dispatch = useDispatch();
   const route = useRouter();
 
@@ -37,16 +33,32 @@ function LoginPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-
-    // Remove error as user types
+    // Clear error as user types
     setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  // Validate email when the field loses focus (on blur)
+  const handleEmailBlur = () => {
+    if (!formData.email.trim()) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+      return;
+    }
+    const result = emailSchema.safeParse(formData.email.trim());
+    if (!result.success) {
+      setErrors((prev) => ({
+        ...prev,
+        email: result.error.issues[0].message,
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, email: undefined }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate email & password using Zod
-    const emailResult = emailSchema.safeParse(formData.email);
+    // Full validation on submit
+    const emailResult = emailSchema.safeParse(formData.email.trim());
     const passwordResult = passwordSchema.safeParse(formData.password);
 
     const newErrors: typeof errors = {};
@@ -61,7 +73,6 @@ function LoginPage() {
     }
 
     setIsLoading(true);
-    // Simulate API call
 
     const response = await authApi.login(formData);
 
@@ -76,10 +87,6 @@ function LoginPage() {
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsLoading(false);
-  };
-
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
   };
 
   return (
@@ -104,6 +111,7 @@ function LoginPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* ── Email ── */}
           <div>
             <Input
               placeholder="Email"
@@ -111,23 +119,60 @@ function LoginPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleEmailBlur}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <div className="mt-1.5 flex items-start gap-1.5">
+                {/* error icon */}
+                <svg
+                  className="w-4 h-4 text-red-500 mt-0.5 shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <p className="text-red-600 text-sm font-medium">{errors.email}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    Example:{" "}
+                    <span className="font-medium text-gray-500">
+                      john.doe@example.com
+                    </span>
+                  </p>
+                </div>
+              </div>
             )}
           </div>
 
+          {/* ── Password (Input has built-in show/hide via Eye icon) ── */}
           <div>
             <Input
               placeholder="Password"
               className="leading-5"
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
             />
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              <div className="mt-1.5 flex items-start gap-1.5">
+                <svg
+                  className="w-4 h-4 text-red-500 mt-0.5 shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-red-600 text-sm font-medium">{errors.password}</p>
+              </div>
             )}
           </div>
 
