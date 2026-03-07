@@ -823,20 +823,12 @@ const Freelancers = () => {
                       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                         {/* Avatar */}
                         <div className="flex-shrink-0 flex justify-center items-center">
-
-                          {
-                            freelancer?.logo ?
-                              <img
-                                src={freelancer.logo}
-                                alt={freelancer.freelancerName}
-                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#14A800]"
-                              />
-                              :
-                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-200 flex items-center justify-center">
-                               <FaUser className="text-gray-500 text-xl font-bold" />
-                              </div>
-                          }
-
+                          
+                          <img
+                            src={freelancer.logo}
+                            alt={freelancer.freelancerName}
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#14A800]"
+                          />
                         </div>
 
                         {/* Content */}

@@ -5,6 +5,7 @@ import { ContractsTable } from "./components/ContractsTable";
 import AdminActionApi from "@/api/action/AdminActionApi";
 import { IAdminContractListItem } from "@/types/interfaces/IAdminContractList";
 import Swal from "sweetalert2";
+import { formatDate } from "@/utils/formatDate";
 
 export default function ContractsPage() {
 	const router = useRouter();
@@ -41,7 +42,12 @@ export default function ContractsPage() {
 			});
 
 			if (response?.success && response.data) {
-				setContracts(response.data.items || []);
+
+				const formattedContracts = response.data.items.map((contract: IAdminContractListItem) => ({
+					...contract,
+					createdAt: formatDate(contract.createdAt),
+				}));
+				setContracts(formattedContracts);
 				setTotalPages(response.data.pages || 1);
 				setTotal(response.data.total || 0);
 			} else {

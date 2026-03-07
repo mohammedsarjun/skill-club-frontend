@@ -5,6 +5,7 @@ import { DisputesTable } from "./components/DisputesTable";
 import AdminActionApi from "@/api/action/AdminActionApi";
 import { IAdminDisputeListItem } from "@/types/interfaces/IAdminDisputeList";
 import Swal from "sweetalert2";
+import { formatDate } from "@/utils/formatDate";
 
 export default function DisputesPage() {
 	const router = useRouter();
@@ -40,8 +41,12 @@ export default function DisputesPage() {
 				reasonCode: filters.reasonCode,
 			});
 
+			const formattedDisputes = response.data.items.map((dispute: IAdminDisputeListItem) => ({
+				...dispute,
+				createdAt: formatDate(dispute.createdAt),
+			}));
 			if (response?.success && response.data) {
-				setDisputes(response.data.items || []);
+				setDisputes(formattedDisputes);
 				setTotalPages(response.data.pages || 1);
 				setTotal(response.data.total || 0);
 			} else {
