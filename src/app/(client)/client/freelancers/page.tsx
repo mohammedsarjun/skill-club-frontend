@@ -10,6 +10,7 @@ import { IFreelancerQueryParams } from "@/types/interfaces/IFreelancer";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { formatCurrency } from "@/utils/currency";
+import { FaUser } from "react-icons/fa";
 interface Skill {
   skillId: string;
   skillName: string;
@@ -822,11 +823,12 @@ const Freelancers = () => {
                       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                         {/* Avatar */}
                         <div className="flex-shrink-0 flex justify-center items-center">
-                          <img
+                          {freelancer.logo?       <img
                             src={freelancer.logo}
                             alt={freelancer.freelancerName}
                             className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#14A800]"
-                          />
+                          />: <FaUser className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#14A800"/>}
+                   
                         </div>
 
                         {/* Content */}
