@@ -304,10 +304,10 @@ const FreelancerProfile = () => {
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">{freelancer.firstName} {freelancer.lastName}</h1>
                 <p className="text-xl text-gray-700 mb-2">{freelancer.freelancerProfile.professionalRole}</p>
-                <div className="flex items-center gap-2 text-sm text-[#108A00] font-medium mb-3">
+                {/* <div className="flex items-center gap-2 text-sm text-[#108A00] font-medium mb-3">
                   <FaBriefcase size={14} />
                   <span>{(freelancer.freelancerProfile.workCategory && freelancer.freelancerProfile.workCategory.name) || ''}</span>
-                </div>
+                </div> */}
                 <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <FaMapMarkerAlt size={14} className="text-gray-400" />
