@@ -282,12 +282,7 @@ export default function ContractDetailPage() {
               <p className="font-medium">{contract.jobId}</p>
             </div>
           )}
-          {contract.offerId && (
-            <div>
-              <p className="text-sm text-gray-600">Offer ID</p>
-              <p className="font-medium">{contract.offerId}</p>
-            </div>
-          )}
+
         </div>
       </div>
     </div>

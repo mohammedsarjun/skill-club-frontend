@@ -822,6 +822,7 @@ const Freelancers = () => {
                       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                         {/* Avatar */}
                         <div className="flex-shrink-0 flex justify-center items-center">
+                          
                           <img
                             src={freelancer.logo}
                             alt={freelancer.freelancerName}
