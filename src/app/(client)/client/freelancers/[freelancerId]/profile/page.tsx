@@ -11,6 +11,7 @@ import {
   FaAward,
   FaFolder,
   FaStar,
+  FaUser,
 } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import { clientActionApi } from "@/api/action/ClientActionApi";
@@ -32,32 +33,8 @@ const FreelancerProfile = () => {
   const params = useParams();
   const freelancerId = params.freelancerId;
 
-  // Local state with a safe, minimal shape that the UI expects
-  const [freelancer, setFreelancer] = useState<any>({
-    firstName: "Sarah",
-    lastName: "Johnson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    email: "sarah.johnson@example.com",
-    phone: 1234567890,
-    address: { city: "San Francisco", state: "CA", country: "United States" },
-    freelancerProfile: {
-      logo: "",
-      professionalRole: "Senior Full Stack Developer",
-      bio: "Experienced full-stack developer with 8+ years of expertise...",
-      hourlyRate: 85,
-      workCategory: { name: "Web Development" },
-      specialties: [{ name: "Frontend Development" }],
-      skills: [{ name: "React" }, { name: "Node.js" }],
-      languages: [{ name: "English", proficiency: "Fluent" }],
-      experiences: [],
-      education: [],
-      portfolio: [],
-    },
-    jobSuccessRate: 0,
-    totalEarnedAmount: 0,
-    averageRating: 0,
-    totalReviews: 0,
-  });
+  const [freelancer, setFreelancer] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolio | null>(null);
@@ -66,13 +43,14 @@ const FreelancerProfile = () => {
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [hasPendingMeetingRequest, setHasPendingMeetingRequest] = useState(false);
   const [isCheckingMeetingRequest, setIsCheckingMeetingRequest] = useState(true);
-  const router=useRouter()
+  const router = useRouter()
   useEffect(() => {
     // Simple, robust fetch that tolerates multiple API shapes
     async function load() {
+      setIsLoading(true);
       try {
         const resp = await clientActionApi.getFreelancerDetail(freelancerId as any);
-        console.log(resp)
+        console.log("Freelancer Data Fetched:", resp)
         if (resp && resp.success && resp.data) {
           const d = resp.data;
           // minimal mapping
@@ -80,36 +58,35 @@ const FreelancerProfile = () => {
           const firstName = names.length ? names.shift() : d.name || "";
           const lastName = names.length ? names.join(" ") : "";
 
-          setFreelancer((prev: any) => ({
-            ...prev,
+          setFreelancer({
             firstName,
             lastName,
-            avatar: d.logo || d.avatar || prev.avatar,
-            email: d.email || prev.email,
-            phone: d.phone || prev.phone,
+            avatar: d?.logo,
+            email: d.email || "",
+            phone: d.phone || "",
             address: {
-              city: (d.address && d.address.city) || prev.address.city,
-              state: (d.address && d.address.state) || prev.address.state,
-              country: (d.address && d.address.country) || prev.address.country,
+              city: d.address?.city || "",
+              state: d.address?.state || "",
+              country: d.address?.country || ""
             },
-            jobSuccessRate: typeof d.jobSuccessRate === 'number' ? d.jobSuccessRate : prev.jobSuccessRate,
-            totalEarnedAmount: typeof d.totalEarnedAmount === 'number' ? d.totalEarnedAmount : prev.totalEarnedAmount,
-            averageRating: typeof d.averageRating === 'number' ? d.averageRating : prev.averageRating,
-            totalReviews: typeof d.totalReviews === 'number' ? d.totalReviews : prev.totalReviews,
+            jobSuccessRate: Number(d.jobSuccessRate) || 0,
+            totalEarnedAmount: Number(d.totalEarnedAmount) || 0,
+            averageRating: Number(d.averageRating) || 0,
+            totalReviews: Number(d.totalReviews) || 0,
             freelancerProfile: {
-              ...(prev.freelancerProfile || {}),
-              logo: d.logo || prev.freelancerProfile.logo,
-              professionalRole: d.professionalRole || d.professional_role || prev.freelancerProfile.professionalRole,
-              bio: d.bio || prev.freelancerProfile.bio,
-              hourlyRate: (d.hourlyRate || d.hourly_rate) || prev.freelancerProfile.hourlyRate,
-              specialties: Array.isArray(d.specialties) ? d.specialties.map((s: any) => ({ name: s.name || s })) : prev.freelancerProfile.specialties,
-              skills: Array.isArray(d.skills) ? d.skills.map((s: any) => ({ name: s.name || s })) : prev.freelancerProfile.skills,
-              languages: Array.isArray(d.languages) ? d.languages : prev.freelancerProfile.languages,
-              experiences: Array.isArray(d.experiences) ? d.experiences : prev.freelancerProfile.experiences,
-              education: Array.isArray(d.education) ? d.education : prev.freelancerProfile.education,
-              portfolio: Array.isArray(d.portfolio) ? d.portfolio : prev.freelancerProfile.portfolio,
-            },
-          }));
+              logo: d.logo || "",
+              professionalRole: d.professionalRole || "",
+              bio: d.bio || "",
+              hourlyRate: Number(d.hourlyRate) || 0,
+              workCategory: { name: typeof d.workCategory === "string" ? d.workCategory : d.workCategory?.name || "" },
+              specialties: Array.isArray(d.specialties) ? d.specialties : [],
+              skills: Array.isArray(d.skills) ? d.skills : [],
+              languages: Array.isArray(d.languages) ? d.languages : [],
+              experiences: Array.isArray(d.experiences) ? d.experiences : [],
+              education: Array.isArray(d.education) ? d.education : [],
+              portfolio: Array.isArray(d.portfolio) ? d.portfolio : []
+            }
+          });
         }
       } catch (err) {
         console.warn("Failed to load freelancer detail:", err);
@@ -123,18 +100,18 @@ const FreelancerProfile = () => {
           const arr = Array.isArray(raw) ? raw : (raw && raw.data) || raw;
           const normalized = Array.isArray(arr)
             ? arr.map((item: any) => ({
-                id: item.id || item._id || (item._doc && item._doc._id) || "",
-                title: item.title || item.projectTitle || item.title || "Untitled Project",
-                role: item.role || item.position || "",
-                description: item.description || item.desc || "",
-                technologies: Array.isArray(item.technologies) ? item.technologies : (item.tech ? [item.tech] : []),
-                images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
-                video: item.video || item.videoUrl || "",
-                projectUrl: item.projectUrl || item.project_url || item.link || "",
-                githubUrl: item.githubUrl || item.github_url || item.github || "",
-                createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
-                updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
-              }))
+              id: item.id || item._id || (item._doc && item._doc._id) || "",
+              title: item.title || item.projectTitle || item.title || "Untitled Project",
+              role: item.role || item.position || "",
+              description: item.description || item.desc || "",
+              technologies: Array.isArray(item.technologies) ? item.technologies : (item.tech ? [item.tech] : []),
+              images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
+              video: item.video || item.videoUrl || "",
+              projectUrl: item.projectUrl || item.project_url || item.link || "",
+              githubUrl: item.githubUrl || item.github_url || item.github || "",
+              createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+              updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+            }))
             : [];
 
           setFreelancer((prev: any) => ({
@@ -147,10 +124,13 @@ const FreelancerProfile = () => {
         }
       } catch (err) {
         console.warn("Failed to load freelancer portfolio:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
 
     if (freelancerId) load();
+    else setIsLoading(false);
   }, [freelancerId]);
 
   useEffect(() => {
@@ -268,6 +248,37 @@ const FreelancerProfile = () => {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <FaSpinner className="animate-spin text-4xl text-[#108A00]" />
+          <p className="text-gray-600 font-medium">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!freelancer) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center bg-white p-10 rounded-xl shadow-sm border border-gray-100 max-w-md w-full">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FaUser className="text-4xl text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">The freelancer you're looking for doesn't exist or is currently unavailable.</p>
+          <button
+            onClick={() => router.push("/client/freelancers")}
+            className="w-full bg-[#108A00] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm"
+          >
+            Browse Freelancers
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen ">
       {selectedPortfolio && (
@@ -285,7 +296,11 @@ const FreelancerProfile = () => {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex gap-6">
-              <img src={freelancer.avatar} alt={`${freelancer.firstName} ${freelancer.lastName}`} className="w-28 h-28 rounded-lg shadow-md bg-gray-100" />
+
+              {freelancer.avatar ? <img src={freelancer.avatar} alt={`${freelancer.firstName} ${freelancer.lastName}`} className="w-28 h-28 rounded-lg shadow-md bg-gray-100" /> :
+            <FaUser className="w-28 h-28 rounded-lg shadow-md bg-gray-100"></FaUser>
+            }
+
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-1">{freelancer.firstName} {freelancer.lastName}</h1>
                 <p className="text-xl text-gray-700 mb-2">{freelancer.freelancerProfile.professionalRole}</p>
@@ -322,15 +337,14 @@ const FreelancerProfile = () => {
             </div>
 
             <div className="flex flex-col gap-3 md:ml-auto">
-              <button onClick={()=>router.push(`/client/offers/create/freelancer/${freelancerId}`)} className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
+              <button onClick={() => router.push(`/client/offers/create/freelancer/${freelancerId}`)} className="bg-[#108A00] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0d7000] transition-colors shadow-sm">Hire Now</button>
               <button
                 onClick={() => setIsMeetingModalOpen(true)}
                 disabled={hasPendingMeetingRequest || isCheckingMeetingRequest}
-                className={`${
-                  hasPendingMeetingRequest
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
-                } text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
+                className={`${hasPendingMeetingRequest
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+                  } text-white px-8 py-3 rounded-lg font-semibold transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
                 title={hasPendingMeetingRequest ? "Meeting request already sent" : "Request a pre-contract meeting"}
               >
                 <Calendar className="w-5 h-5" />
