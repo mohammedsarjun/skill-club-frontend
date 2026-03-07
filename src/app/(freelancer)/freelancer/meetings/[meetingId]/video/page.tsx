@@ -13,7 +13,7 @@ import {
 import toast from "react-hot-toast";
 import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
 
-  const VideoMeetingPage = () => {
+const VideoMeetingPage = () => {
   const params = useParams();
   const router = useRouter();
   const meetingId = params.meetingId as string;
@@ -35,7 +35,7 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
         setIsInitializing(true);
         const res = await freelancerActionApi.joinMeet(meetingId);
         const data = res.data;
-        
+
         const { startAgora } = await import("@/utils/agoraInitialize");
         const { isAudioEnabled, isVideoEnabled } = await startAgora(data);
 
@@ -127,18 +127,19 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
             <div
               id="local-player"
               ref={localVideoRef}
-              className="w-full h-full flex items-center justify-center"
-            >
-              {isVideoOff && (
+              className="w-full h-full"
+            />
+            {isVideoOff && (
+              <div className="absolute inset-0 bg-gray-800 flex items-center justify-center z-10">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <VideoOff className="w-12 h-12 text-gray-400" />
                   </div>
                   <p className="text-gray-400">Camera is off</p>
                 </div>
-              )}
-            </div>
-            <div className="absolute bottom-4 left-4 bg-black/50 px-3 py-1 rounded-md">
+              </div>
+            )}
+            <div className="absolute bottom-4 left-4 bg-black/50 px-3 py-1 rounded-md z-20">
               <p className="text-white text-sm font-medium">You</p>
             </div>
           </div>
@@ -156,11 +157,10 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
             {/* Mic */}
             <button
               onClick={handleToggleMute}
-              className={`p-4 rounded-full transition-colors ${
-                isMuted
+              className={`p-4 rounded-full transition-colors ${isMuted
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-gray-700 hover:bg-gray-600"
-              }`}
+                }`}
               title={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? (
@@ -173,11 +173,10 @@ import { freelancerActionApi } from "@/api/action/FreelancerActionApi";
             {/* Camera */}
             <button
               onClick={handleToggleVideo}
-              className={`p-4 rounded-full transition-colors ${
-                isVideoOff
+              className={`p-4 rounded-full transition-colors ${isVideoOff
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-gray-700 hover:bg-gray-600"
-              }`}
+                }`}
               title={isVideoOff ? "Turn on camera" : "Turn off camera"}
             >
               {isVideoOff ? (
