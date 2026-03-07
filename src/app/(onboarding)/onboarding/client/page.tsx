@@ -108,8 +108,7 @@ export default function ClientDetailsForm() {
       const file = e.target.files[0];
 
       // Temporary preview
-      const previewUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, logo: previewUrl }));
+      setFormData((prev) => ({ ...prev, logo: "" }));
 
       try {
         setUploading(true);
@@ -119,7 +118,7 @@ export default function ClientDetailsForm() {
         setFormData((prev) => ({ ...prev, logo: uploaded.url }));
       } catch (err) {
         console.error("Upload failed:", err);
-        alert("Failed to upload logo. Please try again.");
+
       } finally {
         setUploading(false);
       }

@@ -26,6 +26,7 @@ import {
   FaUserTie,
   FaIdCard,
   FaGlobe,
+  FaUser,
 } from "react-icons/fa";
 
 function AdminJobDetailPage() {
@@ -242,11 +243,17 @@ function AdminJobDetailPage() {
 
           <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
             <div className="flex items-start gap-4 w-full">
-              <img
-                src={job?.clientDetail.companyLogo}
-                alt={job?.clientDetail.companyName}
-                className="w-20 h-20 rounded-xl object-cover border-2 border-gray-200 bg-white shadow-md"
-              />
+              {job?.clientDetail.companyLogo ? (
+                <img
+                  src={job?.clientDetail.companyLogo}
+                  alt={job?.clientDetail.companyName}
+                  className="w-20 h-20 rounded-xl object-cover border-2 border-gray-200 bg-white shadow-md"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-xl border-2 border-gray-200 bg-white shadow-md flex items-center justify-center">
+                  <FaUser className="w-10 h-10 text-gray-400" />
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
@@ -265,8 +272,7 @@ function AdminJobDetailPage() {
                     </span>
                   </div>
                   <span className="text-gray-300">•</span>
-                  <span className="text-gray-500">Job ID: {job?.jobId}</span>
-                  <span className="text-gray-300">•</span>
+
                   <div className="flex items-center gap-1.5">
                     <FaUsers className="w-4 h-4" />
                     <span>{job?.totalProposal} Proposals</span>
@@ -505,11 +511,17 @@ function AdminJobDetailPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <img
-                    src={job?.clientDetail.companyLogo}
-                    alt={job?.clientDetail.companyName}
-                    className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                  />
+                  {job?.clientDetail.companyLogo ? (
+                    <img
+                      src={job?.clientDetail.companyLogo}
+                      alt={job?.clientDetail.companyName}
+                      className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg border-2 border-gray-200 bg-white shadow-md flex items-center justify-center">
+                      <FaUser className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
                   <div>
                     <h4 className="font-semibold text-gray-900">
                       {job?.clientDetail.companyName}
@@ -524,15 +536,7 @@ function AdminJobDetailPage() {
                 </div>
 
                 <div className="pt-4 border-t border-gray-100 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <FaIdCard className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-gray-500">Client ID</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        {job?.clientDetail.clientId}
-                      </p>
-                    </div>
-                  </div>
+                
                   {/* 
                   <div className="flex items-start gap-3">
                     <FaEnvelope className="w-5 h-5 text-gray-400 mt-0.5" />
