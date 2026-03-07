@@ -9,15 +9,26 @@ import { SignUpData } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/authApi";
 import { handleSignUpSubmit } from "@/utils/validations/validation";
-import { handleInputChange, handleCheckBox } from "@/utils/formHandlers";
+import { handleCheckBox } from "@/utils/formHandlers";
 import toast from "react-hot-toast";
-
 import GoogleLogin from "@/components/GoogleButton";
-import countryToCurrency, { getCurrency } from "@/utils/countryToCurrency";
 
+// ─── Types ───────────────────────────────────────────────────
+type SignUpErrors = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  agreement: string | boolean;
+};
+
+// ─── Component ───────────────────────────────────────────────
 function SignupPage() {
   const route = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState<SignUpData>({
     firstName: "",
     lastName: "",
@@ -27,31 +38,75 @@ function SignupPage() {
     agreement: false,
   });
 
-  const [errors, setErrors] = useState<SignUpData>({
+  // confirmPassword is local-only — never sent to the API
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [errors, setErrors] = useState<SignUpErrors>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     password: "",
-    agreement: false,
+    confirmPassword: "",
+    agreement: "",
   });
 
+  // ── Helpers ──────────────────────────────────────────────
+  /** Update formData and clear that field's error */
+  const handleField = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  /** Validate email on blur */
+  const handleEmailBlur = () => {
+    import("@/utils/validations/validation").then(({ emailSchema }) => {
+      if (!formData.email.trim()) {
+        setErrors((prev) => ({ ...prev, email: "Email is required" }));
+        return;
+      }
+      const result = emailSchema.safeParse(formData.email.trim());
+      if (!result.success) {
+        setErrors((prev) => ({
+          ...prev,
+          email: result.error.issues[0].message,
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, email: "" }));
+      }
+    });
+  };
+
+  // ── Submit ───────────────────────────────────────────────
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const isValid = handleSignUpSubmit(e, formData, setErrors);
+      const isValid = handleSignUpSubmit(
+        e,
+        formData,
+        setErrors as React.Dispatch<
+          React.SetStateAction<Record<string, string | boolean>>
+        >,
+        confirmPassword
+      );
+
       if (!isValid) {
         setIsLoading(false);
         return;
       }
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
 
-      const response = await authApi.signUp(formData,{timezone, country: data.country_code});
+      const response = await authApi.signUp(formData, {
+        timezone,
+        country: data.country_code,
+      });
+
       if (!response?.success) {
         toast.error(response?.message);
         setIsLoading(false);
@@ -63,6 +118,7 @@ function SignupPage() {
         response.data.id,
         "signup"
       );
+
       if (!otpResponse.success) {
         toast.error(otpResponse.message);
         setIsLoading(false);
@@ -77,10 +133,7 @@ function SignupPage() {
     }
   }
 
-  const handleGoogleSignup = () => {
-    console.log("Google signup clicked");
-  };
-
+  // ── Render ───────────────────────────────────────────────
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
@@ -95,27 +148,24 @@ function SignupPage() {
           <h2 className="text-2xl font-bold ml-3">Sign up</h2>
         </div>
 
-        {/* Signup Card */}
         <div className="signUp bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-6 relative">
           {/* Loading overlay */}
           {isLoading && (
-            <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
-              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-lg">
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
             </div>
           )}
 
-          {/* Google signup */}
-          <GoogleLogin></GoogleLogin>
+          <GoogleLogin />
 
-          {/* Separator */}
           <div className="flex items-center text-gray-400">
             <hr className="flex-grow border-gray-300" />
             <span className="mx-2 text-sm">OR</span>
             <hr className="flex-grow border-gray-300" />
           </div>
 
-          {/* Input fields */}
           <form className="space-y-4">
+            {/* ── First / Last Name ── */}
             <div className="flex gap-4">
               <Input
                 name="firstName"
@@ -123,7 +173,7 @@ function SignupPage() {
                 fullWidth={true}
                 placeholder="First Name"
                 className="leading-5"
-                onChange={(e) => handleInputChange(e, setErrors, setFormData)}
+                onChange={handleField}
                 error={errors.firstName}
               />
               <Input
@@ -132,39 +182,115 @@ function SignupPage() {
                 fullWidth={true}
                 placeholder="Last Name"
                 className="leading-5"
-                onChange={(e) => handleInputChange(e, setErrors, setFormData)}
+                onChange={handleField}
                 error={errors.lastName}
               />
             </div>
-            <Input
-              name="email"
-              type="email"
-              placeholder="Email"
-              className="leading-5"
-              onChange={(e) => handleInputChange(e, setErrors, setFormData)}
-              error={errors.email}
-            />
 
+            {/* ── Email ── */}
+            <div>
+              <Input
+                name="email"
+                type="email"
+                placeholder="Email"
+                className="leading-5"
+                onChange={handleField}
+                onBlur={handleEmailBlur}
+                error={errors.email}
+              />
+              {errors.email && (
+                <p className="text-xs text-gray-400 mt-0.5 ml-0.5">
+                  Example:{" "}
+                  <span className="font-medium text-gray-500">
+                    john.doe@example.com
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {/* ── Phone ── */}
             <Input
               name="phone"
               type="number"
               placeholder="Phone"
               className="leading-5"
-              onChange={(e) => handleInputChange(e, setErrors, setFormData)}
+              onChange={handleField}
               error={errors.phone}
             />
 
-            <Input
-              name="password"
-              type="password"
-              placeholder="Password"
-              className="leading-5"
-              onChange={(e) => handleInputChange(e, setErrors, setFormData)}
-              error={errors.password}
-            />
+            {/* ── Password (Input has built-in Eye toggle) ── */}
+            <div>
+              <Input
+                name="password"
+                type="password"
+                placeholder="Password"
+                className="leading-5"
+                onChange={(e) => {
+                  handleField(e);
+                  // Also clear confirmPassword match error when password changes
+                  setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                }}
+                error={errors.password}
+              />
+              {!errors.password && (
+                <p className="text-xs text-gray-400 mt-0.5 ml-0.5">
+                  Min 8 chars · uppercase · lowercase · number · special character
+                </p>
+              )}
+            </div>
 
+            {/* ── Confirm Password ── */}
+            <div>
+              <Input
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+                className="leading-5"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                }}
+                error={errors.confirmPassword}
+              />
+              {/* Live match indicator (only shown when there's no hard error) */}
+              {confirmPassword.length > 0 && !errors.confirmPassword && (
+                <p
+                  className={`text-xs mt-0.5 ml-0.5 flex items-center gap-1 ${confirmPassword === formData.password
+                      ? "text-green-500"
+                      : "text-orange-400"
+                    }`}
+                >
+                  {confirmPassword === formData.password ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Passwords match
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 4a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V10a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Passwords do not match yet
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+
+            {/* ── Agreement ── */}
             <Checkbox
-              checked={formData.agreement}
+              checked={formData.agreement as boolean}
               name="agreement"
               error={errors.agreement}
               onChange={(e) =>
@@ -189,6 +315,7 @@ function SignupPage() {
                 </span>
               }
             />
+
             <div className="flex justify-center">
               <Button
                 type="submit"
@@ -214,7 +341,6 @@ function SignupPage() {
   );
 }
 
-// Wrap with AuthGuard
 export default function Signup() {
   return <SignupPage />;
 }
