@@ -859,7 +859,7 @@ function ContractDetails() {
           totalCommissionPaid: d.totalCommissionPaid || 0,
           totalAmountHeld: d.totalAmountHeld || 0,
           totalRefund: d.totalRefund || 0,
-          availableContractBalance: d.availableContractBalance || 0,
+          availableContractBalance:Math.abs(d.availableContractBalance || 0),
           cancelledBy: d.cancelledBy,
           hasActiveCancellationDisputeWindow:
             d.hasActiveCancellationDisputeWindow,
