@@ -274,7 +274,7 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
                 <span className="text-xl">🌍</span>
                 <span className="font-medium">{freelancer.country}</span>
               </p>
-              <StarRating rating={freelancer.rating ?? 0} />
+              {/* <StarRating rating={freelancer.rating ?? 0} /> */}
             </div>
           </div>
 
@@ -428,12 +428,7 @@ const ViewProposalDialog: React.FC<ViewProposalDialogProps> = ({
           >
             {proposal.status === 'rejected' ? 'Rejected' : 'Reject Proposal'}
           </button>
-          <button
-            onClick={() => onMessage(proposal)}
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
-          >
-            Send Message
-          </button>
+
         </div>
       </DialogContent>
     </Dialog>

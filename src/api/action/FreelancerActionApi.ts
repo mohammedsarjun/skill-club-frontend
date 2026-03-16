@@ -1428,6 +1428,22 @@ export const freelancerActionApi = {
         return "Unexpected error";
       }
     }
+  },
+  
+  async updateProposal(proposalId:string,rate:number) {
+    try {
+      const response = await axiosClient.patch(
+        freelancerRouterEndPoints.updateProposal(proposalId),
+        {rate}
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return error.response?.data || "Something went wrong";
+      } else {
+        return "Unexpected error";
+      }
+    }
   }
 
 }

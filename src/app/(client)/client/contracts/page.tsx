@@ -5,6 +5,7 @@ import { ContractsTable } from "./components/ContractsTable";
 import { clientActionApi } from "@/api/action/ClientActionApi";
 import { IClientContractListItemDTO } from "@/types/interfaces/IClientContractList";
 import Swal from "sweetalert2";
+import { formatDate } from "@/utils/formatDate";
 
 export default function ContractsPage() {
 	const router = useRouter();
@@ -41,7 +42,13 @@ export default function ContractsPage() {
 			});
 
 			if (response?.success && response.data) {
-				setContracts(response.data.items || []);
+
+				const mapped = response.data.items.map((item: IClientContractListItemDTO) => ({
+					...item,
+					createdAt: formatDate(item.createdAt),
+
+				}));
+				setContracts(mapped);
 				setTotalPages(response.data.pages || 1);
 				setTotal(response.data.total || 0);
 			} else {
