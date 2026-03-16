@@ -216,7 +216,7 @@ function ContractDetails() {
         totalCommissionPaid: d.totalCommissionPaid || 0,
         totalAmountHeld: d.totalAmountHeld || 0,
         totalRefund: d.totalRefund || 0,
-        availableContractBalance: d.availableContractBalance || 0,
+        availableContractBalance: Math.abs(d.availableContractBalance || 0),
         workspaceFiles: d.workspaceFiles,
         isFunded: d.isFunded,
         createdAt: d.createdAt,
