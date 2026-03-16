@@ -8,13 +8,16 @@ import ProposalTable from "./components/ProposalTable";
 import ProposalDetailModal from "./components/ProposalDetailModal";
 
 export default function FreelancerProposalPage() {
-  const [proposals, setProposals] = useState<IFreelancerProposal[]>([]);
+  const [ proposals, setProposals] = useState<IFreelancerProposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<IFreelancerProposal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const router = useRouter();
+
+
+
 
   useEffect(() => {
     const loadProposals = async () => {
@@ -108,9 +111,11 @@ export default function FreelancerProposalPage() {
 
       <ProposalDetailModal
         proposal={selected}
+        allProposals={proposals}
         isOpen={isModalOpen}
         onClose={closeModal}
         onViewJob={viewJob}
+        setProposals={setProposals}
       />
     </div>
   );

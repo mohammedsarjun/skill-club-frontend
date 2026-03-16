@@ -95,6 +95,7 @@ const freelancerRouterEndPoints = {
   markAllNotificationsAsRead: "/freelancer/notifications/read-all",
   uploadWorkspaceFile: (contractId: string) => `/freelancer/contracts/${contractId}/workspace/files`,
   deleteWorkspaceFile: (contractId: string, fileId: string) => `/freelancer/contracts/${contractId}/workspace/files/${fileId}`,
+  updateProposal:(proposalId:string)=>`/freelancer/proposals/${proposalId}`
 };
 
 export default freelancerRouterEndPoints;
