@@ -61,13 +61,13 @@ export default function StepNineForm({
   }, [savedData]);
 
     useEffect(() => {
-    fetch('https://restcountries.com/v3.1/all?fields=name,cca2')
+    fetch(process.env.NEXT_PUBLIC_ADDRESS_API!)
       .then(res => res.json())
       .then(data => {
-        const sorted = data
-          .map((c: { name: { common: string }; cca2: string }) => ({
-            name: c.name.common,
-            code: c.cca2  // ISO 2-letter code
+        const sorted = data.data
+          .map((c: { name:string; iso2: string }) => ({
+            name: c.name,
+            code: c.iso2  // ISO 2-letter code
           }))
           .sort((a:{name:string},b:{name:string}) => a.name.localeCompare(b.name));
         setCountries(sorted);
